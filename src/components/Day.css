@@ -3,17 +3,17 @@
     max-width: 14.28%;
     height: 100px; /* Consistent height for all days */
     display: flex;
-    align-items: center; /* Center text vertically */
-    justify-content: center; /* Center text horizontally */
-    border: 1px solid black; /* Border for calendar boxes */
-    box-sizing: border-box; /* Include padding/border in width/height */
-    background-color: #f9f9f9; /* Default background */
-    cursor: pointer; /* Pointer on hover */
+    align-items: center; 
+    justify-content: center; 
+    border: 1px solid black; 
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+    cursor: pointer;
     transition: transform 0.2s ease, background-color 0.3s ease; /* Smooth animation */
 }
 
 .day:hover {
-    background-color: #e6e6e6; /* Hover effect */
+    background-color: #e6e6e6;
 }
 
 .day:active {
