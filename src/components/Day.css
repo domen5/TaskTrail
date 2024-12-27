@@ -1,0 +1,21 @@
+.day {
+    flex: 0 0 14.28%; /* Ensure 7 items per row */
+    max-width: 14.28%;
+    height: 100px; /* Consistent height for all days */
+    display: flex;
+    align-items: center; /* Center text vertically */
+    justify-content: center; /* Center text horizontally */
+    border: 1px solid black; /* Border for calendar boxes */
+    box-sizing: border-box; /* Include padding/border in width/height */
+    background-color: #f9f9f9; /* Default background */
+    cursor: pointer; /* Pointer on hover */
+    transition: transform 0.2s ease, background-color 0.3s ease; /* Smooth animation */
+}
+
+.day:hover {
+    background-color: #e6e6e6; /* Hover effect */
+}
+
+.day:active {
+    transform: scale(0.95); /* Click animation */
+}
