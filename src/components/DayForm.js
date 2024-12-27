@@ -1,7 +1,8 @@
-function DayForm(props) {
+function DayForm({ dayNumber, onClose }) {
     const handleSubmit = (e) => {
         e.preventDefault();
-        alert("Form submitted!");
+        alert("Form submitted for day " + dayNumber);
+        onClose();
     };
 
     const formStyle = {
@@ -51,6 +52,7 @@ function DayForm(props) {
 
     return (
         <div style={formStyle}>
+            <h3 style={{ marginBottom: '20px' }}>Day {dayNumber}</h3>
             <form onSubmit={handleSubmit}>
                 <div style={formGroupStyle}>
                     <label style={labelStyle} htmlFor="project">Project:</label>
@@ -89,22 +91,22 @@ function DayForm(props) {
                     <label style={labelStyle}>Overtime:</label>
                     <div style={radioGroupStyle}>
                         <div className="form-check">
-                            <input
-                                className="form-check-input"
-                                type="radio"
-                                name="inlineRadioOptions"
-                                id="inlineRadio1"
-                                value="option1"
+                            <input 
+                                className="form-check-input" 
+                                type="radio" 
+                                name="inlineRadioOptions" 
+                                id="inlineRadio1" 
+                                value="option1" 
                             />
                             <label className="form-check-label" htmlFor="inlineRadio1">Yes</label>
                         </div>
                         <div className="form-check">
-                            <input
-                                className="form-check-input"
-                                type="radio"
-                                name="inlineRadioOptions"
-                                id="inlineRadio2"
-                                value="option2"
+                            <input 
+                                className="form-check-input" 
+                                type="radio" 
+                                name="inlineRadioOptions" 
+                                id="inlineRadio2" 
+                                value="option2" 
                             />
                             <label className="form-check-label" htmlFor="inlineRadio2">No</label>
                         </div>
@@ -112,8 +114,8 @@ function DayForm(props) {
                 </div>
 
                 <div style={buttonGroupStyle}>
-                    <button type="button" className="btn btn-success">Submit</button>
-                    <button type="submit" className="btn btn-danger">Cancel</button>
+                    <button type="button" className="btn btn-success" onClick={onClose}>Cancel</button>
+                    <button type="submit" className="btn btn-danger">Submit</button>
                 </div>
             </form>
         </div>
