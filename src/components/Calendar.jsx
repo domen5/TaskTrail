@@ -9,8 +9,6 @@ function Calendar() {
             style={{
                 display: "flex",
                 flexWrap: "wrap",
-                // width: "100%", // Ensure the calendar takes full width
-                // margin: "0 auto", // Center the calendar if needed
             }}
         >
             {days.map((day) => (

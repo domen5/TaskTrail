@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Day.css";
-import DayForm from "./DayForm";  // Make sure this path matches your file structure
+import DayForm from "./DayForm";
 
 function Day(props) {
     const [showForm, setShowForm] = useState(false);
@@ -23,7 +23,7 @@ function Day(props) {
 
             {showForm && (
                 <>
-                    <div 
+                    <div
                         style={{
                             position: 'fixed',
                             top: 0,
@@ -35,8 +35,8 @@ function Day(props) {
                         }}
                         onClick={handleClose}
                     />
-                    <DayForm 
-                        dayNumber={props.dayNumber + 1} 
+                    <DayForm
+                        dayNumber={props.dayNumber + 1}
                         onClose={handleClose}
                     />
                 </>
