@@ -7,7 +7,8 @@ function Day({ dayNumber }) {
     const [showForm, setShowForm] = useState(false);
     const { timeSheetData } = useTimeSheet();
 
-    const dayData = timeSheetData?.[dayNumber + 1];
+    const dayEntries = timeSheetData?.[dayNumber + 1] || [];
+    const totalHours = dayEntries.reduce((sum, entry) => sum + (entry.workedHours || 0), 0);
 
     const handleClick = () => setShowForm(true);
     const handleClose = () => setShowForm(false);
@@ -16,14 +17,15 @@ function Day({ dayNumber }) {
         <>
             <div className="day" onClick={handleClick}>
                 <p className="day-number">{dayNumber + 1}</p>
-                {dayData && (
+                {dayEntries.length > 0 && (
                     <div className="day-details">
-                        <p><strong>Project:</strong> {dayData.project || "N/A"}</p>
-                        <p><strong>Hours:</strong> {dayData.workedHours || 0}h</p>
-                        <p><strong>Description:</strong> {dayData.description || "No description"}</p>
-                        <p>
-                            <strong>Overtime:</strong> {dayData.overtime ? "Yes" : "No"}
-                        </p>
+                        <p className="total-hours"><strong>Total: {totalHours}h</strong></p>
+                        {dayEntries.map((entry, index) => (
+                            <div key={index} className="entry">
+                                <p><strong>{entry.project || "N/A"}</strong></p>
+                                <p>{entry.workedHours || 0}h: {entry.description || "No description"}</p>
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>
@@ -34,7 +36,6 @@ function Day({ dayNumber }) {
                         <DayForm
                             dayNumber={dayNumber + 1}
                             onClose={handleClose}
-                            initialData={dayData}
                         />
                     </div>
                 </div>

@@ -8,16 +8,14 @@ export function TimeSheetProvider({ children }) {
     const [timeSheetData, setTimeSheetData] = useState({});
 
     const updateDayData = async (dayNumber, formData) => {        
-        // Update state
         setTimeSheetData(prev => ({
             ...prev,
-            [dayNumber]: formData
+            [dayNumber]: [...(prev[dayNumber] || []), formData]
         }));
 
         try {
             // TODO: add api call
         } catch (error) {
-            // Handle error and rollback if needed
             console.error('Error updating timesheet:', error);
             setTimeSheetData(prev => {
                 const newData = { ...prev };

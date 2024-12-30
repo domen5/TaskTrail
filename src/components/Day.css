@@ -1,13 +1,13 @@
 .day {
-    flex: 0 0 14.28%; /* Ensure 7 items per row */
+    flex: 0 0 14.28%;
     max-width: 14.28%;
-    height: auto; /* Adjust height to fit content */
+    min-height: 120px;
+    height: auto;
     display: flex;
     flex-direction: column;
-    align-items: center; 
-    justify-content: center; 
+    align-items: center;
     padding: 10px;
-    border: 1px solid #ddd; 
+    border: 1px solid #ddd;
     box-sizing: border-box;
     background-color: #f9f9f9;
     cursor: pointer;
@@ -25,8 +25,10 @@
     margin-top: 8px;
     font-size: 14px;
     color: #555;
-    text-align: left; /* Align content within the day box */
+    text-align: left;
     width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
 }
 
 .day-details p {
@@ -63,4 +65,22 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     max-width: 400px;
     width: 90%;
+}
+
+.total-hours {
+    color: #2c3e50;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+}
+
+.entry {
+    margin-bottom: 8px;
+    padding: 4px;
+    border-left: 3px solid green;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.entry p {
+    margin: 2px 0;
 }

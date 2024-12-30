@@ -1,7 +1,7 @@
 import { useTimeSheet } from "../context/TimeSheetContext";
 import './DayForm.css';
 
-function DayForm({ dayNumber, onClose, initialData }) {
+function DayForm({ dayNumber, onClose }) {
     const { updateDayData } = useTimeSheet();
 
     const handleSubmit = async (e) => {
@@ -27,7 +27,7 @@ function DayForm({ dayNumber, onClose, initialData }) {
                         name="project"
                         className="form-control input-control"
                         aria-label="Select project"
-                        defaultValue={initialData?.project || "project1"} // Default to Project 1
+                        defaultValue="project1"
                     >
                         <option value="project1">Project 1</option>
                         <option value="project2">Project 2</option>
@@ -46,7 +46,7 @@ function DayForm({ dayNumber, onClose, initialData }) {
                         className="form-control input-control"
                         aria-label="Enter worked hours"
                         placeholder="Enter hours worked"
-                        defaultValue={initialData?.workedHours || ''}
+                        defaultValue=""
                     />
                 </div>
 
@@ -59,7 +59,7 @@ function DayForm({ dayNumber, onClose, initialData }) {
                         className="form-control input-control"
                         aria-label="Enter description"
                         placeholder="Enter a brief description"
-                        defaultValue={initialData?.description || ''}
+                        defaultValue=""
                     ></textarea>
                 </div>
 
@@ -73,7 +73,6 @@ function DayForm({ dayNumber, onClose, initialData }) {
                                 name="inlineRadioOptions"
                                 id="inlineRadio1"
                                 value="option1"
-                                defaultChecked={initialData?.overtime === true}
                             />
                             <label className="form-check-label" htmlFor="inlineRadio1">Yes</label>
                         </div>
@@ -84,9 +83,7 @@ function DayForm({ dayNumber, onClose, initialData }) {
                                 name="inlineRadioOptions"
                                 id="inlineRadio2"
                                 value="option2"
-                                defaultChecked={
-                                    initialData?.overtime === undefined || initialData?.overtime === false
-                                } // Default to "No" if overtime is undefined or explicitly false
+                                defaultChecked={true}
                             />
                             <label className="form-check-label" htmlFor="inlineRadio2">No</label>
                         </div>
