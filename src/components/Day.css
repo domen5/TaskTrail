@@ -1,21 +1,66 @@
 .day {
     flex: 0 0 14.28%; /* Ensure 7 items per row */
     max-width: 14.28%;
-    height: 100px; /* Consistent height for all days */
+    height: auto; /* Adjust height to fit content */
     display: flex;
+    flex-direction: column;
     align-items: center; 
     justify-content: center; 
-    border: 1px solid black; 
+    padding: 10px;
+    border: 1px solid #ddd; 
     box-sizing: border-box;
     background-color: #f9f9f9;
     cursor: pointer;
-    transition: transform 0.2s ease, background-color 0.3s ease; /* Smooth animation */
+    transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.day-number {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.day-details {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #555;
+    text-align: left; /* Align content within the day box */
+    width: 100%;
+}
+
+.day-details p {
+    margin: 4px 0;
 }
 
 .day:hover {
     background-color: #e6e6e6;
+    border-color: #bbb;
 }
 
 .day:active {
-    transform: scale(0.95); /* Click animation */
+    transform: scale(0.95);
+}
+
+.day-form-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal container */
+.day-form-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
 }
