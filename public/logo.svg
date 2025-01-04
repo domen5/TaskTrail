@@ -1,45 +1,50 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
   <!-- Outer Circle -->
   <circle cx="250" cy="250" r="240" stroke="#4A3232" stroke-width="20" fill="#F5F5F5" />
-  
+
   <!-- Inner Circle with Desert Scene -->
   <circle cx="250" cy="250" r="180" fill="#E8D0B3" />
-  
-    <!-- Moon/Sun -->
+
+  <!-- Moon/Sun -->
   <circle cx="250" cy="180" r="25" fill="white" />
-  
+
   <!-- Mountains and Ground -->
-  <path d="M90 250 
+  <path
+    d="M90 250 
            L140 180 
            L200 230 
            L250 180 
            L300 230 
            L360 180 
            L410 250 
-           Q250 430 90 250" 
-        fill="#705454" />
-  
+           Q250 430 90 250"
+    fill="#705454" />
+
   <!-- Cacti -->
-  <path d="M200 280 L220 280 L220 200 L200 200 L200 280 M210 220 L230 220 L230 240 L210 240 Z" fill="#4A3232" />
-  <path d="M300 260 L320 260 L320 180 L300 180 L300 260 M310 200 L330 200 L330 220 L310 220 Z" fill="#4A3232" />
-  
+  <path d="M200 280 L220 280 L220 200 L200 200 L200 280 M210 220 L230 220 L230 240 L210 240 Z"
+    fill="#4A3232" />
+  <path d="M300 260 L320 260 L320 180 L300 180 L300 260 M310 200 L330 200 L330 220 L310 220 Z"
+    fill="#4A3232" />
+
   <!-- Text Paths - adjusted to fill half circles -->
-  <path id="upperArc" d="M60 250 A190 190 0 0 1 440 250" fill="none"/>
-<path id="lowerArc" d="M60 250 A190 190 0 0 0 440 250" fill="none"/>
+  <path id="upperArc" d="M60 250 A190 190 0 0 1 440 250" fill="none" />
+  <path id="lowerArc" d="M60 250 A190 190 0 0 0 440 250" fill="none" />
 
   <!-- Dots -->
   <circle cx="45" cy="250" r="8" fill="#4A3232" />
   <circle cx="455" cy="250" r="8" fill="#4A3232" />
-  
+
   <!-- Curved Text - adjusted to fill half circles -->
   <text fill="#4A3232" font-family="Arial" font-weight="bold">
-    <textPath href="#upperArc" startOffset="50%" text-anchor="middle" font-size="38" letter-spacing="4">
+    <textPath href="#upperArc" startOffset="50%" text-anchor="middle" font-size="38"
+      letter-spacing="4">
       TASK TRAIL
     </textPath>
   </text>
-  
+
   <text fill="#4A3232" font-family="Arial" font-weight="bold">
-    <textPath href="#lowerArc" startOffset="50%" text-anchor="middle" font-size="38" letter-spacing="4">
+    <textPath href="#lowerArc" startOffset="50%" text-anchor="middle" font-size="38"
+      letter-spacing="4">
       TIME IS MONEY
     </textPath>
   </text>
