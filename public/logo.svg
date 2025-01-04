@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+  <!-- Outer Circle -->
+  <circle cx="250" cy="250" r="240" stroke="#8B4513" stroke-width="20" fill="none" />
+
+  <!-- Inner Circle -->
+  <circle cx="250" cy="250" r="180" fill="#F4A460" />
+
+  <!-- Desert Scene with Cactus -->
+  <path d="M150 300 L200 300 L200 220 Q190 210 180 220 L180 300 Z" fill="#228B22" /> <!-- Left Cactus -->
+  <path d="M280 300 L320 300 L320 200 Q310 190 300 200 L300 300 Z" fill="#228B22" /> <!-- Right Cactus -->
+  <rect x="230" y="300" width="40" height="60" fill="#8B4513" /> <!-- Desert Ground -->
+
+  <!-- Text: Task Trail -->
+  <text x="250" y="90" text-anchor="middle" font-family="Arial" font-size="30" fill="#8B4513" font-weight="bold">
+    Task Trail
+  </text>
+
+  <!-- Text: Time is Money -->
+  <text x="250" y="470" text-anchor="middle" font-family="Arial" font-size="24" fill="#8B4513">
+    TIME IS MONEY
+  </text>
+
+  <!-- Decorative Lines for Outer Circle -->
+  <path d="M250 10 A240 240 0 0 1 490 250" stroke="#8B4513" stroke-width="3" fill="none" />
+  <path d="M250 490 A240 240 0 0 1 10 250" stroke="#8B4513" stroke-width="3" fill="none" />
+</svg>
