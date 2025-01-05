@@ -3,7 +3,7 @@ import "./Day.css";
 import DayForm from "./DayForm";
 import { useTimeSheet } from "../context/TimeSheetContext";
 
-function Day({ dayNumber }) {
+function Day({ dayNumber, isPadded }) {
     const [showForm, setShowForm] = useState(false);
     const { timeSheetData } = useTimeSheet();
 
@@ -15,8 +15,8 @@ function Day({ dayNumber }) {
 
     return (
         <>
-            <div className="day" onClick={handleClick}>
-                <p className="day-number">{dayNumber + 1}</p>
+            <div className={`day ${isPadded ? "padded-day" : ""}`} onClick={handleClick}>
+                <p className="day-number">{dayNumber}</p>
                 {dayEntries.length > 0 && (
                     <div className="day-details">
                         <p className="total-hours"><strong>Total: {totalHours}h</strong></p>
