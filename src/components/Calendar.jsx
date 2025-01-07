@@ -15,7 +15,8 @@ function Calendar() {
 
     // Add previous month's padding days
     for (let i = 0; i < prevMonthPadding; i++) {
-        week.push(new Date(selectedDay.getFullYear(), selectedDay.getMonth() - 1, daysInMonth - i).getDate());
+        const date = new Date(selectedDay.getFullYear(), selectedDay.getMonth() - 1, daysInMonth - i);
+        week.push(date);
     }
 
     // Add current month's days
@@ -24,7 +25,8 @@ function Calendar() {
             weeks.push(week);
             week = [];
         }
-        week.push(i + 1);
+        const date = new Date(selectedDay.getFullYear(), selectedDay.getMonth(), i + 1);
+        week.push(date);
     }
 
     // Add next month's padding days
@@ -33,7 +35,8 @@ function Calendar() {
             weeks.push(week);
             week = [];
         }
-        week.push(i + 1);
+        const date = new Date(selectedDay.getFullYear(), selectedDay.getMonth() + 1, i + 1);
+        week.push(date);
     }
 
     if (week.length > 0) {
@@ -62,14 +65,14 @@ function Calendar() {
                 <tbody>
                     {weeks.map((week, index) => (
                         <tr key={index}>
-                            {week.map((day, dayIndex) => {
+                            {week.map((date, dayIndex) => {
                                 const isPrevMonth = index === 0 && dayIndex < prevMonthPadding;
                                 const isNextMonth = index === weeks.length - 1 && dayIndex >= 7 - nextMonthPadding;
                                 const isPadded = isPrevMonth || isNextMonth;
 
                                 return (
                                     <td key={dayIndex}>
-                                        <Day dayNumber={day} isPadded={isPadded} />
+                                        <Day dateStamp={date.toLocaleString()} dayNumber={date.getDate()} isPadded={isPadded} />
                                     </td>
                                 );
                             })}

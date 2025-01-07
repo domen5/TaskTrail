@@ -3,11 +3,11 @@ import "./Day.css";
 import DayForm from "./DayForm";
 import { useTimeSheet } from "../context/TimeSheetContext";
 
-function Day({ dayNumber, isPadded }) {
+function Day({ dateStamp, dayNumber, isPadded }) {
     const [showForm, setShowForm] = useState(false);
     const { timeSheetData } = useTimeSheet();
-
-    const dayEntries = timeSheetData?.[dayNumber + 1] || [];
+    
+    const dayEntries = timeSheetData?.[dateStamp] || [];
     const totalHours = dayEntries.reduce((sum, entry) => sum + (entry.workedHours || 0), 0);
 
     const handleClick = () => setShowForm(true);
@@ -34,7 +34,8 @@ function Day({ dayNumber, isPadded }) {
                 <div className="day-form-overlay" onClick={handleClose} role="dialog" aria-modal="true">
                     <div className="day-form-container" onClick={(e) => e.stopPropagation()}>
                         <DayForm
-                            dayNumber={dayNumber + 1}
+                            dateStamp={dateStamp}
+                            dayNumber={dayNumber}
                             onClose={handleClose}
                         />
                     </div>

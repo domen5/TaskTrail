@@ -7,10 +7,10 @@ const TimeSheetContext = createContext(undefined);
 export function TimeSheetProvider({ children }) {
     const [timeSheetData, setTimeSheetData] = useState({});
 
-    const updateDayData = async (dayNumber, formData) => {        
+    const updateDayData = async (date, formData) => {        
         setTimeSheetData(prev => ({
             ...prev,
-            [dayNumber]: [...(prev[dayNumber] || []), formData]
+            [date]: [...(prev[date] || []), formData]
         }));
 
         try {
@@ -19,7 +19,7 @@ export function TimeSheetProvider({ children }) {
             console.error('Error updating timesheet:', error);
             setTimeSheetData(prev => {
                 const newData = { ...prev };
-                delete newData[dayNumber];
+                delete newData[date];
                 return newData;
             });
         }
