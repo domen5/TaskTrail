@@ -1,26 +1,29 @@
 import { useTimeSheet } from "../context/TimeSheetContext";
 import './DayForm.css';
 
-function DayForm({ year, month, dayNumber, onClose }) {
+function DayForm({ date, onClose }) {
     const { updateDayData } = useTimeSheet();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = {
-            // TODO: handle date in a better way, maybe iso standard
-            date: new Date(year, month, dayNumber).toLocaleDateString(),
+            date: date.toLocaleDateString(),
             project: e.target.project.value,
             workedHours: parseInt(e.target.workedHours.value),
             description: e.target.description.value,
             overtime: e.target.inlineRadioOptions.value === 'option1',
         };
-        await updateDayData(year, month, dayNumber, formData);
+        await updateDayData(date.getFullYear(), date.getMonth(), date.getDate(), formData);
         onClose();
     };
 
     return (
         <div className="form-container">
-            <h3 className="form-title">Day {dayNumber}</h3>
+            <h3 className="form-title">
+                {date.toLocaleDateString()}
+                <br />Inserisci una nuova attività
+            </h3>
+            <h3 className="form-title"></h3>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label htmlFor="project">Project:</label>

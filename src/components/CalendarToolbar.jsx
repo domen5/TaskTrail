@@ -41,6 +41,7 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
         const csvConvertedData = convertToCsv(monthData, separator);
         const blob = new Blob([csvConvertedData], { type: 'text/csv;charset=utf-8,' });
 
+        console.log(csvConvertedData);
         // TODO: design a better way to start the download
         // This is a fast way to trigger the download, by programmatically create an hidden <a> helement,
         // force a click and dispose of the tag.

@@ -36,9 +36,7 @@ function Day({ date, isPadded }) {
                 <div className="day-form-overlay" onClick={handleClose} role="dialog" aria-modal="true">
                     <div className="day-form-container" onClick={(e) => e.stopPropagation()}>
                         <DayForm
-                            year={year}
-                            month={month}
-                            dayNumber={dayNumber}
+                            date={date}
                             onClose={handleClose}
                         />
                     </div>
