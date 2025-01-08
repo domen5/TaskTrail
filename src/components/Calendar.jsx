@@ -44,10 +44,25 @@ function Calendar() {
     }
 
     return (
-        <div>
-            <div>
-                <button onClick={() => setSelectedDay(new Date(selectedDay.getFullYear(), selectedDay.getMonth() - 1, 1))}>Previous Month</button>
-                <button onClick={() => setSelectedDay(new Date(selectedDay.getFullYear(), selectedDay.getMonth() + 1, 1))}>Next Month</button>
+        <div className="container">
+            <div className="row">
+                <h2 style={{ textTransform: "capitalize" }}>
+                    {selectedDay.toLocaleString('default', { month: 'long' }) + ' ' + selectedDay.getFullYear()}
+                </h2>
+                <div className="button-group" style={{ justifyContent: 'start', marginLeft: '1ex' }}>
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => setSelectedDay(new Date(selectedDay.getFullYear(), selectedDay.getMonth() - 1, 1))}
+                    >{'<'}</button>
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => setSelectedDay(new Date(selectedDay.getFullYear(), selectedDay.getMonth() + 1, 1))}
+                    >{">"}</button>
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => { alert('hello') }}
+                    >Export monthly report</button>
+                </div>
             </div>
             <table className="table">
                 <thead>

@@ -25,7 +25,7 @@ function DayForm({ dateStamp, dayNumber, onClose }) {
                     <select
                         id="project"
                         name="project"
-                        className="form-control input-control"
+                        className="form-select"
                         aria-label="Select project"
                         defaultValue="project1"
                     >
@@ -43,10 +43,10 @@ function DayForm({ dateStamp, dayNumber, onClose }) {
                         name="workedHours"
                         min="1"
                         max="24"
-                        className="form-control input-control"
+                        className="form-control"
                         aria-label="Enter worked hours"
                         placeholder="Enter hours worked"
-                        defaultValue=""
+                        defaultValue="1"
                     />
                 </div>
 
@@ -56,7 +56,7 @@ function DayForm({ dateStamp, dayNumber, onClose }) {
                         id="description"
                         name="description"
                         rows="3"
-                        className="form-control input-control"
+                        className="form-control"
                         aria-label="Enter description"
                         placeholder="Enter a brief description"
                         defaultValue=""
