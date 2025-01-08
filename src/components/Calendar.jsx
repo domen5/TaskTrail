@@ -46,7 +46,6 @@ function Calendar() {
     return (
         <div>
             <div>
-                <p>{selectedDay.toLocaleDateString()}</p>
                 <button onClick={() => setSelectedDay(new Date(selectedDay.getFullYear(), selectedDay.getMonth() - 1, 1))}>Previous Month</button>
                 <button onClick={() => setSelectedDay(new Date(selectedDay.getFullYear(), selectedDay.getMonth() + 1, 1))}>Next Month</button>
             </div>
@@ -72,7 +71,7 @@ function Calendar() {
 
                                 return (
                                     <td key={dayIndex}>
-                                        <Day dateStamp={date.toLocaleString()} dayNumber={date.getDate()} isPadded={isPadded} />
+                                        <Day dateStamp={date.toLocaleDateString()} dayNumber={date.getDate()} isPadded={isPadded} />
                                     </td>
                                 );
                             })}
