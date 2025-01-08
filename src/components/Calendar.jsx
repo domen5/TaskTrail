@@ -14,8 +14,9 @@ function Calendar() {
     let week = [];
 
     // Add previous month's padding days
-    for (let i = 0; i < prevMonthPadding; i++) {
-        const date = new Date(selectedDay.getFullYear(), selectedDay.getMonth() - 1, daysInMonth - i);
+    const daysInPrevMonth = new Date(selectedDay.getFullYear(), selectedDay.getMonth(), 0).getDate();
+    for (let i = prevMonthPadding - 1; i >= 0; i--) {
+        const date = new Date(selectedDay.getFullYear(), selectedDay.getMonth() - 1, daysInPrevMonth - i);
         week.push(date);
     }
 
@@ -86,7 +87,7 @@ function Calendar() {
 
                                 return (
                                     <td key={dayIndex}>
-                                        <Day dateStamp={date.toLocaleDateString()} dayNumber={date.getDate()} isPadded={isPadded} />
+                                        <Day date={date} isPadded={isPadded} />
                                     </td>
                                 );
                             })}

@@ -1,7 +1,7 @@
 import { useTimeSheet } from "../context/TimeSheetContext";
 import './DayForm.css';
 
-function DayForm({ dateStamp, dayNumber, onClose }) {
+function DayForm({ year, month, dayNumber, onClose }) {
     const { updateDayData } = useTimeSheet();
 
     const handleSubmit = async (e) => {
@@ -12,7 +12,7 @@ function DayForm({ dateStamp, dayNumber, onClose }) {
             description: e.target.description.value,
             overtime: e.target.inlineRadioOptions.value === 'option1',
         };
-        await updateDayData(dateStamp, formData);
+        await updateDayData(year, month, dayNumber, formData);
         onClose();
     };
 
