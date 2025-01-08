@@ -9,6 +9,18 @@ export function TimeSheetProvider({ children }) {
         return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     };
 
+    const getDayData = (year, month, day) => {
+        const key = createKey(year, month, day);
+        return timeSheetData[key] || [];
+    };
+
+    const getMonthData = (year, month) => {
+        const prefix = `${year}-${month.toString().padStart(2, '0')}`;
+        return Object.entries(timeSheetData)
+            .filter(([key]) => key.startsWith(prefix))
+            .flatMap(([, dayData]) => dayData);
+    };
+
     const updateDayData = async (year, month, day, formData) => {
         const key = createKey(year, month, day);
         setTimeSheetData(prev => ({
@@ -35,22 +47,10 @@ export function TimeSheetProvider({ children }) {
         }
     };
 
-    const getDayData = (year, month, day) => {
-        const key = createKey(year, month, day);
-        return timeSheetData[key] || [];
-    };
-
-    const getMonthData = (year, month) => {
-        const prefix = `${year}-${month.toString().padStart(2, '0')}`;
-        return Object.entries(timeSheetData)
-            .filter(([key]) => key.startsWith(prefix))
-            .flatMap(([, dayData]) => dayData);
-    };
-
     const value = {
-        updateDayData,
         getDayData,
-        getMonthData
+        getMonthData,
+        updateDayData,
     };
 
     return (

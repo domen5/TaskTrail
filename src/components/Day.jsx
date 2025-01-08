@@ -8,7 +8,7 @@ function Day({ date, isPadded }) {
     const { getDayData } = useTimeSheet();
 
 
-    const [year, month, dayNumber] = [date.getFullYear(), date.getMonth()+1, date.getDate()];
+    const [year, month, dayNumber] = [date.getFullYear(), date.getMonth(), date.getDate()];
     const dayEntries = getDayData(year, month, dayNumber);
     const totalHours = dayEntries.reduce((sum, entry) => sum + (entry.workedHours || 0), 0);
 

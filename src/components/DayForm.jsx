@@ -7,7 +7,8 @@ function DayForm({ year, month, dayNumber, onClose }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = {
-            // TODO: handle date
+            // TODO: handle date in a better way, maybe iso standard
+            date: new Date(year, month, dayNumber).toLocaleDateString(),
             project: e.target.project.value,
             workedHours: parseInt(e.target.workedHours.value),
             description: e.target.description.value,
