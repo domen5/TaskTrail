@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Day from "./Day";
+import CalendarToolbar from "./CalendarToolbar";
 
 function Calendar() {
     const [selectedDay, setSelectedDay] = useState(new Date());
@@ -14,8 +15,9 @@ function Calendar() {
     let week = [];
 
     // Add previous month's padding days
-    for (let i = 0; i < prevMonthPadding; i++) {
-        const date = new Date(selectedDay.getFullYear(), selectedDay.getMonth() - 1, daysInMonth - i);
+    const daysInPrevMonth = new Date(selectedDay.getFullYear(), selectedDay.getMonth(), 0).getDate();
+    for (let i = prevMonthPadding - 1; i >= 0; i--) {
+        const date = new Date(selectedDay.getFullYear(), selectedDay.getMonth() - 1, daysInPrevMonth - i);
         week.push(date);
     }
 
@@ -44,11 +46,12 @@ function Calendar() {
     }
 
     return (
-        <div>
-            <div>
-                <p>{selectedDay.toLocaleDateString()}</p>
-                <button onClick={() => setSelectedDay(new Date(selectedDay.getFullYear(), selectedDay.getMonth() - 1, 1))}>Previous Month</button>
-                <button onClick={() => setSelectedDay(new Date(selectedDay.getFullYear(), selectedDay.getMonth() + 1, 1))}>Next Month</button>
+        <div className="container">
+            <div className="row">
+                <h2 style={{ textTransform: "capitalize" }}>
+                    {selectedDay.toLocaleString('default', { month: 'long' }) + ' ' + selectedDay.getFullYear()}
+                </h2>
+                <CalendarToolbar setSelectedDay={setSelectedDay} selectedDay={selectedDay} />
             </div>
             <table className="table">
                 <thead>
@@ -72,7 +75,7 @@ function Calendar() {
 
                                 return (
                                     <td key={dayIndex}>
-                                        <Day dateStamp={date.toLocaleString()} dayNumber={date.getDate()} isPadded={isPadded} />
+                                        <Day date={date} isPadded={isPadded} />
                                     </td>
                                 );
                             })}

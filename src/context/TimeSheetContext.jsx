@@ -1,34 +1,56 @@
 import React, { createContext, useContext, useState } from 'react';
 
-// Create the context
 const TimeSheetContext = createContext(undefined);
 
-// Create the provider component
 export function TimeSheetProvider({ children }) {
     const [timeSheetData, setTimeSheetData] = useState({});
 
-    const updateDayData = async (date, formData) => {        
+    const createKey = (year, month, day) => {
+        return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+    };
+
+    const getDayData = (year, month, day) => {
+        const key = createKey(year, month, day);
+        return timeSheetData[key] || [];
+    };
+
+    const getMonthData = (year, month) => {
+        const prefix = `${year}-${month.toString().padStart(2, '0')}`;
+        return Object.entries(timeSheetData)
+            .filter(([key]) => key.startsWith(prefix))
+            .flatMap(([, dayData]) => dayData);
+    };
+
+    const updateDayData = async (year, month, day, formData) => {
+        const key = createKey(year, month, day);
         setTimeSheetData(prev => ({
             ...prev,
-            [date]: [...(prev[date] || []), formData]
+            [key]: [...(prev[key] || []), formData],
         }));
 
         try {
-            // TODO: add api call
+            // TODO: Add API call here
         } catch (error) {
             console.error('Error updating timesheet:', error);
+
+            // Revert the change in case of an error
             setTimeSheetData(prev => {
-                const newData = { ...prev };
-                delete newData[date];
-                return newData;
+                const updatedData = { ...prev };
+                updatedData[key] = (updatedData[key] || []).filter(item => item !== formData);
+
+                if (updatedData[key].length === 0) {
+                    delete updatedData[key];
+                }
+
+                return updatedData;
             });
         }
     };
 
-    // Create the value object to be provided
     const value = {
-        timeSheetData,
-        updateDayData
+        getDayData,
+        getMonthData,
+        updateDayData,
     };
 
     return (
@@ -38,7 +60,6 @@ export function TimeSheetProvider({ children }) {
     );
 }
 
-// Custom hook to use the context
 export function useTimeSheet() {
     const context = useContext(TimeSheetContext);
     if (context === undefined) {

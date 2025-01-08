@@ -1,31 +1,36 @@
 import { useTimeSheet } from "../context/TimeSheetContext";
 import './DayForm.css';
 
-function DayForm({ dateStamp, dayNumber, onClose }) {
+function DayForm({ date, onClose }) {
     const { updateDayData } = useTimeSheet();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = {
+            date: date.toLocaleDateString(),
             project: e.target.project.value,
             workedHours: parseInt(e.target.workedHours.value),
             description: e.target.description.value,
             overtime: e.target.inlineRadioOptions.value === 'option1',
         };
-        await updateDayData(dateStamp, formData);
+        await updateDayData(date.getFullYear(), date.getMonth(), date.getDate(), formData);
         onClose();
     };
 
     return (
         <div className="form-container">
-            <h3 className="form-title">Day {dayNumber}</h3>
+            <h3 className="form-title">
+                {date.toLocaleDateString()}
+                <br />Inserisci una nuova attività
+            </h3>
+            <h3 className="form-title"></h3>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label htmlFor="project">Project:</label>
                     <select
                         id="project"
                         name="project"
-                        className="form-control input-control"
+                        className="form-select"
                         aria-label="Select project"
                         defaultValue="project1"
                     >
@@ -43,10 +48,10 @@ function DayForm({ dateStamp, dayNumber, onClose }) {
                         name="workedHours"
                         min="1"
                         max="24"
-                        className="form-control input-control"
+                        className="form-control"
                         aria-label="Enter worked hours"
                         placeholder="Enter hours worked"
-                        defaultValue=""
+                        defaultValue="1"
                     />
                 </div>
 
@@ -56,7 +61,7 @@ function DayForm({ dateStamp, dayNumber, onClose }) {
                         id="description"
                         name="description"
                         rows="3"
-                        className="form-control input-control"
+                        className="form-control"
                         aria-label="Enter description"
                         placeholder="Enter a brief description"
                         defaultValue=""
