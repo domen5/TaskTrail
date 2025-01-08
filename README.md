@@ -24,7 +24,7 @@ Follow these steps to get TaskTrail up and running locally:
 1. Clone the repository:
    ```bash
    git clone https://github.com/domen5/TaskTrail.git
-   cd TrekkingTasks
+   cd TaskTrail
    ```
 2. Install dependencies:
     ```bash
