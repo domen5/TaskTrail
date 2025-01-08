@@ -62,19 +62,19 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
         <div>
             <div className="button-group" style={{ justifyContent: 'start', marginLeft: '1ex' }}>
                 <button
-                    className="btn btn-secondary"
+                    className="btn btn-success"
                     onClick={handlePrevMonth}
                 >
                     {'<'} Previous Month
                 </button>
                 <button
-                    className="btn btn-secondary"
+                    className="btn btn-success"
                     onClick={handleNextMonth}
                 >
                     Next Month {'>'}
                 </button>
                 <button
-                    className="btn btn-secondary"
+                    className="btn btn-success"
                     onClick={handleExport}
                 >
                     Export Monthly Report

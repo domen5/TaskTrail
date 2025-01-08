@@ -4,7 +4,7 @@ function Navbar() {
     return (
         <nav className="navbar navbar-expand-md navbar-light bg-light">
             <div className="container-fluid">
-                <Link className="navbar-brand" to="/">Task Trail</Link>
+                <Link className="navbar-brand" to="/" style={{color: 'green'}}>Task Trail</Link>
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
                 </button>
@@ -27,7 +27,9 @@ function Navbar() {
                                 style={{ width: '40px', height: '40px' }}
                                 to="/profile"
                             >
-                                <i className="fas fa-user"></i>
+                                <span style={{ color: 'green' }}>
+                                    <i className="fas fa-user"></i>
+                                </span>
                             </Link>
                         </li>
                     </ul>
