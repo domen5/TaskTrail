@@ -7,6 +7,7 @@ function DayForm({ year, month, dayNumber, onClose }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = {
+            // TODO: handle date
             project: e.target.project.value,
             workedHours: parseInt(e.target.workedHours.value),
             description: e.target.description.value,
