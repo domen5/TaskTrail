@@ -1,4 +1,5 @@
 import { useTimeSheet } from "../context/TimeSheetContext";
+import Modal from './Modal';
 import './DayForm.css';
 
 function DayForm({ date, onClose }) {
@@ -18,12 +19,7 @@ function DayForm({ date, onClose }) {
     };
 
     return (
-        <div className="form-container">
-            <h3 className="form-title">
-                {date.toLocaleDateString()}
-                <br />Inserisci una nuova attività
-            </h3>
-            <h3 className="form-title"></h3>
+        <Modal title={`${date.toLocaleDateString()} - Insert a new activity`} onClose={onClose}>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label htmlFor="project">Project:</label>
@@ -100,7 +96,7 @@ function DayForm({ date, onClose }) {
                     <button type="submit" className="btn btn-success">Submit</button>
                 </div>
             </form>
-        </div>
+        </Modal>
     );
 }
 
