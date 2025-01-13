@@ -27,6 +27,11 @@ function Login({ onClose }) {
         e.preventDefault();
         // TODO: Implement form submission logic
         console.log('Form submitted:', formData);
+        setFormData({
+            emailAddress: '',
+            inputPassword: ''
+        });
+        onClose();
     };
 
     return (
@@ -38,7 +43,7 @@ function Login({ onClose }) {
                         type="email" 
                         className="form-control" 
                         id="emailAddress" 
-                        placeholder="name@example.com" 
+                        placeholder="name@example.com"
                         value={formData.emailAddress} 
                         onChange={handleChange} 
                     />
