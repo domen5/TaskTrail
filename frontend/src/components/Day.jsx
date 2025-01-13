@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "./Day.css";
 import DayForm from "./DayForm";
 import { useTimeSheet } from "../context/TimeSheetContext";
-import Modal from "./Modal";
 
 function Day({ date, isPadded }) {
     const [showForm, setShowForm] = useState(false);
@@ -33,12 +32,10 @@ function Day({ date, isPadded }) {
             </div>
 
             {showForm && (
-                <Modal title="Edit Day" onClose={handleClose}>
-                    <DayForm
-                        date={date}
-                        onClose={handleClose}
-                    />
-                </Modal>
+                <DayForm
+                    date={date}
+                    onClose={handleClose}
+                />
             )}
         </>
     );

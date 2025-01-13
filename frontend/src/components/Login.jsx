@@ -13,7 +13,7 @@ function Login({ onClose }) {
                     <input type="email" className="form-control" id="emailAddress" placeholder="name@example.com" />
                     <label htmlFor="inputPassword" className="form-label">Password</label>
                     <input type="password" className="form-control" id="inputPassword" aria-describedby="passwordHelpBlock" />
-                    <div id="passwordHelpBlock" class="form-text">
+                    <div id="passwordHelpBlock" className="form-text">
                         Passwords must have at least 8 characters and contain at least two of the following: uppercase letters, lowercase letters, numbers, and symbols
                     </div>
                     <div className="button-group">
