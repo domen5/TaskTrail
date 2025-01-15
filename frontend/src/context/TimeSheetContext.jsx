@@ -5,24 +5,40 @@ const TimeSheetContext = createContext(undefined);
 export function TimeSheetProvider({ children }) {
     const [timeSheetData, setTimeSheetData] = useState({});
 
-    const createKey = (year, month, day) => {
-        return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+    const isValidDate = (date) => {
+        return date instanceof Date && !isNaN(date);
+    }
+
+    const createKey = (date = new Date()) => {
+        if (!isValidDate(date)) {
+            throw new Error('Invalid date input. Please provide a valid Date object or a valid date string.');
+        }
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
     };
 
-    const getDayData = (year, month, day) => {
-        const key = createKey(year, month, day);
+    const getDayData = (date) => {
+        const key = createKey(date);
         return timeSheetData[key] || [];
     };
 
     const getMonthData = (year, month) => {
-        const prefix = `${year}-${month.toString().padStart(2, '0')}`;
+        const prefix = createKey(new Date(year, month, 1)).slice(0, 7);
         return Object.entries(timeSheetData)
             .filter(([key]) => key.startsWith(prefix))
             .flatMap(([, dayData]) => dayData);
     };
 
-    const updateDayData = async (year, month, day, formData) => {
-        const key = createKey(year, month, day);
+    const updateDayData = async (date, formData) => {
+        const [year, month, day] = [date.getFullYear(), date.getMonth() + 1, date.getDate()];
+        const key = createKey(date);
+
+        // TODO: Check form data
+
         setTimeSheetData(prev => ({
             ...prev,
             [key]: [...(prev[key] || []), formData],
