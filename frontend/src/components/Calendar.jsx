@@ -1,9 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Day from "./Day";
 import CalendarToolbar from "./CalendarToolbar";
+import { useTimeSheet } from "../context/TimeSheetContext";
 
 function Calendar() {
     const [selectedDay, setSelectedDay] = useState(new Date());
+
+    // useEffect will trigger a the fetch of new data from the backend when the month of selectedDay changes 
+    useEffect(() => {
+        fetchMonthsData(selectedDay);
+    }, [selectedDay.getMonth(), selectedDay.getFullYear()]);
+
+    const { getMonthData } = useTimeSheet();
+
+    // Function to fetch data for a specific month, the previous and the next one
+    const fetchMonthsData = async (date) => {
+        const prevMonth = new Date(date.getFullYear(), date.getMonth(), 0);
+        const nextMonth = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+
+        const fetchPromises = [
+            getMonthData(prevMonth.getFullYear(), prevMonth.getMonth()),
+            getMonthData(date.getFullYear(), date.getMonth()),
+            getMonthData(nextMonth.getFullYear(), nextMonth.getMonth())
+        ];
+
+        await Promise.all(fetchPromises);
+    };
+
     const daysInMonth = new Date(selectedDay.getFullYear(), selectedDay.getMonth() + 1, 0).getDate();
 
     const firstDayOfMonth = new Date(selectedDay.getFullYear(), selectedDay.getMonth(), 1).getDay();
