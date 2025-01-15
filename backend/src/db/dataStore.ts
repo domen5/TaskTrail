@@ -15,7 +15,7 @@ const isValidKey = (key: string): boolean => {
 }
 
 export const addWorkedHours = (date: string, formData: WorkedHours) => {
-    if(!isValidKey(date)) {
+    if (!isValidKey(date)) {
         console.error('date: ' + date)
         throw new Error('Invalid date format. Please use yyyy-MM-dd format.');
     }
@@ -45,4 +45,55 @@ export const getMonthWorkedHours = (year: number, month: number): { [key: string
 
 export const getAllWorkedHours = (): { [key: string]: WorkedHours[] } => {
     return timeSheetData;
-}; 
+};
+
+// Mock data for developement and testing
+addWorkedHours("2025-01-01", {
+    date: "2025-01-01",
+    project: "project1",
+    workedHours: 1,
+    description: "Test description for 2025-01-01",
+    overtime: false,
+})
+addWorkedHours("2025-01-01", {
+    date: "2025-01-01",
+    project: "project1",
+    workedHours: 2,
+    description: "Test description for 2025-01-01",
+    overtime: false,
+})
+addWorkedHours("2025-01-01", {
+    date: "2025-01-01",
+    project: "project1",
+    workedHours: 2,
+    description: "Test description for 2025-01-01",
+    overtime: false,
+})
+addWorkedHours("2025-01-02", {
+    date: "2025-01-02",
+    project: "project1",
+    workedHours: 4,
+    description: "Test description for 2025-01-02",
+    overtime: false,
+})
+addWorkedHours("2025-01-02", {
+    date: "2025-01-02",
+    project: "project1",
+    workedHours: 4,
+    description: "Test description for 2025-01-02",
+    overtime: false,
+})
+addWorkedHours("2025-01-03", {
+    date: "2025-01-03",
+    project: "project1",
+    workedHours: 4,
+    description: "Test description for 2025-01-03",
+    overtime: false,
+})
+addWorkedHours("2025-02-01", {
+    date: "2025-02-01",
+    project: "project1",
+    workedHours: 4,
+    description: "Test description for 2025-02-01",
+    overtime: false,
+})

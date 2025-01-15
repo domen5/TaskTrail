@@ -31,18 +31,19 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
         return [headers.join(separator), ...rows].join('\n');
     }
 
-    const handleExport = () => {
-        const monthData = getMonthData(selectedDay.getFullYear(), selectedDay.getMonth());
-
-        if (monthData.length === 0) {
+    const handleExport = async () => {
+        let monthData = await getMonthData(selectedDay.getFullYear(), selectedDay.getMonth());
+        if (Object.keys(monthData).length === 0) {
             alert('No data available for selected month.');
             return;
         }
+
+        // Convert monthData to a flat array
+        const flatMonthData = Object.values(monthData).flat();
         
-        const csvConvertedData = convertToCsv(monthData, separator);
+        const csvConvertedData = convertToCsv(flatMonthData, separator);
         const blob = new Blob([csvConvertedData], { type: 'text/csv;charset=utf-8,' });
 
-        console.log(csvConvertedData);
         // TODO: design a better way to start the download
         // This is a fast way to trigger the download, by programmatically create a hidden <a> helement,
         // force a click and dispose of the tag.
@@ -53,7 +54,7 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
         link.setAttribute('download', filename);
         link.style.display = 'none'; // Hide the link
         document.body.appendChild(link);
-        link.click();
+        // link.click(); // disabled for development
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
     };
