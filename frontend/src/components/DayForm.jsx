@@ -14,7 +14,7 @@ function DayForm({ date, onClose }) {
             description: e.target.description.value,
             overtime: e.target.inlineRadioOptions.value === 'option1',
         };
-        await updateDayData(date.getFullYear(), date.getMonth(), date.getDate(), formData);
+        await updateDayData(date, formData);
         onClose();
     };
 
