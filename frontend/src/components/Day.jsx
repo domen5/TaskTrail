@@ -7,9 +7,8 @@ function Day({ date, isPadded }) {
     const [showForm, setShowForm] = useState(false);
     const { getDayData } = useTimeSheet();
 
-
-    const [year, month, dayNumber] = [date.getFullYear(), date.getMonth(), date.getDate()];
-    const dayEntries = getDayData(year, month, dayNumber);
+    const dayNumber = date.getDate();
+    const dayEntries = getDayData(date);
     const totalHours = dayEntries.reduce((sum, entry) => sum + (entry.workedHours || 0), 0);
 
     const handleClick = () => setShowForm(true);
@@ -33,14 +32,10 @@ function Day({ date, isPadded }) {
             </div>
 
             {showForm && (
-                <div className="day-form-overlay" onClick={handleClose} role="dialog" aria-modal="true">
-                    <div className="day-form-container" onClick={(e) => e.stopPropagation()}>
-                        <DayForm
-                            date={date}
-                            onClose={handleClose}
-                        />
-                    </div>
-                </div>
+                <DayForm
+                    date={date}
+                    onClose={handleClose}
+                />
             )}
         </>
     );

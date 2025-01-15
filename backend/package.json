@@ -1,0 +1,25 @@
+{
+  "name": "task-trail-backend",
+  "version": "0.0.1",
+  "description": "Backend api for TaksTrail, a web application designed to help you track your work hours, because time is money!",
+  "repository": {
+    "type": "git",
+    "url": "github.com/domen5/TaskTrail/backend"
+  },
+  "license": "MIT",
+  "author": "andrea.domeniconi@outlook.com",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "dev": "npx tsx watch ./src/app.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

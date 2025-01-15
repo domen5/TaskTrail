@@ -36,6 +36,7 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
 
         if (monthData.length === 0) {
             alert('No data available for selected month.');
+            return;
         }
         
         const csvConvertedData = convertToCsv(monthData, separator);
@@ -43,7 +44,7 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
 
         console.log(csvConvertedData);
         // TODO: design a better way to start the download
-        // This is a fast way to trigger the download, by programmatically create an hidden <a> helement,
+        // This is a fast way to trigger the download, by programmatically create a hidden <a> helement,
         // force a click and dispose of the tag.
         const url = URL.createObjectURL(blob);
         const filename = `report_${selectedDay.getFullYear()}_${selectedDay.getMonth() + 1}.csv`;
@@ -61,19 +62,19 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
         <div>
             <div className="button-group" style={{ justifyContent: 'start', marginLeft: '1ex' }}>
                 <button
-                    className="btn btn-secondary"
+                    className="btn btn-success"
                     onClick={handlePrevMonth}
                 >
                     {'<'} Previous Month
                 </button>
                 <button
-                    className="btn btn-secondary"
+                    className="btn btn-success"
                     onClick={handleNextMonth}
                 >
                     Next Month {'>'}
                 </button>
                 <button
-                    className="btn btn-secondary"
+                    className="btn btn-success"
                     onClick={handleExport}
                 >
                     Export Monthly Report
