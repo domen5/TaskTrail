@@ -1,12 +1,8 @@
-import express, { Request, Response } from 'express';
-import dotenv from 'dotenv';
 import routes from './api/routes';
-
-dotenv.config();
-console.log(process.env.PORT);
+import express, { Request, Response } from 'express';
+import { PORT } from "./config"
 
 const app = express();
-const PORT: number = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 
