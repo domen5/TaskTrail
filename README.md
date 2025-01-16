@@ -34,3 +34,10 @@ Follow these steps to get TaskTrail up and running locally:
     ```bash
     npm run dev
     ```
+
+## Run with docker
+1. Run backend:
+    ```bash
+    docker compose up -d
+    ```
+2. Access the website on http://localhost:8080
