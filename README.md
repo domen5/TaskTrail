@@ -34,3 +34,16 @@ Follow these steps to get TaskTrail up and running locally:
     ```bash
     npm run dev
     ```
+
+## Run with docker
+1. Run backend:
+    ```bash
+    docker build -t tt-backend ./backend
+    docker run -p 3000:3000 --name tt-backend tt-backend
+    ```
+2. Run frontend:
+    
+    ```bash
+    docker build -t tt-frontend ./frontend
+    docker run -p 8080:80 --name tt-frontend tt-frontend
+    ```
