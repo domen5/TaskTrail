@@ -9,7 +9,7 @@ function Day({ date, isPadded }) {
 
     const dayNumber = date.getDate();
     const dayEntries = getDayData(date);
-    const totalHours = dayEntries.reduce((sum, entry) => sum + (entry.workedHours || 0), 0);
+    const totalHours = dayEntries.reduce((sum, entry) => sum + (entry.hours || 0), 0);
 
     const handleClick = () => setShowForm(true);
     const handleClose = () => setShowForm(false);
@@ -24,7 +24,7 @@ function Day({ date, isPadded }) {
                         {dayEntries.map((entry, index) => (
                             <div key={index} className="entry">
                                 <p><strong>{entry.project || "N/A"}</strong></p>
-                                <p>{entry.workedHours || 0}h: {entry.description || "No description"}</p>
+                                <p>{entry.hours || 0}h: {entry.description || "No description"}</p>
                             </div>
                         ))}
                     </div>
