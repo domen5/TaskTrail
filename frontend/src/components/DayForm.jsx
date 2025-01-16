@@ -10,7 +10,7 @@ function DayForm({ date, onClose }) {
         const formData = {
             date: date.toLocaleDateString(),
             project: e.target.project.value,
-            workedHours: parseInt(e.target.workedHours.value),
+            hours: parseInt(e.target.workedHours.value),
             description: e.target.description.value,
             overtime: e.target.inlineRadioOptions.value === 'option1',
         };

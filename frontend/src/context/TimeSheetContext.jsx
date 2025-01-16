@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { fetchMonthData, postDayData } from '../components/api/api';
+import { fetchMonthData, postDayData } from '../api/api';
 import { createKey } from '../utils/utils';
 
 const TimeSheetContext = createContext(undefined);
@@ -32,7 +32,6 @@ export function TimeSheetProvider({ children }) {
     };
 
     const updateDayData = async (date, formData) => {
-        const [year, month, day] = [date.getFullYear(), date.getMonth() + 1, date.getDate()];
         const key = createKey(date);
 
         // TODO: Check form data

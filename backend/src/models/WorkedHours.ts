@@ -1,7 +1,7 @@
 interface WorkedHours {
     date: string,
     project: string,
-    workedHours: number,
+    hours: number,
     description: string,
     overtime: boolean,
 }
