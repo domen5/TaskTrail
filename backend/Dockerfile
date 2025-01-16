@@ -2,7 +2,7 @@
 FROM node:22.13-alpine AS builder
 
 WORKDIR /app
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
 RUN npm install --silent
 
