@@ -30,29 +30,51 @@ export function TimeSheetProvider({ children }) {
     const getMonthData = async (year, month) => {
         const newMonthData = await fetchMonthData(year, month);
         const prefix = createKey(new Date(year, month, 1)).slice(0, 7); // "yyyy-MM"
-    
+
         setTimeSheetData(prev => {
             const cleanedData = Object.fromEntries(
                 Object.entries(prev).filter(([key]) => !key.startsWith(prefix))
             );
-            
+
             return {
                 ...cleanedData,
                 ...newMonthData
             };
         });
-    
+
         return newMonthData;
     };
 
     // Get month data from the backend; Assumes 0 based months
     const fetchMonthData = async (year, month) => {
-        const response = await fetch(`http://localhost:3000/api/worked-hours/${year}/${month+1}`);
+        const response = await fetch(`http://localhost:3000/api/worked-hours/${year}/${month + 1}`);
         if (!response.ok) {
             throw new Error('Failed to fetch month data from backend');
         }
         const data = await response.json();
         return data;
+    };
+
+    const postDayData = async (date, formData) => {
+        const url = `http://localhost:3000/api/worked-hours`;
+        const dateId = createKey(date);
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                date: dateId,
+                formData: formData
+            })
+        });
+        if (!response.ok) {
+            throw new Error('Failed post day data to backend');
+        }
+        const data = await response.json();
+        return data;
+
     };
 
     const updateDayData = async (date, formData) => {
@@ -67,7 +89,7 @@ export function TimeSheetProvider({ children }) {
         }));
 
         try {
-            // TODO: Add API call here
+            postDayData(date, formData);
         } catch (error) {
             console.error('Error updating timesheet:', error);
 
