@@ -1,13 +1,13 @@
 # Stage 1: Build the application using the official Node.js image
-FROM node:22.13-alpine AS builder
+FROM node:22.13-alpine as builder
 
 WORKDIR /app
-COPY package.json package-lock.json ./
 
+COPY package.json ./
+COPY package-lock.json ./
 RUN npm install --silent
 
 COPY . .
-
 RUN npm run build
 
 # Stage 2: Create the production image

@@ -1,12 +1,13 @@
 # Stage 1: Build the React app
 FROM node:22.13-alpine as builder
+
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json ./
+COPY package-lock.json ./
 RUN npm install --silent
 
 COPY . .
-
 RUN npm run build
 
 # Stage 2: Serve the app with NGINX
