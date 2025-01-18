@@ -16,7 +16,7 @@ export function TimeSheetProvider({ children }) {
     const getMonthData = async (year, month) => {
         const newMonthData = await fetchMonthData(year, month);
         const prefix = createKey(new Date(year, month, 1)).slice(0, 7); // "yyyy-MM"
-
+        // console.log(`Retrieving new data for ${year}/${month+1}`);
         setTimeSheetData(prev => {
             const cleanedData = Object.fromEntries(
                 Object.entries(prev).filter(([key]) => !key.startsWith(prefix))
@@ -46,6 +46,7 @@ export function TimeSheetProvider({ children }) {
         } catch (error) {
             console.error('Error updating timesheet:', error);
 
+            // TODO: This functionality doesn't appear to be working as expected. It needs thorough testing.
             // Revert the change in case of an error
             setTimeSheetData(prev => {
                 const updatedData = { ...prev };
