@@ -45,10 +45,18 @@ routes.get('/worked-hours/:year/:month/:day', async (req, res) => {
     }
 });
 
-routes.get('/worked-hours/:year/:month/', (req, res) => {
+routes.get('/worked-hours/:year/:month/', async (req, res) => {
     const { year, month } = req.params;
-    const data = getMonthWorkedHours(parseInt(year), parseInt(month));
-    res.status(200).json(data);
+    try {
+        const data = await getMonthWorkedHours(parseInt(year), parseInt(month));
+        res.status(200).json(data);
+    } catch (err) {
+        if (err instanceof InputError) {
+            res.status(400).send({ message: 'Bad input' });
+            return;
+        }
+        res.status(500).send({ message: 'Something went wrong' });
+    }
 });
 
 export default routes;

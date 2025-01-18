@@ -68,17 +68,23 @@ export const getWorkedHours = async (year: number, month: number, day: number): 
     }
 };
 
-export const getMonthWorkedHours = (year: number, month: number): { [key: string]: WorkedHours[] } => {
-    const prefix = createKey(year, month, 1).slice(0, 7);
-    const monthData: { [key: string]: WorkedHours[] } = {};
+export const getMonthWorkedHours = async (year: number, month: number): Promise<WorkedHours[]> => {
+    let prefix = createKey(year, month, 1)
+    if (!isValidKey(prefix)) {
+        prefix = prefix.slice(0, 7);
+        console.error('date: ' + prefix);
+        throw new InputError('Invalid date format. Please use yyyy-MM-dd format.');
+    }
 
-    Object.entries(timeSheetData)
-        .filter(([key]) => key.startsWith(prefix))
-        .forEach(([key, dayData]) => {
-            monthData[key] = dayData;
-        });
+    prefix = prefix.slice(0, 7);
 
-    return monthData;
+    try {
+        const data = await WorkedHoursModel.find({ date: { $regex: `^${prefix}` } });
+        return data || [];
+    } catch (err) {
+        console.error('Error retrieving data for getMonthWorkedHours:', err);
+        throw err;
+    }
 };
 
 // // Mock data for developement and testing
