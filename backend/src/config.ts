@@ -10,5 +10,6 @@ dotenv.config({ path: envPath });
 
 // Read config from .env file
 const PORT: number = Number(process.env.PORT) || 3000;
+const MONGODB_URI: string = process.env.MONGODB_URI || 'mongodb://root:pass12345@mongodb:27017/tasktrail'
 
-export { PORT };
+export { PORT, MONGODB_URI };

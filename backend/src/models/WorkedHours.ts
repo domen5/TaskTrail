@@ -1,3 +1,5 @@
+import { Schema, model } from "mongoose";
+
 interface WorkedHours {
     date: string,
     project: string,
@@ -6,4 +8,15 @@ interface WorkedHours {
     overtime: boolean,
 }
 
+const workedHoursSchema = new Schema<WorkedHours>({
+    date: { type: String, required: true },
+    project: { type: String, required: true },
+    hours: { type: Number, required: true },
+    description: { type: String, required: true },
+    overtime: { type: Boolean, required: true },
+});
+
+const WorkedHoursModel = model<WorkedHours>('WorkedHour', workedHoursSchema);
+
 export default WorkedHours;
+export { WorkedHoursModel };

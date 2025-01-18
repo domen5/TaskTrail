@@ -1,4 +1,6 @@
-import WorkedHours from "../models/WorkedHours";
+import mongoose, { Schema, model, connect } from 'mongoose';
+import WorkedHours, { WorkedHoursModel } from "../models/WorkedHours";
+import { MONGODB_URI } from "../config";
 
 const timeSheetData: { [key: string]: WorkedHours[] } = {};
 
@@ -26,6 +28,25 @@ export const addWorkedHours = (year: number, month: number, day: number, formDat
     timeSheetData[date].push(formData);
 };
 
+export const createWorkedHours = async (year: number, month: number, day: number, formData: WorkedHours) => {
+    const date = createKey(year, month, day);
+    const model = new WorkedHoursModel({
+        date: date,
+        project: formData.project,
+        hours: formData.hours,
+        description: formData.description,
+        overtime: formData.overtime,
+    });
+
+    try {
+        await model.save();
+        console.log('Data saved successfully');
+    } catch (err) {
+        console.error('Error saving data:', err);
+    }
+
+};
+
 export const getWorkedHours = (year: number, month: number, day: number): WorkedHours[] => {
     const key = createKey(year, month, day);
     return timeSheetData[key] || [];
@@ -47,6 +68,30 @@ export const getMonthWorkedHours = (year: number, month: number): { [key: string
 export const getAllWorkedHours = (): { [key: string]: WorkedHours[] } => {
     return timeSheetData;
 };
+
+run().catch(err => console.log(err));
+
+async function run() {
+    // 4. Connect to MongoDB
+    console.log(MONGODB_URI);
+    const connect = async () => {
+        mongoose.connect(MONGODB_URI)
+            .then(() => console.log('Connected to database tasktrail'))
+            .catch((err) => console.log(err));
+    }
+    await connect();
+
+    const user = new WorkedHoursModel({
+        date: "2025-01-01",
+        project: "project1",
+        hours: 1,
+        description: "Test description for 2025-01-01",
+        overtime: false,
+    });
+    await user.save();
+
+    console.log(user.description);
+}
 
 // Mock data for developement and testing
 addWorkedHours(2025, 1, 1, {
