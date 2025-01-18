@@ -1,10 +1,11 @@
 import express from 'express';
-import { addWorkedHours, getWorkedHours, getAllWorkedHours, getMonthWorkedHours } from '../db/dataStore';
+import { createWorkedHours, getWorkedHours, getAllWorkedHours, getMonthWorkedHours } from '../db/dataStore';
 import WorkedHours from '../models/WorkedHours';
+import { InputError } from '../utils/errors';
 
 const routes = express.Router();
 
-routes.post('/worked-hours/:year/:month/:day', (req, res) => {
+routes.post('/worked-hours/:year/:month/:day', async (req, res) => {
     // TODO: remove debug logs
     console.log(req.body);
 
@@ -17,8 +18,16 @@ routes.post('/worked-hours/:year/:month/:day', (req, res) => {
         description: req.body.workedHours.description,
         overtime: req.body.workedHours.overtime,
     };
-    addWorkedHours(parseInt(year), parseInt(month), parseInt(day), formData); // Pass both date and workedHours to the function
-    res.status(201).send({ message: 'Worked hours added successfully' });
+    try {
+        await createWorkedHours(parseInt(year), parseInt(month), parseInt(day), formData);
+        res.status(201).send({ message: 'Worked hours added successfully' });
+    } catch (err) {
+        if(err instanceof InputError) {
+            res.status(400).send({ message: 'Bad input' });
+            return;
+        }
+        res.status(500).send({ message: 'Something went wrong' });
+    }
 });
 
 routes.get('/worked-hours/:year/:month/:day', (req, res) => {
