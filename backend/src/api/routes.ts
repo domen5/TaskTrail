@@ -22,7 +22,7 @@ routes.post('/worked-hours/:year/:month/:day', async (req, res) => {
         await createWorkedHours(parseInt(year), parseInt(month), parseInt(day), formData);
         res.status(201).send({ message: 'Worked hours added successfully' });
     } catch (err) {
-        if(err instanceof InputError) {
+        if (err instanceof InputError) {
             res.status(400).send({ message: 'Bad input' });
             return;
         }
@@ -30,10 +30,19 @@ routes.post('/worked-hours/:year/:month/:day', async (req, res) => {
     }
 });
 
-routes.get('/worked-hours/:year/:month/:day', (req, res) => {
+routes.get('/worked-hours/:year/:month/:day', async (req, res) => {
     const { year, month, day } = req.params;
-    const data = getWorkedHours(parseInt(year), parseInt(month), parseInt(day));
-    res.status(200).json(data);
+
+    try {
+        const data = await getWorkedHours(parseInt(year), parseInt(month), parseInt(day));
+        res.status(200).json(data);
+    } catch (err) {
+        if (err instanceof InputError) {
+            res.status(400).send({ message: 'Bad input' });
+            return;
+        }
+        res.status(500).send({ message: 'Something went wrong' });
+    }
 });
 
 routes.get('/worked-hours/:year/:month/', (req, res) => {

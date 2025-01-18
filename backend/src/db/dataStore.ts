@@ -28,20 +28,6 @@ const isValidKey = (key: string): boolean => {
     return regex.test(key);
 }
 
-//deprecated in favour of createWorkedHours
-
-// export const addWorkedHours = (year: number, month: number, day: number, formData: WorkedHours) => {
-//     const date = createKey(year, month, day);
-//     if (!isValidKey(date)) {
-//         console.error('date: ' + date)
-//         throw new Error('Invalid date format. Please use yyyy-MM-dd format.');
-//     }
-//     if (!timeSheetData[date]) {
-//         timeSheetData[date] = [];
-//     }
-//     timeSheetData[date].push(formData);
-// };
-
 export const createWorkedHours = async (year: number, month: number, day: number, formData: WorkedHours) => {
     const date = createKey(year, month, day);
     if (!isValidKey(date)) {
@@ -60,13 +46,26 @@ export const createWorkedHours = async (year: number, month: number, day: number
         console.log('Data saved successfully');
     } catch (err) {
         console.error('Error saving data:', err);
-        throw err;  
+        throw err;
     }
 };
 
-export const getWorkedHours = (year: number, month: number, day: number): WorkedHours[] => {
+export const getWorkedHours = async (year: number, month: number, day: number): Promise<WorkedHours[]> => {
     const key = createKey(year, month, day);
-    return timeSheetData[key] || [];
+    if (!isValidKey(key)) {
+        console.error('date: ' + key);
+        throw new InputError('Invalid date format. Please use yyyy-MM-dd format.');
+    }
+    try {
+        const data = await WorkedHoursModel.find({ date: key });
+
+        console.log('getWorkedHours: ');
+        console.log(data);
+        return data || [];
+    } catch (err) {
+        console.error('Error retrieving data for getWorkedHours:', err);
+        throw err;
+    }
 };
 
 export const getMonthWorkedHours = (year: number, month: number): { [key: string]: WorkedHours[] } => {
