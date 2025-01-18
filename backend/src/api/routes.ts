@@ -1,5 +1,5 @@
 import express from 'express';
-import { createWorkedHours, getWorkedHours, getAllWorkedHours, getMonthWorkedHours } from '../db/dataStore';
+import { createWorkedHours, getWorkedHours, getMonthWorkedHours } from '../db/dataStore';
 import WorkedHours from '../models/WorkedHours';
 import { InputError } from '../utils/errors';
 
@@ -48,11 +48,6 @@ routes.get('/worked-hours/:year/:month/:day', async (req, res) => {
 routes.get('/worked-hours/:year/:month/', (req, res) => {
     const { year, month } = req.params;
     const data = getMonthWorkedHours(parseInt(year), parseInt(month));
-    res.status(200).json(data);
-});
-
-routes.get('/worked-hours', (req, res) => {
-    const data = getAllWorkedHours();
     res.status(200).json(data);
 });
 

@@ -81,12 +81,6 @@ export const getMonthWorkedHours = (year: number, month: number): { [key: string
     return monthData;
 };
 
-export const getAllWorkedHours = (): { [key: string]: WorkedHours[] } => {
-    return timeSheetData;
-};
-
-
-
 // // Mock data for developement and testing
 // addWorkedHours(2025, 1, 1, {
 //     date: "2025-01-01",
