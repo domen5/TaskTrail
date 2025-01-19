@@ -19,25 +19,41 @@ Track your daily tasks, calculate total hours, and generate exportable reports t
 
 ## How to Run
 
-Follow these steps to get TaskTrail up and running locally:
+### Run with docker
 
 1. Clone the repository:
    ```bash
    git clone https://github.com/domen5/TaskTrail.git
    cd TaskTrail
    ```
-2. Install dependencies:
+2. Install Docker (Linux):
+    - https://docs.docker.com/engine/install
+    or Docker Desktop (Linux, MacOs, Windows):
+    - https://docs.docker.com/desktop
+3. Rename env.example files to .env
     ```bash
-    npm install
+    /backend/env.example -> /backend/.env
+    /db/env.example -> /db/.env
     ```
-3. Start the development server:
+4. Run docker compose:
     ```bash
-    npm run dev
+    docker compose up
     ```
+5. Access the web application at http://localhost:8080
 
-## Run with docker
-1. Run backend:
+### Run client web app locally
+Docker is required to run the database and enable backend functionality. However, you can still demo the app locally, though several features will not be fully operational.
+
+1. Clone the repository:
+   
+   ```bash
+   git clone https://github.com/domen5/TaskTrail.git
+   cd TaskTrail
+   ```
+
+3. Start the frontend applciation:
     ```bash
-    docker compose up -d
-    ```
-2. Access the website on http://localhost:8080
+   cd frontend
+   npm install
+   npm run dev
+   ```

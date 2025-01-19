@@ -1,5 +1,5 @@
 import express from 'express';
-import { createWorkedHours, getWorkedHours, getMonthWorkedHours } from '../db/dataStore';
+import { createWorkedHours, getWorkedHours, getMonthWorkedHours, deleteWorkedHours } from '../db/dataStore';
 import WorkedHours from '../models/WorkedHours';
 import { InputError } from '../utils/errors';
 
@@ -43,6 +43,21 @@ routes.get('/worked-hours/:year/:month/:day', async (req, res) => {
         }
         res.status(500).send({ message: 'Something went wrong' });
     }
+});
+
+routes.delete('/worked-hours', async (req, res) => {
+    const id = req.body.id;
+    try {
+        await deleteWorkedHours(id);
+        res.status(200).send({message: 'Delete was successful'}); // 204
+    } catch (err) {
+        if (err instanceof InputError) {
+            res.status(400).send({ message: 'Bad input' });
+            return;
+        }
+        res.status(500).send({ message: 'Something went wrong' });
+    }
+
 });
 
 routes.get('/worked-hours/:year/:month/', async (req, res) => {

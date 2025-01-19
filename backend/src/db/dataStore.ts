@@ -43,9 +43,22 @@ export const createWorkedHours = async (year: number, month: number, day: number
     });
     try {
         await model.save();
-        console.log('Data saved successfully');
+        console.log('Data saved successfully, id: ' + model.id);
     } catch (err) {
         console.error('Error saving data:', err);
+        throw err;
+    }
+};
+
+export const deleteWorkedHours = async (id: string) => {
+    try {
+        const result = await WorkedHoursModel.findByIdAndDelete(id);
+        if (!result) {
+            throw new InputError('No record found with the given ID.');
+        }
+        console.log('Record deleted successfully, id: ' + id);
+    } catch (err) {
+        console.error('Error deleting record:', err);
         throw err;
     }
 };
