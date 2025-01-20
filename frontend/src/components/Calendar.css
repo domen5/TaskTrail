@@ -1,0 +1,13 @@
+.table {
+    width: 100%;
+}
+
+.table tr {
+    display: flex;
+}
+
+.table td {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+}

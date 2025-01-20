@@ -1,6 +1,7 @@
 .day {
     width: 100%;
     min-height: 120px;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -62,7 +63,9 @@
 }
 
 .padded-day {
-    background-color: #f1f1f1;
-    color: #aaa;
+    background-color: #e0e0e0;
+    color: #999;
+    border-color: #ccc;
+
     /* pointer-events: none; */
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Day from "./Day";
 import CalendarToolbar from "./CalendarToolbar";
 import { useTimeSheet } from "../context/TimeSheetContext";
+import "./Calendar.css"
 
 function Calendar() {
     const [selectedDay, setSelectedDay] = useState(new Date());
