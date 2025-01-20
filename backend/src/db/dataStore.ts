@@ -48,6 +48,7 @@ export const createWorkedHours = async (year: number, month: number, day: number
         console.error('Error saving data:', err);
         throw err;
     }
+    return model.toJSON();
 };
 
 export const deleteWorkedHours = async (id: string) => {

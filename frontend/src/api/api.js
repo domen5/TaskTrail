@@ -61,4 +61,25 @@ const postDayData = async (date, formData) => {
 
 };
 
-export { fetchMonthData, postDayData };
+const deleteWorkedHoursRequest = async (id) => {
+    if (!id) {
+        console.error('Error: ID is undefined in deleteWorkedHours');
+        throw new Error('Failed deleting workedHours with id: ' + id);
+    }
+    const url = `http://localhost:3000/api/worked-hours`;
+    const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id: id
+        })
+    });
+    if (!response.ok) {
+        throw new Error('Failed deleting workedHours with id: ' + id);
+    }
+};
+
+export { fetchMonthData, postDayData, deleteWorkedHoursRequest };
