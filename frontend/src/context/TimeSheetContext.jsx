@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { fetchMonthData, postDayData } from '../api/api';
+import { fetchMonthData, postDayData, deleteWorkedHoursRequest } from '../api/api';
 import { createKey } from '../utils/utils';
 
 const TimeSheetContext = createContext(undefined);
@@ -36,17 +36,17 @@ export function TimeSheetProvider({ children }) {
 
         // TODO: Check form data
 
-        setTimeSheetData(prev => ({
-            ...prev,
-            [key]: [...(prev[key] || []), formData],
-        }));
-
         try {
-            postDayData(date, formData);
+            const response = await postDayData(date, formData);
+            const updatedFormData = { ...formData, _id: response._id };
+
+            setTimeSheetData(prev => ({
+                ...prev,
+                [key]: [...(prev[key] || []), updatedFormData],
+            }));
         } catch (error) {
             console.error('Error updating timesheet:', error);
 
-            // TODO: This functionality doesn't appear to be working as expected. It needs thorough testing.
             // Revert the change in case of an error
             setTimeSheetData(prev => {
                 const updatedData = { ...prev };
@@ -61,10 +61,35 @@ export function TimeSheetProvider({ children }) {
         }
     };
 
+    const deleteWorkedHours = async (id) => {
+        // Optimistically update the state
+        let previousState;
+        setTimeSheetData(prev => {
+            previousState = { ...prev };
+            const updatedData = { ...prev };
+            for (const key in updatedData) {
+                updatedData[key] = updatedData[key].filter(entry => entry._id !== id);
+                if (updatedData[key].length === 0) {
+                    delete updatedData[key];
+                }
+            }
+            return updatedData;
+        });
+
+        try {
+            await deleteWorkedHoursRequest(id);
+        } catch (error) {
+            console.error('Error deleting worked hours:', error);
+            // Revert to previous state in case of an error
+            setTimeSheetData(previousState);
+        }
+    };
+
     const value = {
         getDayData,
         getMonthData,
         updateDayData,
+        deleteWorkedHours
     };
 
     return (

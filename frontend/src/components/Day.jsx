@@ -1,18 +1,16 @@
-import React, { useState } from "react";
 import "./Day.css";
-import DayForm from "./DayForm";
 import { useTimeSheet } from "../context/TimeSheetContext";
 
-function Day({ date, isPadded }) {
-    const [showForm, setShowForm] = useState(false);
+function Day({ date, isPadded, setSelectedDay }) {
     const { getDayData } = useTimeSheet();
 
     const dayNumber = date.getDate();
     const dayEntries = getDayData(date);
     const totalHours = dayEntries.reduce((sum, entry) => sum + (entry.hours || 0), 0);
 
-    const handleClick = () => setShowForm(true);
-    const handleClose = () => setShowForm(false);
+    const handleClick = () => {
+        setSelectedDay(date);
+    };
 
     return (
         <>
@@ -30,13 +28,6 @@ function Day({ date, isPadded }) {
                     </div>
                 )}
             </div>
-
-            {showForm && (
-                <DayForm
-                    date={date}
-                    onClose={handleClose}
-                />
-            )}
         </>
     );
 }

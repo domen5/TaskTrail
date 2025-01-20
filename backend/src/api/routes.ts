@@ -19,8 +19,8 @@ routes.post('/worked-hours/:year/:month/:day', async (req, res) => {
         overtime: req.body.workedHours.overtime,
     };
     try {
-        await createWorkedHours(parseInt(year), parseInt(month), parseInt(day), formData);
-        res.status(201).send({ message: 'Worked hours added successfully' });
+        const response = await createWorkedHours(parseInt(year), parseInt(month), parseInt(day), formData);
+        res.status(201).send(response);
     } catch (err) {
         if (err instanceof InputError) {
             res.status(400).send({ message: 'Bad input' });

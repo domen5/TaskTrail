@@ -3,9 +3,13 @@ import Day from "./Day";
 import CalendarToolbar from "./CalendarToolbar";
 import { useTimeSheet } from "../context/TimeSheetContext";
 import "./Calendar.css"
+import DayDetail from "./DayDetail";
+import DayForm from "./DayForm";
 
 function Calendar() {
     const [selectedDay, setSelectedDay] = useState(new Date());
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [showEditForm, setShowEditForm] = useState(false);
 
     // useEffect will trigger a the fetch of new data from the backend when the month of selectedDay changes 
     useEffect(() => {
@@ -13,6 +17,14 @@ function Calendar() {
     }, [selectedDay.getMonth(), selectedDay.getFullYear()]);
 
     const { getMonthData } = useTimeSheet();
+
+
+    const handleClickAddForm = () => setShowAddForm(true);
+    const handleCloseAddForm = () => setShowAddForm(false);
+    const handleClickEditForm = () => setShowEditForm(true);
+    const handleCloseEditForm = () => setShowEditForm(false);
+
+
 
     // Function to fetch data for a specific month, the previous and the next one
     const fetchMonthsData = async (date) => {
@@ -77,6 +89,27 @@ function Calendar() {
                 </h2>
                 <CalendarToolbar setSelectedDay={setSelectedDay} selectedDay={selectedDay} />
             </div>
+
+            <div className="row">
+                <DayDetail
+                    handleClickAddForm={handleClickAddForm}
+                    handleClickEditForm={handleClickEditForm}
+                    date={selectedDay} ></DayDetail>
+            </div>
+
+            {showAddForm && (
+                <DayForm
+                    date={selectedDay}
+                    onClose={handleCloseAddForm}
+                />
+            )}
+            {showEditForm && (
+                <DayForm
+                    date={selectedDay}
+                    onClose={handleCloseEditForm}
+                />
+            )}
+
             <table className="table">
                 <thead>
                     <tr>
@@ -99,7 +132,7 @@ function Calendar() {
 
                                 return (
                                     <td key={dayIndex}>
-                                        <Day date={date} isPadded={isPadded} />
+                                        <Day date={date} isPadded={isPadded} setSelectedDay={setSelectedDay} />
                                     </td>
                                 );
                             })}
