@@ -87,7 +87,7 @@ function Calendar() {
                 <h2 style={{ textTransform: "capitalize" }}>
                     {selectedDay.toLocaleString('default', { month: 'long' }) + ' ' + selectedDay.getFullYear()}
                 </h2>
-                <CalendarToolbar han={setSelectedDay} selectedDay={selectedDay} />
+                <CalendarToolbar setSelectedDay={setSelectedDay} selectedDay={selectedDay} />
             </div>
 
             <div className="row">
