@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { fetchMonthData, postDayData, deleteWorkedHoursRequest } from '../api/api';
+import { getMonthWorkedHoursApiCall, createWorkedHoursApiCall, deleteWorkedHoursApiCall } from '../api/api';
 import { createKey } from '../utils/utils';
 
 const TimeSheetContext = createContext(undefined);
@@ -14,7 +14,7 @@ export function TimeSheetProvider({ children }) {
 
     // Assumes 0-based months; Triggers update od timeSheetData;
     const getMonthData = async (year, month) => {
-        const newMonthData = await fetchMonthData(year, month);
+        const newMonthData = await getMonthWorkedHoursApiCall(year, month);
         const prefix = createKey(new Date(year, month, 1)).slice(0, 7); // "yyyy-MM"
         // console.log(`Retrieving new data for ${year}/${month+1}`);
         setTimeSheetData(prev => {
@@ -37,7 +37,7 @@ export function TimeSheetProvider({ children }) {
         // TODO: Check form data
 
         try {
-            const response = await postDayData(date, formData);
+            const response = await createWorkedHoursApiCall(date, formData);
             const updatedFormData = { ...formData, _id: response._id };
 
             setTimeSheetData(prev => ({
@@ -77,7 +77,7 @@ export function TimeSheetProvider({ children }) {
         });
 
         try {
-            await deleteWorkedHoursRequest(id);
+            await deleteWorkedHoursApiCall(id);
         } catch (error) {
             console.error('Error deleting worked hours:', error);
             // Revert to previous state in case of an error
