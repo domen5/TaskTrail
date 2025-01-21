@@ -1,5 +1,5 @@
 import "./DayDetail.css";
-import { useTimeSheet } from "../context/TimeSheetContext";
+import { useTimeSheet } from "../../context/TimeSheetContext";
 
 export default function DayDetail({ date, handleClickEditForm, handleClickAddForm }) {
     const { getDayData, deleteWorkedHours } = useTimeSheet();

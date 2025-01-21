@@ -1,6 +1,6 @@
-import Modal from "./Modal";
+import Modal from "../Modal";
 import WorkedHoursForm from "./WorkedHoursForm";
-import { useTimeSheet } from "../context/TimeSheetContext";
+import { useTimeSheet } from "../../context/TimeSheetContext";
 
 function EditWorkedHoursForm({ workedHours, onClose }) {
     const { updateWorkedHours } = useTimeSheet();

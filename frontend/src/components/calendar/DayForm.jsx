@@ -1,5 +1,5 @@
-import { useTimeSheet } from "../context/TimeSheetContext";
-import Modal from './Modal';
+import { useTimeSheet } from "../../context/TimeSheetContext";
+import Modal from '../Modal';
 import './DayForm.css';
 
 function DayForm({ date, onClose }) {
