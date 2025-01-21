@@ -97,6 +97,39 @@ function Calendar() {
                     date={selectedDay} ></DayDetail>
             </div>
 
+            <div className="row">
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th>Sun</th>
+                            <th>Mon</th>
+                            <th>Tue</th>
+                            <th>Wed</th>
+                            <th>Thu</th>
+                            <th>Fri</th>
+                            <th>Sat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {weeks.map((week, index) => (
+                            <tr key={index}>
+                                {week.map((date, dayIndex) => {
+                                    const isPrevMonth = index === 0 && dayIndex < prevMonthPadding;
+                                    const isNextMonth = index === weeks.length - 1 && dayIndex >= 7 - nextMonthPadding;
+                                    const isPadded = isPrevMonth || isNextMonth;
+
+                                    return (
+                                        <td key={dayIndex}>
+                                            <Day date={date} isPadded={isPadded} setSelectedDay={setSelectedDay} />
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
             {showAddForm && (
                 <DayForm
                     date={selectedDay}
@@ -109,37 +142,6 @@ function Calendar() {
                     onClose={handleCloseEditForm}
                 />
             )}
-
-            <table className="table">
-                <thead>
-                    <tr>
-                        <th>Sun</th>
-                        <th>Mon</th>
-                        <th>Tue</th>
-                        <th>Wed</th>
-                        <th>Thu</th>
-                        <th>Fri</th>
-                        <th>Sat</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {weeks.map((week, index) => (
-                        <tr key={index}>
-                            {week.map((date, dayIndex) => {
-                                const isPrevMonth = index === 0 && dayIndex < prevMonthPadding;
-                                const isNextMonth = index === weeks.length - 1 && dayIndex >= 7 - nextMonthPadding;
-                                const isPadded = isPrevMonth || isNextMonth;
-
-                                return (
-                                    <td key={dayIndex}>
-                                        <Day date={date} isPadded={isPadded} setSelectedDay={setSelectedDay} />
-                                    </td>
-                                );
-                            })}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
         </div>
     );
 }
