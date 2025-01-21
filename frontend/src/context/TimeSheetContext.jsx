@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useState } from 'react';
-import { getMonthWorkedHoursApiCall, createWorkedHoursApiCall, deleteWorkedHoursApiCall } from '../api/api';
+import {
+    getMonthWorkedHoursApiCall,
+    createWorkedHoursApiCall,
+    updateWorkedHoursApiCall,
+    deleteWorkedHoursApiCall
+} from '../api/api';
 import { createKey } from '../utils/utils';
 
 const TimeSheetContext = createContext(undefined);
@@ -31,6 +36,7 @@ export function TimeSheetProvider({ children }) {
         return newMonthData;
     };
 
+    // TODO: change name
     const updateDayData = async (date, formData) => {
         const key = createKey(date);
 
@@ -85,10 +91,37 @@ export function TimeSheetProvider({ children }) {
         }
     };
 
+    const updateWorkedHours = async (workedHours) => {
+        // TODO: check form data
+
+        // Optimistically update the state
+        let previousState;
+        setTimeSheetData(prev => {
+            previousState = { ...prev };
+            const updatedData = { ...prev };
+            const dateKey = workedHours.date;
+            if (updatedData[dateKey]) {
+                updatedData[dateKey] = updatedData[dateKey].map(entry =>
+                    entry._id === workedHours._id ? workedHours : entry
+                );
+            }
+            return updatedData;
+        });
+
+        try {
+            await updateWorkedHoursApiCall(workedHours);
+        } catch (error) {
+            console.error('Error updating worked hours:', error);
+            // Revert to previous state in case of an error
+            setTimeSheetData(previousState);
+        }
+    }
+
     const value = {
         getDayData,
         getMonthData,
         updateDayData,
+        updateWorkedHours,
         deleteWorkedHours
     };
 
