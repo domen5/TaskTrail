@@ -13,22 +13,20 @@ function Day({ date, isPadded, setSelectedDay }) {
     };
 
     return (
-        <>
-            <div className={`day ${isPadded ? "padded-day" : ""}`} onClick={handleClick}>
-                <p className="day-number">{dayNumber}</p>
-                {dayEntries.length > 0 && (
-                    <div className="day-details">
-                        <p className="total-hours"><strong>Total: {totalHours}h</strong></p>
-                        {dayEntries.map((entry, index) => (
-                            <div key={index} className="entry">
-                                <p><strong>{entry.project || "N/A"}</strong></p>
-                                <p>{entry.hours || 0}h: {entry.description || "No description"}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </>
+        <div className={`day h-100 ${isPadded ? "padded-day" : ""}`} onClick={handleClick}>
+            <p className="fw-bold mb-2">{dayNumber}</p>
+            {dayEntries.length > 0 && (
+                <div className="day-details">
+                    <p className="fw-bold border-bottom pb-1 mb-2">Total: {totalHours}h</p>
+                    {dayEntries.map((entry, index) => (
+                        <div key={index} className="entry p-1 mb-2">
+                            <p className="fw-bold mb-1">{entry.project || "N/A"}</p>
+                            <p className="mb-0">{entry.hours || 0}h: {entry.description || "No description"}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 }
 

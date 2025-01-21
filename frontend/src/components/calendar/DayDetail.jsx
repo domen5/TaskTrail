@@ -11,51 +11,38 @@ export default function DayDetail({ date, handleClickEditForm, handleClickAddFor
         await deleteWorkedHours(id);
     };
 
-    const createEditWorkedHoursForm = (workedHours) => {
-        handleClickEditForm(workedHours);
-    };
-
-
-
     return (
-        <>
-            <div className="day-details-component">
-                <div className="row">
-                    <div className="col" style={{ "margin": "auto" }}>
-                        <p className="day-details-date">{date.toLocaleDateString()}</p>
-                    </div>
-                    <div className="col">
-                        <div className="btn-group">
-                            <button className="btn btn-success" onClick={handleClickAddForm}>
-                                <i className="fa fa-plus" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
+        <div className="card">
+            <div className="card-body p-3">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h5 className="card-title mb-0">{date.toLocaleDateString()}</h5>
+                    <button className="btn btn-success btn-sm" onClick={handleClickAddForm}>
+                        <i className="fa fa-plus" aria-hidden="true"></i>
+                    </button>
                 </div>
+                
                 {dayEntries.length > 0 && (
                     <div className="day-details-inner">
-                        <p className="day-details-total-hours"><strong>Total: {totalHours}h</strong></p>
-                        {dayEntries.map((entry, index) => {
-                            return (
-                                <div key={index} className="day-details-entry">
-                                    <div className="day-details-entry-header">
-                                        <p><strong>{entry.project || "N/A"}</strong></p>
-                                        <div className="btn-group day-details-align-right">
-                                            <button className="btn btn-success" onClick={() => handleClickEditForm(entry)}>
-                                                <i className="fas fa-edit" aria-hidden="true"></i>
-                                            </button>
-                                            <button className="btn btn-danger" onClick={() => deleteFunc(entry._id)}>
-                                                <i className="fa-solid fa-x" aria-hidden="true"></i>
-                                            </button>
-                                        </div>
+                        <p className="fw-bold border-bottom pb-2">Total: {totalHours}h</p>
+                        {dayEntries.map((entry, index) => (
+                            <div key={index} className="day-details-entry p-2 mb-2">
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <p className="fw-bold mb-1">{entry.project || "N/A"}</p>
+                                    <div className="btn-group">
+                                        <button className="btn btn-success btn-sm" onClick={() => handleClickEditForm(entry)}>
+                                            <i className="fas fa-edit" aria-hidden="true"></i>
+                                        </button>
+                                        <button className="btn btn-danger btn-sm" onClick={() => deleteFunc(entry._id)}>
+                                            <i className="fa-solid fa-x" aria-hidden="true"></i>
+                                        </button>
                                     </div>
-                                    <p>{entry.hours || 0}h: {entry.description || "No description"}</p>
                                 </div>
-                            )
-                        }
-                        )}
+                                <p className="mb-0">{entry.hours || 0}h: {entry.description || "No description"}</p>
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>
-        </>);
+        </div>
+    );
 }

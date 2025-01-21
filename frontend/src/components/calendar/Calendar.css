@@ -1,26 +1,10 @@
-.table {
-    width: 100%;
+.calendar-container {
+    overflow-x: auto;
+    margin-bottom: 1rem;
 }
 
-.table thead tr {
-    display: flex;
-}
-
-.table thead th {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    box-sizing: border-box;
-}
-
-.table tr {
-    display: flex;
-}
-
-.table td {
-    flex: 1;
-    display: flex;
-    align-items: stretch;
+@media (max-width: 768px) {
+    .calendar-container {
+        font-size: 0.8rem;
+    }
 }

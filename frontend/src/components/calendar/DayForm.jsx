@@ -1,5 +1,6 @@
 import { useTimeSheet } from "../../context/TimeSheetContext";
 import Modal from '../Modal';
+import { createKey } from "../../utils/utils";
 import './DayForm.css';
 
 function DayForm({ date, onClose }) {
@@ -8,7 +9,7 @@ function DayForm({ date, onClose }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = {
-            date: date.toLocaleDateString(),
+            date: createKey(date),
             project: e.target.project.value,
             hours: parseInt(e.target.workedHours.value),
             description: e.target.description.value,
