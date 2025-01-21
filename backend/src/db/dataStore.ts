@@ -3,8 +3,6 @@ import WorkedHours, { WorkedHoursModel } from "../models/WorkedHours";
 import { MONGODB_URI } from "../config";
 import { InputError } from '../utils/errors';
 
-const timeSheetData: { [key: string]: WorkedHours[] } = {};
-
 run().catch(err => console.log(err));
 
 async function run() {
@@ -49,6 +47,30 @@ export const createWorkedHours = async (year: number, month: number, day: number
         throw err;
     }
     return model.toJSON();
+};
+
+export const updateWorkedHours = async (id: string, workedHours: WorkedHours) => {
+    if (!workedHours.date) {
+        console.error('Error: Missing date in the input for updating worked hours.');
+        throw new InputError('Date is required. Please provide a date in the format yyyy-MM-dd.');
+    }
+    if (!isValidKey(workedHours.date)) {
+        console.error(`Error: Invalid date format provided: ${workedHours.date}`);
+        throw new InputError('Invalid date format. Ensure the date is in the format yyyy-MM-dd.');
+    }
+    
+    try {
+        const result = await WorkedHoursModel.findByIdAndUpdate(id, workedHours, { new: true });
+        if (!result) {
+            throw new InputError('No record found with the given ID.');
+        }
+        console.log('Record updated successfully, id: ' + id);
+        console.log(result.toJSON());
+        return result.toJSON();
+    } catch (err) {
+        console.error('Error updating record:', err);
+        throw err;
+    }
 };
 
 export const deleteWorkedHours = async (id: string) => {
@@ -97,21 +119,6 @@ export const getMonthWorkedHours = async (year: number, month: number): Promise<
         return data || [];
     } catch (err) {
         console.error('Error retrieving data for getMonthWorkedHours:', err);
-        throw err;
-    }
-};
-
-export const updateWorkedHours = async (id: string, workedHours: WorkedHours) => {
-    try {
-        const result = await WorkedHoursModel.findByIdAndUpdate(id, workedHours, { new: true });
-        if (!result) {
-            throw new InputError('No record found with the given ID.');
-        }
-        console.log('Record updated successfully, id: ' + id);
-        console.log(result.toJSON());
-        return result.toJSON();
-    } catch (err) {
-        console.error('Error updating record:', err);
         throw err;
     }
 };
