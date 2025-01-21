@@ -11,11 +11,17 @@ export default function DayDetail({ date, handleClickEditForm, handleClickAddFor
         await deleteWorkedHours(id);
     };
 
+    const createEditWorkedHoursForm = (workedHours) => {
+        handleClickEditForm(workedHours);
+    };
+
+
+
     return (
         <>
             <div className="day-details-component">
                 <div className="row">
-                    <div className="col" style={{"margin": "auto"}}>
+                    <div className="col" style={{ "margin": "auto" }}>
                         <p className="day-details-date">{date.toLocaleDateString()}</p>
                     </div>
                     <div className="col">
@@ -35,7 +41,7 @@ export default function DayDetail({ date, handleClickEditForm, handleClickAddFor
                                     <div className="day-details-entry-header">
                                         <p><strong>{entry.project || "N/A"}</strong></p>
                                         <div className="btn-group day-details-align-right">
-                                            <button className="btn btn-success" onClick={handleClickEditForm}>
+                                            <button className="btn btn-success" onClick={() => handleClickEditForm(entry)}>
                                                 <i className="fas fa-edit" aria-hidden="true"></i>
                                             </button>
                                             <button className="btn btn-danger" onClick={() => deleteFunc(entry._id)}>

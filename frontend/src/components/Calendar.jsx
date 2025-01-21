@@ -5,11 +5,13 @@ import { useTimeSheet } from "../context/TimeSheetContext";
 import "./Calendar.css"
 import DayDetail from "./DayDetail";
 import DayForm from "./DayForm";
+import EditWorkedHoursForm from "./EditWorkedHoursForm";
 
 function Calendar() {
     const [selectedDay, setSelectedDay] = useState(new Date());
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
+    const [editWorkedHours, setEditWorkedHouts] = useState(null);
 
     // useEffect will trigger a the fetch of new data from the backend when the month of selectedDay changes 
     useEffect(() => {
@@ -21,7 +23,10 @@ function Calendar() {
 
     const handleClickAddForm = () => setShowAddForm(true);
     const handleCloseAddForm = () => setShowAddForm(false);
-    const handleClickEditForm = () => setShowEditForm(true);
+    const handleClickEditForm = (workedHours) => {
+        setEditWorkedHouts(workedHours)
+        setShowEditForm(true)
+    };
     const handleCloseEditForm = () => setShowEditForm(false);
 
 
@@ -137,10 +142,9 @@ function Calendar() {
                 />
             )}
             {showEditForm && (
-                <DayForm
-                    date={selectedDay}
-                    onClose={handleCloseEditForm}
-                />
+                <EditWorkedHoursForm
+                    workedHours={editWorkedHours}
+                    onClose={handleCloseEditForm} />
             )}
         </div>
     );
