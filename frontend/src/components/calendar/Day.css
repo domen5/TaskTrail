@@ -1,0 +1,77 @@
+.day {
+    min-height: 120px;
+    height: 120px;
+    padding: 0.5rem;
+    background-color: #f9f9f9;
+    cursor: pointer;
+}
+
+.day-number {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.day-details {
+    font-size: 0.8rem;
+    max-height: 85px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    /* Reserving space for the scrollbar to prevent layout shift */
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+    }
+}
+
+.day-details p {
+    margin: 4px 0;
+}
+
+.day:hover {
+    background-color: #e6e6e6;
+    border-color: #bbb;
+}
+
+.day:active {
+    transform: scale(0.95);
+}
+
+.total-hours {
+    color: #2c3e50;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.entry {
+    border-left: 3px solid green;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.entry p {
+    margin: 2px 0;
+}
+
+.padded-day {
+    background-color: #e0e0e0;
+    color: #999;
+}
+
+@media (max-width: 768px) {
+    .day {
+        min-height: 100px;
+        height: 100px;
+        padding: 0.25rem;
+    }
+    
+    .day-details {
+        font-size: 0.7rem;
+        max-height: 80px;
+    }
+}

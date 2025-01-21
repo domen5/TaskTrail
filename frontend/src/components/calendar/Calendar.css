@@ -1,0 +1,10 @@
+.calendar-container {
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .calendar-container {
+        font-size: 0.8rem;
+    }
+}

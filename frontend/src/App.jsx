@@ -1,7 +1,7 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import Calendar from './components/Calendar';
+import Calendar from './components/calendar/Calendar';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Profile from './components/Profile';

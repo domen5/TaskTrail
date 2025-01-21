@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Day from "./Day";
 import CalendarToolbar from "./CalendarToolbar";
-import { useTimeSheet } from "../context/TimeSheetContext";
+import { useTimeSheet } from "../../context/TimeSheetContext";
 import "./Calendar.css"
 import DayDetail from "./DayDetail";
 import DayForm from "./DayForm";
@@ -24,8 +24,8 @@ function Calendar() {
     const handleClickAddForm = () => setShowAddForm(true);
     const handleCloseAddForm = () => setShowAddForm(false);
     const handleClickEditForm = (workedHours) => {
-        setEditWorkedHouts(workedHours)
-        setShowEditForm(true)
+        setEditWorkedHouts(workedHours);
+        setShowEditForm(true);
     };
     const handleCloseEditForm = () => setShowEditForm(false);
 
@@ -88,51 +88,59 @@ function Calendar() {
 
     return (
         <div className="container">
-            <div className="row">
-                <h2 style={{ textTransform: "capitalize" }}>
-                    {selectedDay.toLocaleString('default', { month: 'long' }) + ' ' + selectedDay.getFullYear()}
-                </h2>
-                <CalendarToolbar setSelectedDay={setSelectedDay} selectedDay={selectedDay} />
+            <div className="row mb-3">
+                <div className="col-12">
+                    <h2 className="text-capitalize mb-3">
+                        {selectedDay.toLocaleString('default', { month: 'long' }) + ' ' + selectedDay.getFullYear()}
+                    </h2>
+                    <CalendarToolbar setSelectedDay={setSelectedDay} selectedDay={selectedDay} />
+                </div>
+            </div>
+
+            <div className="row mb-3">
+                <div className="col-12">
+                    <DayDetail
+                        handleClickAddForm={handleClickAddForm}
+                        handleClickEditForm={handleClickEditForm}
+                        date={selectedDay} />
+                </div>
             </div>
 
             <div className="row">
-                <DayDetail
-                    handleClickAddForm={handleClickAddForm}
-                    handleClickEditForm={handleClickEditForm}
-                    date={selectedDay} ></DayDetail>
-            </div>
+                <div className="col-12">
+                    <div className="table-responsive">
+                        <table className="table table-bordered mb-0">
+                            <thead className="table-light">
+                                <tr>
+                                    <th className="text-center p-1">Sun</th>
+                                    <th className="text-center p-1">Mon</th>
+                                    <th className="text-center p-1">Tue</th>
+                                    <th className="text-center p-1">Wed</th>
+                                    <th className="text-center p-1">Thu</th>
+                                    <th className="text-center p-1">Fri</th>
+                                    <th className="text-center p-1">Sat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {weeks.map((week, index) => (
+                                    <tr key={index}>
+                                        {week.map((date, dayIndex) => {
+                                            const isPrevMonth = index === 0 && dayIndex < prevMonthPadding;
+                                            const isNextMonth = index === weeks.length - 1 && dayIndex >= 7 - nextMonthPadding;
+                                            const isPadded = isPrevMonth || isNextMonth;
 
-            <div className="row">
-                <table className="table">
-                    <thead>
-                        <tr>
-                            <th>Sun</th>
-                            <th>Mon</th>
-                            <th>Tue</th>
-                            <th>Wed</th>
-                            <th>Thu</th>
-                            <th>Fri</th>
-                            <th>Sat</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {weeks.map((week, index) => (
-                            <tr key={index}>
-                                {week.map((date, dayIndex) => {
-                                    const isPrevMonth = index === 0 && dayIndex < prevMonthPadding;
-                                    const isNextMonth = index === weeks.length - 1 && dayIndex >= 7 - nextMonthPadding;
-                                    const isPadded = isPrevMonth || isNextMonth;
-
-                                    return (
-                                        <td key={dayIndex}>
-                                            <Day date={date} isPadded={isPadded} setSelectedDay={setSelectedDay} />
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                                            return (
+                                                <td key={dayIndex} className="p-0" style={{ height: '120px' }}>
+                                                    <Day date={date} isPadded={isPadded} setSelectedDay={setSelectedDay} />
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             {showAddForm && (
