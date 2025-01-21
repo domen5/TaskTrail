@@ -1,25 +1,12 @@
-import { useTimeSheet } from "../context/TimeSheetContext";
-import Modal from './Modal';
-import './DayForm.css';
+import Modal from "./Modal";
 
-function DayForm({ date, onClose }) {
-    const { updateDayData } = useTimeSheet();
-
+function EditWorkedHoursForm({ workedHours, onClose }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const formData = {
-            date: date.toLocaleDateString(),
-            project: e.target.project.value,
-            hours: parseInt(e.target.workedHours.value),
-            description: e.target.description.value,
-            overtime: e.target.inlineRadioOptions.value === 'option1',
-        };
-        await updateDayData(date, formData);
-        onClose();
-    };
+    }
 
     return (
-        <Modal title="Add Hours" onClose={onClose}>
+        <Modal title="Edit Hours" onClose={onClose}>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label htmlFor="project">Project:</label>
@@ -97,7 +84,7 @@ function DayForm({ date, onClose }) {
                 </div>
             </form>
         </Modal>
-    );
-}
+    )
+};
 
-export default DayForm;
+export default EditWorkedHoursForm;
