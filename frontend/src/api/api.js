@@ -1,5 +1,5 @@
 // Get month data from the backend; Assumes 0 based months
-const fetchMonthData = async (year, month) => {
+const getMonthWorkedHoursApiCall = async (year, month) => {
     const newMonth = month + 1; // Backend API expects 1-based months
     const url = `http://localhost:3000/api/worked-hours/${year}/${newMonth}`;
 
@@ -37,7 +37,7 @@ const fetchMonthData = async (year, month) => {
     }
 };
 
-const postDayData = async (date, formData) => {
+const createWorkedHoursApiCall = async (date, formData) => {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();
@@ -61,7 +61,7 @@ const postDayData = async (date, formData) => {
 
 };
 
-const deleteWorkedHoursRequest = async (id) => {
+const deleteWorkedHoursApiCall = async (id) => {
     if (!id) {
         console.error('Error: ID is undefined in deleteWorkedHours');
         throw new Error('Failed deleting workedHours with id: ' + id);
@@ -82,4 +82,34 @@ const deleteWorkedHoursRequest = async (id) => {
     }
 };
 
-export { fetchMonthData, postDayData, deleteWorkedHoursRequest };
+const updateWorkedHoursApiCall = async (workedHours) => {
+    if (!workedHours._id || typeof workedHours._id !== 'string' || workedHours._id.length === 0) {
+        console.error('Error: ID is invalid in updateWorkedHoursApiCall');
+        throw new Error('Failed updating workedHours with id: ' + workedHours._id);
+    }
+    if (!workedHours.date || typeof workedHours.date !== 'string' || workedHours.date.length === 0) {
+        //todo check if valid key
+        console.error('Error: Date is invalid in updateWorkedHoursApiCall');
+        throw new Error('Failed updating workedHours with id: ' + workedHours._id);
+    }
+    const url = `http://localhost:3000/api/worked-hours`;
+    const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ "workedHours": workedHours })
+    });
+    if (!response.ok) {
+        throw new Error('Failed updating workedHours with id: ' + workedHours._id);
+    }
+    return await response.json()
+}
+
+export {
+    getMonthWorkedHoursApiCall,
+    createWorkedHoursApiCall,
+    deleteWorkedHoursApiCall,
+    updateWorkedHoursApiCall
+};

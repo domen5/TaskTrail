@@ -5,11 +5,13 @@ import { useTimeSheet } from "../context/TimeSheetContext";
 import "./Calendar.css"
 import DayDetail from "./DayDetail";
 import DayForm from "./DayForm";
+import EditWorkedHoursForm from "./EditWorkedHoursForm";
 
 function Calendar() {
     const [selectedDay, setSelectedDay] = useState(new Date());
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
+    const [editWorkedHours, setEditWorkedHouts] = useState(null);
 
     // useEffect will trigger a the fetch of new data from the backend when the month of selectedDay changes 
     useEffect(() => {
@@ -21,7 +23,10 @@ function Calendar() {
 
     const handleClickAddForm = () => setShowAddForm(true);
     const handleCloseAddForm = () => setShowAddForm(false);
-    const handleClickEditForm = () => setShowEditForm(true);
+    const handleClickEditForm = (workedHours) => {
+        setEditWorkedHouts(workedHours)
+        setShowEditForm(true)
+    };
     const handleCloseEditForm = () => setShowEditForm(false);
 
 
@@ -97,6 +102,39 @@ function Calendar() {
                     date={selectedDay} ></DayDetail>
             </div>
 
+            <div className="row">
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th>Sun</th>
+                            <th>Mon</th>
+                            <th>Tue</th>
+                            <th>Wed</th>
+                            <th>Thu</th>
+                            <th>Fri</th>
+                            <th>Sat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {weeks.map((week, index) => (
+                            <tr key={index}>
+                                {week.map((date, dayIndex) => {
+                                    const isPrevMonth = index === 0 && dayIndex < prevMonthPadding;
+                                    const isNextMonth = index === weeks.length - 1 && dayIndex >= 7 - nextMonthPadding;
+                                    const isPadded = isPrevMonth || isNextMonth;
+
+                                    return (
+                                        <td key={dayIndex}>
+                                            <Day date={date} isPadded={isPadded} setSelectedDay={setSelectedDay} />
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
             {showAddForm && (
                 <DayForm
                     date={selectedDay}
@@ -104,42 +142,10 @@ function Calendar() {
                 />
             )}
             {showEditForm && (
-                <DayForm
-                    date={selectedDay}
-                    onClose={handleCloseEditForm}
-                />
+                <EditWorkedHoursForm
+                    workedHours={editWorkedHours}
+                    onClose={handleCloseEditForm} />
             )}
-
-            <table className="table">
-                <thead>
-                    <tr>
-                        <th>Sun</th>
-                        <th>Mon</th>
-                        <th>Tue</th>
-                        <th>Wed</th>
-                        <th>Thu</th>
-                        <th>Fri</th>
-                        <th>Sat</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {weeks.map((week, index) => (
-                        <tr key={index}>
-                            {week.map((date, dayIndex) => {
-                                const isPrevMonth = index === 0 && dayIndex < prevMonthPadding;
-                                const isNextMonth = index === weeks.length - 1 && dayIndex >= 7 - nextMonthPadding;
-                                const isPadded = isPrevMonth || isNextMonth;
-
-                                return (
-                                    <td key={dayIndex}>
-                                        <Day date={date} isPadded={isPadded} setSelectedDay={setSelectedDay} />
-                                    </td>
-                                );
-                            })}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
         </div>
     );
 }

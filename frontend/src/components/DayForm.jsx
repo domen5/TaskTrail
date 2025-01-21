@@ -19,7 +19,7 @@ function DayForm({ date, onClose }) {
     };
 
     return (
-        <Modal title="Edit Day" onClose={onClose}>
+        <Modal title="Add Hours" onClose={onClose}>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label htmlFor="project">Project:</label>
