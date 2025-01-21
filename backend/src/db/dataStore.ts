@@ -101,6 +101,21 @@ export const getMonthWorkedHours = async (year: number, month: number): Promise<
     }
 };
 
+export const updateWorkedHours = async (id: string, workedHours: WorkedHours) => {
+    try {
+        const result = await WorkedHoursModel.findByIdAndUpdate(id, workedHours, { new: true });
+        if (!result) {
+            throw new InputError('No record found with the given ID.');
+        }
+        console.log('Record updated successfully, id: ' + id);
+        console.log(result.toJSON());
+        return result.toJSON();
+    } catch (err) {
+        console.error('Error updating record:', err);
+        throw err;
+    }
+};
+
 // // Mock data for developement and testing
 // addWorkedHours(2025, 1, 1, {
 //     date: "2025-01-01",
