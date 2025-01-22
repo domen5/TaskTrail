@@ -4,6 +4,11 @@
     padding: 0.5rem;
     background-color: #f9f9f9;
     cursor: pointer;
+    transition: transform 0.1s ease;
+    transform-origin: center;
+    /* Add these to ensure content stays in place during transform */
+    transform: scale(1);
+    will-change: transform;
 }
 
 .day-number {
@@ -16,7 +21,7 @@
 .day-details {
     font-size: 0.8rem;
     max-height: 85px;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
     /* Reserving space for the scrollbar to prevent layout shift */
@@ -39,7 +44,7 @@
 }
 
 .day:active {
-    transform: scale(0.95);
+    transform: scale(0.98); /* Made the scale effect more subtle */
 }
 
 .entry {
