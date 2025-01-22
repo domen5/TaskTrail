@@ -1,5 +1,5 @@
 # Stage 1: Build the application using the official Node.js image
-FROM node:22.13-alpine as builder
+FROM node:22.13-alpine AS builder
 
 WORKDIR /app
 

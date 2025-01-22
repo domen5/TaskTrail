@@ -1,3 +1,5 @@
+import './WorkedHoursForm.css';
+
 function WorkedHoursForm({
     projects = [
         {
@@ -21,8 +23,8 @@ function WorkedHoursForm({
     onClose }) {
     return (
         <form onSubmit={handleSubmit}>
-            <div className="form-group">
-                <label htmlFor="project">Project:</label>
+            <div className="mb-3">
+                <label htmlFor="project" className="form-label">Project:</label>
                 <select
                     id="project"
                     name="project"
@@ -38,8 +40,8 @@ function WorkedHoursForm({
                 </select>
             </div>
 
-            <div className="form-group">
-                <label htmlFor="workedHours">Worked Hours:</label>
+            <div className="mb-3">
+                <label htmlFor="workedHours" className="form-label">Worked Hours:</label>
                 <input
                     type="number"
                     id="workedHours"
@@ -53,8 +55,8 @@ function WorkedHoursForm({
                 />
             </div>
 
-            <div className="form-group">
-                <label htmlFor="description">Description:</label>
+            <div className="mb-3">
+                <label htmlFor="description" className="form-label">Description:</label>
                 <textarea
                     id="description"
                     name="description"
@@ -66,9 +68,9 @@ function WorkedHoursForm({
                 ></textarea>
             </div>
 
-            <div className="form-group">
-                <label>Overtime:</label>
-                <div className="radio-group">
+            <div className="mb-3">
+                <label className="form-label d-block">Overtime:</label>
+                <div className="d-flex gap-3">
                     <div className="form-check">
                         <input
                             className="form-check-input"
@@ -100,7 +102,6 @@ function WorkedHoursForm({
             </div>
         </form>
     );
-
 }
 
 export default WorkedHoursForm;
