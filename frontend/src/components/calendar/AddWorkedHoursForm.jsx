@@ -1,7 +1,7 @@
 import { useTimeSheet } from "../../context/TimeSheetContext";
 import Modal from '../Modal';
 import { createKey } from "../../utils/utils";
-import './DayForm.css';
+import './AddWorkedHoursForm.css';
 
 function DayForm({ date, onClose }) {
     const { updateDayData } = useTimeSheet();

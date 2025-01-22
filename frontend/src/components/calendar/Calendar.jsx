@@ -4,7 +4,7 @@ import CalendarToolbar from "./CalendarToolbar";
 import { useTimeSheet } from "../../context/TimeSheetContext";
 import "./Calendar.css"
 import DayDetail from "./DayDetail";
-import DayForm from "./DayForm";
+import AddWorkedHoursForm from "./AddWorkedHoursForm";
 import EditWorkedHoursForm from "./EditWorkedHoursForm";
 
 function Calendar() {
@@ -144,7 +144,7 @@ function Calendar() {
             </div>
 
             {showAddForm && (
-                <DayForm
+                <AddWorkedHoursForm
                     date={selectedDay}
                     onClose={handleCloseAddForm}
                 />
