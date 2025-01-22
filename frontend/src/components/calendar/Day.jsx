@@ -14,10 +14,12 @@ function Day({ date, isPadded, setSelectedDay }) {
 
     return (
         <div className={`day h-100 ${isPadded ? "padded-day" : ""}`} onClick={handleClick}>
-            <p className="fw-bold mb-2">{dayNumber}</p>
+            <div className="d-flex justify-content-between align-items-center mb-2">
+                <span className="fw-bold">{dayNumber}</span>
+                {dayEntries.length > 0 && <span className="text-secondary small">{totalHours}h</span>}
+            </div>
             {dayEntries.length > 0 && (
                 <div className="day-details">
-                    <p className="fw-bold border-bottom pb-1 mb-2">Total: {totalHours}h</p>
                     {dayEntries.map((entry, index) => (
                         <div key={index} className="entry p-1 mb-2">
                             <p className="fw-bold mb-1">{entry.project || "N/A"}</p>
