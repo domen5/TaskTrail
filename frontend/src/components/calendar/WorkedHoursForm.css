@@ -1,7 +1,5 @@
 .form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 15px;
+    margin-bottom: 1rem;
 }
 
 label {
@@ -30,8 +28,7 @@ textarea {
 
 .radio-group {
     display: flex;
-    gap: 15px;
-    align-items: center;
+    gap: 1rem;
 }
 
 .form-check {

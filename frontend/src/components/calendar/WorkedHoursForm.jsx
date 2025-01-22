@@ -1,3 +1,5 @@
+import './WorkedHoursForm.css';
+
 function WorkedHoursForm({
     projects = [
         {
