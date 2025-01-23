@@ -3,15 +3,14 @@ import WorkedHours, { WorkedHoursModel } from "../models/WorkedHours";
 import { MONGODB_URI } from "../config";
 import { InputError } from '../utils/errors';
 
-run().catch(err => console.log(err));
-
-async function run() {
-    const connect = async () => {
-        mongoose.connect(MONGODB_URI)
-            .then(() => console.log('Connected to database tasktrail'))
-            .catch((err) => console.log(err));
+export async function initializeDatabase(uri: string = MONGODB_URI) {
+    try {
+        await mongoose.connect(uri);
+        console.log('Connected to database');
+    } catch (err) {
+        console.error('Database connection error:', err);
+        throw err;
     }
-    await connect();
 }
 
 const createKey = (year: number, month: number, day: number): string => {

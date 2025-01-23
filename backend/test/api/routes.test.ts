@@ -2,19 +2,24 @@ import { expect } from 'chai';
 import * as supertest from 'supertest';
 import * as express from 'express';
 import routes from '../../src/api/routes';
-import { setupTestDB, teardownTestDB } from '../setup';
+import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 
-const app = express.default();
-app.use(express.default.json());
-app.use(routes);
+describe('API Tests', () => {
+    let app: express.Express;
 
-describe('Worked Hours API', () => {
     before(async () => {
         await setupTestDB();
+        app = express.default();
+        app.use(express.default.json());
+        app.use('/api', routes);
     });
 
     after(async () => {
         await teardownTestDB();
+    });
+
+    beforeEach(async () => {
+        await clearDatabase();  // Clear database before each test
     });
 
     describe('POST /worked-hours/:year/:month/:day', () => {
@@ -30,7 +35,7 @@ describe('Worked Hours API', () => {
             };
 
             const response = await supertest.default(app)
-                .post('/worked-hours/2024/3/20')
+                .post('/api/worked-hours/2024/3/20')
                 .send(workedHours)
                 .expect(201);
 
@@ -53,7 +58,7 @@ describe('Worked Hours API', () => {
             };
 
             const response = await supertest.default(app)
-                .post('/worked-hours/2024/3/20')
+                .post('/api/worked-hours/2024/3/20')
                 .send(invalidData)
                 .expect(400);
 

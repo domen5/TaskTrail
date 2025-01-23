@@ -2,6 +2,7 @@ import express from 'express';
 import { createWorkedHours, getWorkedHours, getMonthWorkedHours, deleteWorkedHours, updateWorkedHours } from '../db/dataStore';
 import WorkedHours from '../models/WorkedHours';
 import { InputError } from '../utils/errors';
+import { CastError } from 'mongoose';
 
 const routes = express.Router();
 
@@ -22,7 +23,7 @@ routes.post('/worked-hours/:year/:month/:day', async (req, res) => {
         const response = await createWorkedHours(parseInt(year), parseInt(month), parseInt(day), formData);
         res.status(201).send(response);
     } catch (err) {
-        if (err instanceof InputError) {
+        if (err instanceof InputError || err.name === 'ValidationError') {
             res.status(400).send({ message: 'Bad input' });
             return;
         }
@@ -75,18 +76,18 @@ routes.get('/worked-hours/:year/:month/', async (req, res) => {
 
 routes.put('/worked-hours', async (req, res) => {
     const id = req.body.workedHours._id;
-    const formData: WorkedHours = {
-        date: req.body.workedHours.date,
-        project: req.body.workedHours.project,
-        hours: req.body.workedHours.hours,
-        description: req.body.workedHours.description,
-        overtime: req.body.workedHours.overtime,
-    };
     try {
+        const formData: WorkedHours = {
+            date: req.body.workedHours.date,
+            project: req.body.workedHours.project,
+            hours: req.body.workedHours.hours,
+            description: req.body.workedHours.description,
+            overtime: req.body.workedHours.overtime,
+        };
         const result = await updateWorkedHours(id, formData);
-        res.status(200).send(result);
+        res.status(200).json(result);
     } catch (err) {
-        if (err instanceof InputError) {
+        if (err instanceof InputError || err.name === 'CastError') {
             res.status(400).send({ message: 'Bad input' });
             return;
         }
