@@ -65,4 +65,49 @@ describe('API Tests', () => {
             expect(response.body).to.have.property('message', 'Bad input');
         });
     });
+
+    describe('GET /worked-hours/:year/:month/:day', () => {
+        it('should return worked hours for a specific date', async () => {
+            // First create test data
+            const workedHours = {
+                workedHours: {
+                    date: '2024-03-20',
+                    project: 'Test Project',
+                    hours: 8,
+                    description: 'Test description',
+                    overtime: false
+                }
+            };
+
+            await supertest.default(app)
+                .post('/api/worked-hours/2024/3/20')
+                .send(workedHours)
+                .expect(201);
+
+            // Then test GET endpoint
+            const response = await supertest.default(app)
+                .get('/api/worked-hours/2024/3/20')
+                .expect(200);
+
+            expect(response.body).to.be.an('array');
+            expect(response.body[0]).to.have.property('project', 'Test Project');
+            expect(response.body[0]).to.have.property('hours', 8);
+            expect(response.body[0]).to.have.property('description', 'Test description');
+            expect(response.body[0]).to.have.property('overtime', false);
+        });
+
+        it('should return 400 for invalid date parameters', async () => {
+            await supertest.default(app)
+                .get('/api/worked-hours/invalid/month/day')
+                .expect(400);
+        });
+
+        it('should return empty array when no entries exist', async () => {
+            const response = await supertest.default(app)
+                .get('/api/worked-hours/2024/3/21')
+                .expect(200);
+
+            expect(response.body).to.be.an('array').that.is.empty;
+        });
+    });
 }); 
