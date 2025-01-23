@@ -15,7 +15,9 @@
     "clean": "rm -rf ./dist",
     "dev": "tsx watch ./src/app.ts",
     "lint": "eslint . --ext .ts",
-    "start": "node ./dist/app.js"
+    "start": "node ./dist/app.js",
+    "test": "mocha -r tsx/cjs --config tsconfig.test.json \"./test/**/*.test.ts\"",
+    "test:watch": "mocha -r tsx/cjs --config tsconfig.test.json \"./test/**/*.test.ts\" --watch"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -27,6 +29,13 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/supertest": "^6.0.2",
+    "chai": "^5.0.3",
+    "mocha": "^10.2.0",
+    "supertest": "^6.3.4",
+    "mongodb-memory-server": "^9.1.6"
   }
 }
