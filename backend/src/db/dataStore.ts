@@ -3,15 +3,14 @@ import WorkedHours, { WorkedHoursModel } from "../models/WorkedHours";
 import { MONGODB_URI } from "../config";
 import { InputError } from '../utils/errors';
 
-run().catch(err => console.log(err));
-
-async function run() {
-    const connect = async () => {
-        mongoose.connect(MONGODB_URI)
-            .then(() => console.log('Connected to database tasktrail'))
-            .catch((err) => console.log(err));
+export async function initializeDatabase(uri: string = MONGODB_URI) {
+    try {
+        await mongoose.connect(uri);
+        console.log('Connected to database');
+    } catch (err) {
+        console.error('Database connection error:', err);
+        throw err;
     }
-    await connect();
 }
 
 const createKey = (year: number, month: number, day: number): string => {
@@ -41,7 +40,6 @@ export const createWorkedHours = async (year: number, month: number, day: number
     });
     try {
         await model.save();
-        console.log('Data saved successfully, id: ' + model.id);
     } catch (err) {
         console.error('Error saving data:', err);
         throw err;
@@ -58,14 +56,12 @@ export const updateWorkedHours = async (id: string, workedHours: WorkedHours) =>
         console.error(`Error: Invalid date format provided: ${workedHours.date}`);
         throw new InputError('Invalid date format. Ensure the date is in the format yyyy-MM-dd.');
     }
-    
+
     try {
         const result = await WorkedHoursModel.findByIdAndUpdate(id, workedHours, { new: true });
         if (!result) {
             throw new InputError('No record found with the given ID.');
         }
-        console.log('Record updated successfully, id: ' + id);
-        console.log(result.toJSON());
         return result.toJSON();
     } catch (err) {
         console.error('Error updating record:', err);
@@ -79,7 +75,6 @@ export const deleteWorkedHours = async (id: string) => {
         if (!result) {
             throw new InputError('No record found with the given ID.');
         }
-        console.log('Record deleted successfully, id: ' + id);
     } catch (err) {
         console.error('Error deleting record:', err);
         throw err;
@@ -94,9 +89,6 @@ export const getWorkedHours = async (year: number, month: number, day: number): 
     }
     try {
         const data = await WorkedHoursModel.find({ date: key });
-
-        console.log('getWorkedHours: ');
-        console.log(data);
         return data || [];
     } catch (err) {
         console.error('Error retrieving data for getWorkedHours:', err);
