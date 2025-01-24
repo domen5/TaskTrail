@@ -19,7 +19,7 @@ describe('API Tests', () => {
     });
 
     beforeEach(async () => {
-        await clearDatabase();  // Clear database before each test
+        await clearDatabase();
     });
 
     describe('POST /worked-hours/:year/:month/:day', () => {
@@ -108,6 +108,48 @@ describe('API Tests', () => {
                 .expect(200);
 
             expect(response.body).to.be.an('array').that.is.empty;
+        });
+    });
+
+    describe('DELETE /worked-hours', () => {
+        it('should delete worked hours entry', async () => {
+            // First create test data
+            const workedHours = {
+                workedHours: {
+                    date: '2024-03-20',
+                    project: 'Test Project',
+                    hours: 8,
+                    description: 'Test description',
+                    overtime: false
+                }
+            };
+
+            const createResponse = await supertest.default(app)
+                .post('/api/worked-hours/2024/3/20')
+                .send(workedHours)
+                .expect(201);
+
+            // Then test DELETE endpoint
+            await supertest.default(app)
+                .delete('/api/worked-hours')
+                .send({ id: createResponse.body._id })
+                .expect(200);
+
+            // Verify the entry was deleted
+            const getResponse = await supertest.default(app)
+                .get('/api/worked-hours/2024/3/20')
+                .expect(200);
+
+            expect(getResponse.body).to.be.an('array').that.is.empty;
+        });
+
+        it('should return 400 for invalid id', async () => {
+            const response = await supertest.default(app)
+                .delete('/api/worked-hours')
+                .send({ id: 'invalid-id' })
+                .expect(400);
+
+            expect(response.body).to.have.property('message', 'Bad input');
         });
     });
 }); 
