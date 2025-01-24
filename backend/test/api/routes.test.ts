@@ -152,4 +152,64 @@ describe('API Tests', () => {
             expect(response.body).to.have.property('message', 'Bad input');
         });
     });
+
+    describe('GET /worked-hours/:year/:month', () => {
+        it('should return all worked hours for a specific month', async () => {
+            // First create test data for multiple days
+            const workedHours1 = {
+                workedHours: {
+                    date: '2024-03-20',
+                    project: 'Test Project 1',
+                    hours: 8,
+                    description: 'Test description 1',
+                    overtime: false
+                }
+            };
+
+            const workedHours2 = {
+                workedHours: {
+                    date: '2024-03-21',
+                    project: 'Test Project 2',
+                    hours: 6,
+                    description: 'Test description 2',
+                    overtime: true
+                }
+            };
+
+            await supertest.default(app)
+                .post('/api/worked-hours/2024/3/20')
+                .send(workedHours1)
+                .expect(201);
+
+            await supertest.default(app)
+                .post('/api/worked-hours/2024/3/21')
+                .send(workedHours2)
+                .expect(201);
+
+            // Then test GET month endpoint
+            const response = await supertest.default(app)
+                .get('/api/worked-hours/2024/3')
+                .expect(200);
+
+            expect(response.body).to.be.an('array').with.lengthOf(2);
+            expect(response.body[0]).to.have.property('project', 'Test Project 1');
+            expect(response.body[0]).to.have.property('hours', 8);
+            expect(response.body[1]).to.have.property('project', 'Test Project 2');
+            expect(response.body[1]).to.have.property('hours', 6);
+        });
+
+        it('should return 400 for invalid month parameters', async () => {
+            await supertest.default(app)
+                .get('/api/worked-hours/2024/invalid')
+                .expect(400);
+        });
+
+        it('should return empty array when no entries exist for month', async () => {
+            const response = await supertest.default(app)
+                .get('/api/worked-hours/2024/4')
+                .expect(200);
+
+            expect(response.body).to.be.an('array').that.is.empty;
+        });
+    });
 }); 
