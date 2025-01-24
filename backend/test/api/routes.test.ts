@@ -153,6 +153,113 @@ describe('API Tests', () => {
         });
     });
 
+    describe('PUT /worked-hours', () => {
+        it('should update worked hours entry', async () => {
+            // First create test data
+            const workedHours = {
+                workedHours: {
+                    date: '2024-03-20',
+                    project: 'Test Project',
+                    hours: 8,
+                    description: 'Test description',
+                    overtime: false
+                }
+            };
+
+            const createResponse = await supertest.default(app)
+                .post('/api/worked-hours/2024/3/20')
+                .send(workedHours)
+                .expect(201);
+
+            // Then test UPDATE endpoint
+            const updatedData = {
+                workedHours: {
+                    _id: createResponse.body._id,
+                    date: '2024-03-20',
+                    project: 'Updated Project',
+                    hours: 6,
+                    description: 'Updated description',
+                    overtime: true
+                }
+            };
+
+            const updateResponse = await supertest.default(app)
+                .put('/api/worked-hours')
+                .send(updatedData)
+                .expect(200);
+
+            expect(updateResponse.body).to.have.property('project', 'Updated Project');
+            expect(updateResponse.body).to.have.property('hours', 6);
+            expect(updateResponse.body).to.have.property('description', 'Updated description');
+            expect(updateResponse.body).to.have.property('overtime', true);
+
+            // Verify the update persisted
+            const getResponse = await supertest.default(app)
+                .get('/api/worked-hours/2024/3/20')
+                .expect(200);
+
+            expect(getResponse.body[0]).to.have.property('project', 'Updated Project');
+            expect(getResponse.body[0]).to.have.property('hours', 6);
+        });
+
+        it('should return 400 for invalid id', async () => {
+            const invalidData = {
+                workedHours: {
+                    _id: 'invalid-id',
+                    date: '2024-03-20',
+                    project: 'Test Project',
+                    hours: 8,
+                    description: 'Test description',
+                    overtime: false
+                }
+            };
+
+            const response = await supertest.default(app)
+                .put('/api/worked-hours')
+                .send(invalidData)
+                .expect(400);
+
+            expect(response.body).to.have.property('message', 'Bad input');
+        });
+
+        it('should return 400 for invalid input data', async () => {
+            // First create valid entry
+            const workedHours = {
+                workedHours: {
+                    date: '2024-03-20',
+                    project: 'Test Project',
+                    hours: 8,
+                    description: 'Test description',
+                    overtime: false
+                }
+            };
+
+            const createResponse = await supertest.default(app)
+                .post('/api/worked-hours/2024/3/20')
+                .send(workedHours)
+                .expect(201);
+
+            // Then try to update with invalid data
+            const invalidUpdate = {
+                workedHours: {
+                    _id: createResponse.body._id,
+                    date: 'invalid-date',
+                    project: 'Test Project',
+                    hours: 'invalid-hours',
+                    description: 'Test description',
+                    overtime: 'invalid-boolean'
+                }
+            };
+
+            const response = await supertest.default(app)
+                .put('/api/worked-hours')
+                .send(invalidUpdate)
+                .expect(400);
+
+            expect(response.body).to.have.property('message', 'Bad input');
+        });
+    });
+
     describe('GET /worked-hours/:year/:month', () => {
         it('should return all worked hours for a specific month', async () => {
             // First create test data for multiple days
