@@ -2,16 +2,12 @@ import express from 'express';
 import { createWorkedHours, getWorkedHours, getMonthWorkedHours, deleteWorkedHours, updateWorkedHours } from '../db/dataStore';
 import WorkedHours from '../models/WorkedHours';
 import { InputError } from '../utils/errors';
-import { CastError } from 'mongoose';
 
 const routes = express.Router();
 
+// CREATE WorkedHours
 routes.post('/worked-hours/:year/:month/:day', async (req, res) => {
-    // TODO: remove debug logs
-    console.log(req.body);
-
     const { year, month, day } = req.params;
-
     const formData: WorkedHours = {
         date: req.body.workedHours.date,
         project: req.body.workedHours.project,
@@ -31,9 +27,9 @@ routes.post('/worked-hours/:year/:month/:day', async (req, res) => {
     }
 });
 
+// READ WorkedHours
 routes.get('/worked-hours/:year/:month/:day', async (req, res) => {
     const { year, month, day } = req.params;
-
     try {
         const data = await getWorkedHours(parseInt(year), parseInt(month), parseInt(day));
         res.status(200).json(data);
@@ -46,6 +42,7 @@ routes.get('/worked-hours/:year/:month/:day', async (req, res) => {
     }
 });
 
+// DELETE WorkedHours
 routes.delete('/worked-hours', async (req, res) => {
     const id = req.body.id;
     try {
@@ -60,6 +57,7 @@ routes.delete('/worked-hours', async (req, res) => {
     }
 });
 
+// READ Month WorkedHours
 routes.get('/worked-hours/:year/:month/', async (req, res) => {
     const { year, month } = req.params;
     try {
@@ -74,6 +72,7 @@ routes.get('/worked-hours/:year/:month/', async (req, res) => {
     }
 });
 
+// UPDATE WorkedHours
 routes.put('/worked-hours', async (req, res) => {
     const id = req.body.workedHours._id;
     try {
@@ -93,6 +92,6 @@ routes.put('/worked-hours', async (req, res) => {
         }
         res.status(500).send({ message: 'Something went wrong' });
     }
-})
+});
 
 export default routes;
