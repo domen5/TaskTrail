@@ -157,20 +157,16 @@ export const deleteWorkedHours = async (id: string) => {
 };
 
 export const getMonthWorkedHours = async (year: number, month: number): Promise<WorkedHours[]> => {
-    let prefix = createKey(year, month, 1)
-    if (!isValidKey(prefix)) {
-        prefix = prefix.slice(0, 7);
-        console.error('date: ' + prefix);
-        throw new InputError('Invalid date format. Date must be in YYYY-MM-DD format.');
-    }
-
-    prefix = prefix.slice(0, 7);
-
     try {
+        const key = createKey(year, month, 1);
+        const prefix = key.slice(0, 7); // Get YYYY-MM part
         const data = await WorkedHoursModel.find({ date: { $regex: `^${prefix}` } });
         return data || [];
     } catch (err) {
-        console.error('Error retrieving data for getMonthWorkedHours:', err);
+        if (err instanceof InputError) {
+            throw err;
+        }
+        console.error('Error retrieving data:', err);
         throw err;
     }
 };

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { createWorkedHours, updateWorkedHours, deleteWorkedHours, getWorkedHours } from '../../src/db/dataStore';
+import { createWorkedHours, updateWorkedHours, deleteWorkedHours, getWorkedHours, getMonthWorkedHours } from '../../src/db/dataStore';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 import { WorkedHoursModel } from '../../src/models/WorkedHours';
 import { InputError } from '../../src/utils/errors';
@@ -453,6 +453,72 @@ describe('DataStore Tests', () => {
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
                 expect((err as InputError).message).to.equal('Invalid ID format.');
+            }
+        });
+    });
+
+    describe('getMonthWorkedHours', () => {
+        beforeEach(async () => {
+            // Create test entries for different dates
+            const entries = [
+                {
+                    date: '2024-03-01',
+                    project: 'Project 1',
+                    hours: 4,
+                    description: 'Day 1 work',
+                    overtime: false
+                },
+                {
+                    date: '2024-03-15',
+                    project: 'Project 2',
+                    hours: 8,
+                    description: 'Day 15 work',
+                    overtime: true
+                },
+                {
+                    date: '2024-04-01',
+                    project: 'Project 3',
+                    hours: 6,
+                    description: 'Next month work',
+                    overtime: false
+                }
+            ];
+
+            for (const entry of entries) {
+                const [year, month, day] = entry.date.split('-').map(Number);
+                await createWorkedHours(year, month, day, entry);
+            }
+        });
+
+        it('should return all entries for a specific month', async () => {
+            const result = await getMonthWorkedHours(2024, 3);
+            expect(result).to.be.an('array').with.lengthOf(2);
+            expect(result.map(r => r.project)).to.include.members(['Project 1', 'Project 2']);
+            expect(result.map(r => r.date)).to.not.include('2024-04-01');
+        });
+
+        it('should return empty array for month with no entries', async () => {
+            const result = await getMonthWorkedHours(2024, 5);
+            expect(result).to.be.an('array').that.is.empty;
+        });
+
+        it('should throw InputError for invalid year', async () => {
+            try {
+                await getMonthWorkedHours(-10, 3);
+                expect.fail('Should have thrown an error');
+            } catch (err) {
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
+            }
+        });
+
+        it('should throw InputError for invalid month', async () => {
+            try {
+                await getMonthWorkedHours(2024, 13);
+                expect.fail('Should have thrown an error');
+            } catch (err) {
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
             }
         });
     });
