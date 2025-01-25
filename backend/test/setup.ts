@@ -5,7 +5,7 @@ let mongoServer: MongoMemoryServer;
 
 export const setupTestDB = async () => {
     try {
-        await mongoose.disconnect();  // Disconnect from any existing connection
+        await mongoose.disconnect();
         mongoServer = await MongoMemoryServer.create();
         const mongoUri = mongoServer.getUri();
         await mongoose.connect(mongoUri);
@@ -27,10 +27,9 @@ export const teardownTestDB = async () => {
     }
 };
 
-// Optional: Add a helper to clear the database between tests
 export const clearDatabase = async () => {
     const collections = mongoose.connection.collections;
     for (const key in collections) {
         await collections[key].deleteMany({});
     }
-}; 
+};

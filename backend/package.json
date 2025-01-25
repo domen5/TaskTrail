@@ -14,7 +14,6 @@
     "build": "npm run clean && tsc",
     "clean": "rm -rf ./dist",
     "dev": "tsx watch ./src/app.ts",
-    "lint": "eslint . --ext .ts",
     "start": "node ./dist/app.js",
     "test": "mocha -r tsx/cjs --config tsconfig.test.json \"./test/**/*.test.ts\"",
     "test:watch": "mocha -r tsx/cjs --config tsconfig.test.json \"./test/**/*.test.ts\" --watch"

@@ -206,7 +206,6 @@ describe('DataStore Tests', () => {
 
     describe('getWorkedHours', () => {
         beforeEach(async () => {
-            // Create test entries
             const entries = [
                 {
                     date: '2024-03-20',
@@ -256,7 +255,6 @@ describe('DataStore Tests', () => {
         let existingEntryId: string;
 
         beforeEach(async () => {
-            // Create a test entry before each test
             const formData = {
                 date: '2024-03-20',
                 project: 'Original Project',
@@ -459,7 +457,6 @@ describe('DataStore Tests', () => {
 
     describe('getMonthWorkedHours', () => {
         beforeEach(async () => {
-            // Create test entries for different dates
             const entries = [
                 {
                     date: '2024-03-01',
