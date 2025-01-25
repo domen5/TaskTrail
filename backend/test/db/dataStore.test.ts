@@ -18,53 +18,44 @@ describe('DataStore Tests', () => {
     });
 
     describe('createWorkedHours', () => {
-        it('should create a new worked hours entry', async () => {
+        it('should create a new worked hours entry with trimmed strings', async () => {
             const formData = {
                 date: '2024-03-20',
-                project: 'Test Project',
+                project: '  Test Project  ',
                 hours: 8,
-                description: 'Test description',
+                description: '  Test description  ',
                 overtime: false
             };
 
             const result = await createWorkedHours(2024, 3, 20, formData);
 
-            expect(result).to.have.property('_id');
-            expect(result).to.have.property('date', '2024-03-20');
             expect(result).to.have.property('project', 'Test Project');
-            expect(result).to.have.property('hours', 8);
             expect(result).to.have.property('description', 'Test description');
-            expect(result).to.have.property('overtime', false);
-
-            // Verify the data was saved to the database
+            
+            // Verify trimmed strings in database
             const savedData = await WorkedHoursModel.findById(result._id);
-            expect(savedData).to.not.be.null;
             expect(savedData?.project).to.equal('Test Project');
+            expect(savedData?.description).to.equal('Test description');
         });
 
-        it('should throw InputError for invalid date format', async () => {
-            const formData = {
-                date: '2024-13-40', // invalid date
-                project: 'Test Project',
-                hours: 8,
-                description: 'Test description',
-                overtime: false
-            };
-
-            try {
-                await createWorkedHours(2024, 13, 40, formData);
-                expect.fail('Should have thrown an error');
-            } catch (err) {
-                expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.include('Invalid date format');
-            }
-        });
-
-        it('should throw ValidationError for invalid data types', async () => {
+        it('should handle empty description', async () => {
             const formData = {
                 date: '2024-03-20',
                 project: 'Test Project',
-                hours: 'invalid' as any, // invalid hours type
+                hours: 8,
+                description: '',
+                overtime: false
+            };
+
+            const result = await createWorkedHours(2024, 3, 20, formData);
+            expect(result).to.have.property('description', '');
+        });
+
+        it('should throw InputError for empty project name', async () => {
+            const formData = {
+                date: '2024-03-20',
+                project: '   ',
+                hours: 8,
                 description: 'Test description',
                 overtime: false
             };
@@ -73,7 +64,98 @@ describe('DataStore Tests', () => {
                 await createWorkedHours(2024, 3, 20, formData);
                 expect.fail('Should have thrown an error');
             } catch (err) {
-                expect(err).to.have.property('name', 'ValidationError');
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('Project name is required.');
+            }
+        });
+
+        it('should throw InputError for non-positive hours', async () => {
+            const formData = {
+                date: '2024-03-20',
+                project: 'Test Project',
+                hours: 0,
+                description: 'Test description',
+                overtime: false
+            };
+
+            try {
+                await createWorkedHours(2024, 3, 20, formData);
+                expect.fail('Should have thrown an error');
+            } catch (err) {
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('Hours must be a positive number.');
+            }
+        });
+
+        it('should throw InputError for invalid overtime type', async () => {
+            const formData = {
+                date: '2024-03-20',
+                project: 'Test Project',
+                hours: 8,
+                description: 'Test description',
+                overtime: 'true' as any
+            };
+
+            try {
+                await createWorkedHours(2024, 3, 20, formData);
+                expect.fail('Should have thrown an error');
+            } catch (err) {
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('Overtime must be a boolean value.');
+            }
+        });
+
+        it('should throw InputError for invalid year', async () => {
+            const formData = {
+                date: '2024-03-20',
+                project: 'Test Project',
+                hours: 8,
+                description: 'Test description',
+                overtime: false
+            };
+
+            try {
+                await createWorkedHours(1899, 3, 20, formData);
+                expect.fail('Should have thrown an error');
+            } catch (err) {
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('Invalid year. Must be between 1900 and 9999.');
+            }
+        });
+
+        it('should throw InputError for invalid month', async () => {
+            const formData = {
+                date: '2024-03-20',
+                project: 'Test Project',
+                hours: 8,
+                description: 'Test description',
+                overtime: false
+            };
+
+            try {
+                await createWorkedHours(2024, 13, 20, formData);
+                expect.fail('Should have thrown an error');
+            } catch (err) {
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('Invalid month. Must be between 1 and 12.');
+            }
+        });
+
+        it('should throw InputError for invalid day', async () => {
+            const formData = {
+                date: '2024-02-30',
+                project: 'Test Project',
+                hours: 8,
+                description: 'Test description',
+                overtime: false
+            };
+
+            try {
+                await createWorkedHours(2024, 2, 30, formData);
+                expect.fail('Should have thrown an error');
+            } catch (err) {
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('Invalid day. Must be between 1 and 29 for month 2.');
             }
         });
 

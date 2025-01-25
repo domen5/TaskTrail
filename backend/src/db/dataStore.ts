@@ -14,9 +14,20 @@ export async function initializeDatabase(uri: string = MONGODB_URI) {
 }
 
 const createKey = (year: number, month: number, day: number): string => {
-    // TODO: Implement input validation
-    const key = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-    return key;
+    if (!Number.isInteger(year) || year < 1900 || year > 9999) {
+        throw new InputError('Invalid year. Must be between 1900 and 9999.');
+    }
+
+    if (!Number.isInteger(month) || month < 1 || month > 12) {
+        throw new InputError('Invalid month. Must be between 1 and 12.');
+    }
+
+    const daysInMonth = new Date(year, month, 0).getDate();
+    if (!Number.isInteger(day) || day < 1 || day > daysInMonth) {
+        throw new InputError(`Invalid day. Must be between 1 and ${daysInMonth} for month ${month}.`);
+    }
+
+    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 };
 
 const isValidKey = (key: string): boolean => {
@@ -26,18 +37,26 @@ const isValidKey = (key: string): boolean => {
 }
 
 export const createWorkedHours = async (year: number, month: number, day: number, formData: WorkedHours) => {
-    const date = createKey(year, month, day);
-    if (!isValidKey(date)) {
-        console.error('date: ' + date);
-        throw new InputError('Invalid date format. Please use yyyy-MM-dd format.');
+    if (!formData.project?.trim()) {
+        throw new InputError('Project name is required.');
     }
+    if (typeof formData.hours !== 'number' || formData.hours <= 0) {
+        throw new InputError('Hours must be a positive number.');
+    }
+    if (typeof formData.overtime !== 'boolean') {
+        throw new InputError('Overtime must be a boolean value.');
+    }
+
+    const date = createKey(year, month, day);
+
     const model = new WorkedHoursModel({
         date: date,
-        project: formData.project,
+        project: formData.project.trim(),
         hours: formData.hours,
-        description: formData.description,
+        description: formData.description?.trim() || '',
         overtime: formData.overtime,
     });
+
     try {
         await model.save();
     } catch (err) {
