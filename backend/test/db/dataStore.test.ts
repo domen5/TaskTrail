@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { createWorkedHours, updateWorkedHours } from '../../src/db/dataStore';
+import { createWorkedHours, updateWorkedHours, deleteWorkedHours } from '../../src/db/dataStore';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 import { WorkedHoursModel } from '../../src/models/WorkedHours';
 import { InputError } from '../../src/utils/errors';
@@ -347,4 +347,47 @@ describe('DataStore Tests', () => {
             }
         });
     });
-}); 
+
+    describe('deleteWorkedHours', () => {
+        let existingEntryId: string;
+
+        beforeEach(async () => {
+            const formData = {
+                date: '2024-03-20',
+                project: 'Test Project',
+                hours: 8,
+                description: 'Test description',
+                overtime: false
+            };
+            const result = await createWorkedHours(2024, 3, 20, formData);
+            existingEntryId = result._id.toString();
+        });
+
+        it('should delete an existing entry', async () => {
+            await deleteWorkedHours(existingEntryId);
+            const deleted = await WorkedHoursModel.findById(existingEntryId);
+            expect(deleted).to.be.null;
+        });
+
+        it('should throw InputError for non-existent ID', async () => {
+            const nonExistentId = '65f1f8971fa0a647c0a7c001';
+            try {
+                await deleteWorkedHours(nonExistentId);
+                expect.fail('Should have thrown an error');
+            } catch (err) {
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('No record found with the given ID.');
+            }
+        });
+
+        it('should throw InputError for invalid ID format', async () => {
+            try {
+                await deleteWorkedHours('invalid-id');
+                expect.fail('Should have thrown an error');
+            } catch (err) {
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('Invalid ID format.');
+            }
+        });
+    });
+});

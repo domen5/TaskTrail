@@ -14,26 +14,28 @@ export async function initializeDatabase(uri: string = MONGODB_URI) {
 }
 
 const createKey = (year: number, month: number, day: number): string => {
-    if (!Number.isInteger(year) || year < 1900 || year > 9999) {
-        throw new InputError('Invalid year. Must be between 1900 and 9999.');
+    const key = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
+    if (!isValidKey(key)) {
+        throw new InputError('Invalid date format. Please use yyyy-MM-dd format.');
     }
-
-    if (!Number.isInteger(month) || month < 1 || month > 12) {
-        throw new InputError('Invalid month. Must be between 1 and 12.');
-    }
-
-    const daysInMonth = new Date(year, month, 0).getDate();
-    if (!Number.isInteger(day) || day < 1 || day > daysInMonth) {
-        throw new InputError(`Invalid day. Must be between 1 and ${daysInMonth} for month ${month}.`);
-    }
-
-    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+    return key;
 };
 
 const isValidKey = (key: string): boolean => {
-    // Regular expression to validate YYYY-MM-DD format
     const regex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
-    return regex.test(key);
+    if (!regex.test(key)) {
+        return false;
+    }
+
+    const [yearStr, monthStr, dayStr] = key.split('-');
+    const year = parseInt(yearStr);
+    const month = parseInt(monthStr);
+    const day = parseInt(dayStr);
+
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year &&
+           date.getMonth() === month - 1 &&
+           date.getDate() === day;
 }
 
 export const createWorkedHours = async (year: number, month: number, day: number, formData: WorkedHours) => {
@@ -67,7 +69,6 @@ export const createWorkedHours = async (year: number, month: number, day: number
 };
 
 export const updateWorkedHours = async (id: string, workedHours: WorkedHours) => {
-    // Validate required fields and types
     if (!workedHours.project?.trim()) {
         throw new InputError('Project name is required.');
     }
@@ -126,6 +127,12 @@ export const deleteWorkedHours = async (id: string) => {
             throw new InputError('No record found with the given ID.');
         }
     } catch (err) {
+        if (err instanceof InputError) {
+            throw err;
+        }
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            throw new InputError('Invalid ID format.');
+        }
         console.error('Error deleting record:', err);
         throw err;
     }
