@@ -67,22 +67,53 @@ export const createWorkedHours = async (year: number, month: number, day: number
 };
 
 export const updateWorkedHours = async (id: string, workedHours: WorkedHours) => {
+    // Validate required fields and types
+    if (!workedHours.project?.trim()) {
+        throw new InputError('Project name is required.');
+    }
+    if (typeof workedHours.hours !== 'number' || workedHours.hours <= 0) {
+        throw new InputError('Hours must be a positive number.');
+    }
+    if (typeof workedHours.overtime !== 'boolean') {
+        throw new InputError('Overtime must be a boolean value.');
+    }
     if (!workedHours.date) {
-        console.error('Error: Missing date in the input for updating worked hours.');
-        throw new InputError('Date is required. Please provide a date in the format yyyy-MM-dd.');
+        throw new InputError('Date is required.');
     }
     if (!isValidKey(workedHours.date)) {
-        console.error(`Error: Invalid date format provided: ${workedHours.date}`);
-        throw new InputError('Invalid date format. Ensure the date is in the format yyyy-MM-dd.');
+        throw new InputError('Invalid date format. Date must be in YYYY-MM-DD format.');
     }
+    
+    const sanitizedData = {
+        date: workedHours.date,
+        project: workedHours.project.trim(),
+        hours: workedHours.hours,
+        description: workedHours.description?.trim() || '',
+        overtime: workedHours.overtime
+    };
 
     try {
-        const result = await WorkedHoursModel.findByIdAndUpdate(id, workedHours, { new: true });
+        const result = await WorkedHoursModel.findByIdAndUpdate(
+            id,
+            sanitizedData,
+            { new: true, runValidators: true }
+        );
+        
         if (!result) {
             throw new InputError('No record found with the given ID.');
         }
+        
         return result.toJSON();
     } catch (err) {
+        if (err instanceof InputError) {
+            throw err;
+        }
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            throw new InputError('Invalid ID format.');
+        }
+        if (err.name === 'ValidationError') {
+            throw new InputError('Invalid data format.');
+        }
         console.error('Error updating record:', err);
         throw err;
     }
