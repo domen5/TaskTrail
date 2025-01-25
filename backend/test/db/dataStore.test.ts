@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { createWorkedHours, updateWorkedHours, deleteWorkedHours } from '../../src/db/dataStore';
+import { createWorkedHours, updateWorkedHours, deleteWorkedHours, getWorkedHours } from '../../src/db/dataStore';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 import { WorkedHoursModel } from '../../src/models/WorkedHours';
 import { InputError } from '../../src/utils/errors';
@@ -114,35 +114,17 @@ describe('DataStore Tests', () => {
             };
 
             try {
-                await createWorkedHours(1899, 3, 20, formData);
+                await createWorkedHours(-10, 3, 20, formData);
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('Invalid year. Must be between 1900 and 9999.');
+                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
             }
         });
 
-        it('should throw InputError for invalid month', async () => {
+        it('should throw InputError for invalid date (non-existent date)', async () => {
             const formData = {
-                date: '2024-03-20',
-                project: 'Test Project',
-                hours: 8,
-                description: 'Test description',
-                overtime: false
-            };
-
-            try {
-                await createWorkedHours(2024, 13, 20, formData);
-                expect.fail('Should have thrown an error');
-            } catch (err) {
-                expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('Invalid month. Must be between 1 and 12.');
-            }
-        });
-
-        it('should throw InputError for invalid day', async () => {
-            const formData = {
-                date: '2024-02-30',
+                date: '2024-02-30', // February 30th doesn't exist
                 project: 'Test Project',
                 hours: 8,
                 description: 'Test description',
@@ -154,7 +136,43 @@ describe('DataStore Tests', () => {
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('Invalid day. Must be between 1 and 29 for month 2.');
+                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
+            }
+        });
+
+        it('should throw InputError for invalid month', async () => {
+            const formData = {
+                date: '2024-13-20',
+                project: 'Test Project',
+                hours: 8,
+                description: 'Test description',
+                overtime: false
+            };
+
+            try {
+                await createWorkedHours(2024, 13, 20, formData);
+                expect.fail('Should have thrown an error');
+            } catch (err) {
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
+            }
+        });
+
+        it('should throw InputError for invalid day', async () => {
+            const formData = {
+                date: '2024-04-31', // April has 30 days
+                project: 'Test Project',
+                hours: 8,
+                description: 'Test description',
+                overtime: false
+            };
+
+            try {
+                await createWorkedHours(2024, 4, 31, formData);
+                expect.fail('Should have thrown an error');
+            } catch (err) {
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
             }
         });
 
@@ -183,6 +201,54 @@ describe('DataStore Tests', () => {
             const entries = await WorkedHoursModel.find({ date: '2024-03-20' });
             expect(entries).to.have.lengthOf(2);
             expect(entries.map(e => e.project)).to.include.members(['Project 1', 'Project 2']);
+        });
+    });
+
+    describe('getWorkedHours', () => {
+        beforeEach(async () => {
+            // Create test entries
+            const entries = [
+                {
+                    date: '2024-03-20',
+                    project: 'Project 1',
+                    hours: 4,
+                    description: 'Morning work',
+                    overtime: false
+                },
+                {
+                    date: '2024-03-20',
+                    project: 'Project 2',
+                    hours: 4,
+                    description: 'Afternoon work',
+                    overtime: true
+                }
+            ];
+
+            for (const entry of entries) {
+                await createWorkedHours(2024, 3, 20, entry);
+            }
+        });
+
+        it('should return all entries for a specific date', async () => {
+            const result = await getWorkedHours(2024, 3, 20);
+            expect(result).to.be.an('array').with.lengthOf(2);
+            expect(result[0]).to.have.property('project', 'Project 1');
+            expect(result[1]).to.have.property('project', 'Project 2');
+        });
+
+        it('should return empty array for date with no entries', async () => {
+            const result = await getWorkedHours(2024, 3, 21);
+            expect(result).to.be.an('array').that.is.empty;
+        });
+
+        it('should throw InputError for invalid date', async () => {
+            try {
+                await getWorkedHours(2024, 13, 45);
+                expect.fail('Should have thrown an error');
+            } catch (err) {
+                expect(err).to.be.instanceOf(InputError);
+                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
+            }
         });
     });
 

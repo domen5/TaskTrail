@@ -16,7 +16,7 @@ export async function initializeDatabase(uri: string = MONGODB_URI) {
 const createKey = (year: number, month: number, day: number): string => {
     const key = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
     if (!isValidKey(key)) {
-        throw new InputError('Invalid date format. Please use yyyy-MM-dd format.');
+        throw new InputError('Invalid date format. Date must be in YYYY-MM-DD format.');
     }
     return key;
 };
@@ -32,10 +32,14 @@ const isValidKey = (key: string): boolean => {
     const month = parseInt(monthStr);
     const day = parseInt(dayStr);
 
+    if (year < 1900 || year > 9999) {
+        return false;
+    }
+
     const date = new Date(year, month - 1, day);
     return date.getFullYear() === year &&
-           date.getMonth() === month - 1 &&
-           date.getDate() === day;
+        date.getMonth() === month - 1 &&
+        date.getDate() === day;
 }
 
 export const createWorkedHours = async (year: number, month: number, day: number, formData: WorkedHours) => {
@@ -68,6 +72,20 @@ export const createWorkedHours = async (year: number, month: number, day: number
     return model.toJSON();
 };
 
+export const getWorkedHours = async (year: number, month: number, day: number): Promise<WorkedHours[]> => {
+    try {
+        const key = createKey(year, month, day);
+        const data = await WorkedHoursModel.find({ date: key });
+        return data || [];
+    } catch (err) {
+        if (err instanceof InputError) {
+            throw err;
+        }
+        console.error('Error retrieving data:', err);
+        throw err;
+    }
+};
+
 export const updateWorkedHours = async (id: string, workedHours: WorkedHours) => {
     if (!workedHours.project?.trim()) {
         throw new InputError('Project name is required.');
@@ -84,7 +102,7 @@ export const updateWorkedHours = async (id: string, workedHours: WorkedHours) =>
     if (!isValidKey(workedHours.date)) {
         throw new InputError('Invalid date format. Date must be in YYYY-MM-DD format.');
     }
-    
+
     const sanitizedData = {
         date: workedHours.date,
         project: workedHours.project.trim(),
@@ -99,11 +117,11 @@ export const updateWorkedHours = async (id: string, workedHours: WorkedHours) =>
             sanitizedData,
             { new: true, runValidators: true }
         );
-        
+
         if (!result) {
             throw new InputError('No record found with the given ID.');
         }
-        
+
         return result.toJSON();
     } catch (err) {
         if (err instanceof InputError) {
@@ -138,27 +156,12 @@ export const deleteWorkedHours = async (id: string) => {
     }
 };
 
-export const getWorkedHours = async (year: number, month: number, day: number): Promise<WorkedHours[]> => {
-    const key = createKey(year, month, day);
-    if (!isValidKey(key)) {
-        console.error('date: ' + key);
-        throw new InputError('Invalid date format. Please use yyyy-MM-dd format.');
-    }
-    try {
-        const data = await WorkedHoursModel.find({ date: key });
-        return data || [];
-    } catch (err) {
-        console.error('Error retrieving data for getWorkedHours:', err);
-        throw err;
-    }
-};
-
 export const getMonthWorkedHours = async (year: number, month: number): Promise<WorkedHours[]> => {
     let prefix = createKey(year, month, 1)
     if (!isValidKey(prefix)) {
         prefix = prefix.slice(0, 7);
         console.error('date: ' + prefix);
-        throw new InputError('Invalid date format. Please use yyyy-MM-dd format.');
+        throw new InputError('Invalid date format. Date must be in YYYY-MM-DD format.');
     }
 
     prefix = prefix.slice(0, 7);
