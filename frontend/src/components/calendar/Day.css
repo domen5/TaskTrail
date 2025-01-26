@@ -2,13 +2,12 @@
     min-height: 120px;
     height: 120px;
     padding: 0.5rem;
-    background-color: #f9f9f9;
     cursor: pointer;
     transition: transform 0.1s ease;
     transform-origin: center;
-    /* Add these to ensure content stays in place during transform */
     transform: scale(1);
     will-change: transform;
+    border: 1px solid var(--bs-border-color);
 }
 
 .day-number {
@@ -25,13 +24,15 @@
     overflow-x: hidden;
     scrollbar-width: thin;
     /* Reserving space for the scrollbar to prevent layout shift */
-    &::-webkit-scrollbar {
-        width: 6px;
-    }
-    &::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.2);
-        border-radius: 3px;
-    }
+}
+
+.day-details::-webkit-scrollbar {
+    width: 6px;
+}
+
+.day-details::-webkit-scrollbar-thumb {
+    background-color: var(--bs-gray-500);
+    border-radius: 3px;
 }
 
 .day-details p {
@@ -39,8 +40,7 @@
 }
 
 .day:hover {
-    background-color: #e6e6e6;
-    border-color: #bbb;
+    border-color: var(--bs-primary);
 }
 
 .day:active {
@@ -48,8 +48,12 @@
 }
 
 .entry {
-    border-left: 3px solid green;
-    background-color: rgba(0, 123, 255, 0.05);
+    border-left: 3px solid var(--bs-success);
+    background-color: var(--bs-gray-200);
+}
+
+.dark-mode .entry {
+    background-color: var(--bs-gray-800);
 }
 
 .entry p {
@@ -57,8 +61,7 @@
 }
 
 .padded-day {
-    background-color: #e0e0e0;
-    color: #999;
+    opacity: 0.5;
 }
 
 @media (max-width: 768px) {
