@@ -25,7 +25,7 @@
     overflow-x: hidden;
     scrollbar-width: thin;
     flex: 1;
-    /* Ensure there's space for the header */
+    /* Make pace for the header */
     max-height: calc(100% - 30px);
 }
 
@@ -47,7 +47,7 @@
 }
 
 .day:active {
-    transform: scale(0.98); /* Made the scale effect more subtle */
+    transform: scale(0.98); /* Make the scale effect more subtle */
 }
 
 .entry {

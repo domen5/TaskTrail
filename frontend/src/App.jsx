@@ -16,7 +16,7 @@ function App() {
       <TimeSheetProvider>
         <BrowserRouter>
           <Navbar />
-          <div className="min-vh-100">
+          <div className="min-vh-100 pt-5">
             <Routes>
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/" element={<Home />} />
