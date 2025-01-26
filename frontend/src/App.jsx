@@ -8,20 +8,25 @@ import Profile from './components/Profile';
 import About from './components/About';
 import { TimeSheetProvider } from './context/TimeSheetContext';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
   return (
-    <TimeSheetProvider>
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
-      </BrowserRouter>
-    </TimeSheetProvider>
+    <ThemeProvider>
+      <TimeSheetProvider>
+        <BrowserRouter>
+          <Navbar />
+          <div className="min-vh-100 pt-5">
+            <Routes>
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/profile" element={<Profile />} />
+            </Routes>
+          </div>
+        </BrowserRouter>
+      </TimeSheetProvider>
+    </ThemeProvider>
   );
 }
 

@@ -1,14 +1,11 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
-        "types": ["mocha", "chai", "supertest", "express", "node"],
-        "esModuleInterop": true,
-        "moduleResolution": "node"
+        "types": ["node", "mocha", "chai", "supertest"],
+        "rootDir": "."
     },
     "include": [
+        "src/**/*",
         "test/**/*.ts"
-    ],
-    "ts-node": {
-        "files": true
-    }
+    ]
 } 
