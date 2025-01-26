@@ -1,25 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Login from "./Login";
+import { useTheme } from "../context/ThemeContext";
 
 function Profile() {
     const [showForm, setShowForm] = useState(true);
-    const [isDarkMode, setIsDarkMode] = useState(() => {
-        return localStorage.getItem('theme') === 'dark';
-    });
-
+    const { isDarkMode, setIsDarkMode } = useTheme();
     const handleClose = () => setShowForm(false);
-
-    const toggleDarkMode = () => {
-        setIsDarkMode(prevMode => !prevMode);
-    };
-
-    useEffect(() => {
-        document.body.classList.toggle('dark-mode', isDarkMode);
-        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-    }, [isDarkMode]);
-
+    const toggleDarkMode = () => setIsDarkMode(prevMode => !prevMode);
+    
     return (
-        <div className="container">
+        <div className={`container py-4 ${isDarkMode ? 'text-light' : ''}`}>
             <h1>Profile</h1>
             <p>This page is under construction.</p>
             <div className="form-check form-switch">
