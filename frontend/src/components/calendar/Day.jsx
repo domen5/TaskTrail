@@ -28,7 +28,7 @@ function Day({ date, isPadded, setSelectedDay }) {
                 )}
             </div>
             {dayEntries.length > 0 && (
-                <div className="day-details">
+                <div className="calendar-day-entries">
                     {dayEntries.map((entry, index) => (
                         <div key={index} className="entry p-1 mb-2">
                             <p className="fw-bold mb-1">{entry.project || "N/A"}</p>

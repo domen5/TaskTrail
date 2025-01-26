@@ -8,6 +8,8 @@
     transform: scale(1);
     will-change: transform;
     border: 1px solid var(--bs-border-color);
+    display: flex;
+    flex-direction: column;
 }
 
 .day-number {
@@ -17,25 +19,26 @@
     color: #333;
 }
 
-.day-details {
+.calendar-day-entries {
     font-size: 0.8rem;
-    max-height: 85px;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
-    /* Reserving space for the scrollbar to prevent layout shift */
+    flex: 1;
+    /* Ensure there's space for the header */
+    max-height: calc(100% - 30px);
 }
 
-.day-details::-webkit-scrollbar {
+.calendar-day-entries::-webkit-scrollbar {
     width: 6px;
 }
 
-.day-details::-webkit-scrollbar-thumb {
+.calendar-day-entries::-webkit-scrollbar-thumb {
     background-color: var(--bs-gray-500);
     border-radius: 3px;
 }
 
-.day-details p {
+.calendar-day-entries p {
     margin: 4px 0;
 }
 
@@ -71,7 +74,7 @@
         padding: 0.25rem;
     }
     
-    .day-details {
+    .calendar-day-entries {
         font-size: 0.7rem;
         max-height: 80px;
     }
