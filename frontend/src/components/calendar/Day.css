@@ -1,81 +1,86 @@
 .day {
     min-height: 120px;
-    height: 120px;
-    padding: 0.5rem;
     cursor: pointer;
-    transition: transform 0.1s ease;
-    transform-origin: center;
-    transform: scale(1);
-    will-change: transform;
-    border: 1px solid var(--bs-border-color);
-    display: flex;
-    flex-direction: column;
-}
-
-.day-number {
-    margin: 0;
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-}
-
-.calendar-day-entries {
-    font-size: 0.8rem;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: thin;
-    flex: 1;
-    /* Make pace for the header */
-    max-height: calc(100% - 30px);
-}
-
-.calendar-day-entries::-webkit-scrollbar {
-    width: 6px;
-}
-
-.calendar-day-entries::-webkit-scrollbar-thumb {
-    background-color: var(--bs-gray-500);
-    border-radius: 3px;
-}
-
-.calendar-day-entries p {
-    margin: 4px 0;
+    transition: all 0.2s ease;
 }
 
 .day:hover {
-    border-color: var(--bs-primary);
+    background-color: var(--bs-gray-100) !important;
 }
 
-.day:active {
-    transform: scale(0.98); /* Make the scale effect more subtle */
+.day.today {
+    background-color: var(--bs-success-bg-subtle) !important;
+}
+
+.calendar-day-entries {
+    max-height: calc(100% - 35px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.calendar-day-entries::-webkit-scrollbar {
+    width: 4px;
+}
+
+.calendar-day-entries::-webkit-scrollbar-thumb {
+    background-color: var(--bs-gray-400);
+    border-radius: 2px;
 }
 
 .entry {
-    border-left: 3px solid var(--bs-success);
+    border-left: 2px solid var(--bs-success);
     background-color: var(--bs-gray-200);
+}
+
+.entry-project {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.entry-hours {
+    flex-shrink: 0;
+}
+
+.entry-description {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Dark mode styles */
+.dark-mode .day:hover {
+    background-color: var(--bs-gray-900) !important;
+}
+
+.dark-mode .day.today {
+    background-color: rgba(25, 135, 84, 0.15) !important;
 }
 
 .dark-mode .entry {
     background-color: var(--bs-gray-800);
 }
 
-.entry p {
-    margin: 2px 0;
+.dark-mode .calendar-day-entries::-webkit-scrollbar-thumb {
+    background-color: var(--bs-gray-700);
 }
 
-.padded-day {
-    opacity: 0.5;
+.dark-mode .text-muted {
+    color: var(--bs-gray-500) !important;
 }
 
 @media (max-width: 768px) {
     .day {
         min-height: 100px;
-        height: 100px;
-        padding: 0.25rem;
     }
     
     .calendar-day-entries {
-        font-size: 0.7rem;
-        max-height: 80px;
+        font-size: 0.8rem;
     }
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Day from "./Day";
 import CalendarToolbar from "./CalendarToolbar";
 import { useTimeSheet } from "../../context/TimeSheetContext";
+import { useTheme } from "../../context/ThemeContext";
 import "./Calendar.css"
 import DayDetail from "./DayDetail";
 import AddWorkedHoursForm from "./AddWorkedHoursForm";
@@ -12,6 +13,7 @@ function Calendar() {
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
     const [editWorkedHours, setEditWorkedHouts] = useState(null);
+    const { isDarkMode } = useTheme();
 
     // useEffect will trigger a the fetch of new data from the backend when the month of selectedDay changes 
     useEffect(() => {
@@ -87,38 +89,39 @@ function Calendar() {
     }
 
     return (
-        <div className="container">
-            <div className="row mb-3">
+        <div className="container-md px-0">
+            <div className="row g-4">
                 <div className="col-12">
-                    <h2 className="text-capitalize mb-3">
+                    <h2 className="display-6 mb-3 px-3 px-md-0">
                         {selectedDay.toLocaleString('default', { month: 'long' }) + ' ' + selectedDay.getFullYear()}
                     </h2>
-                    <CalendarToolbar setSelectedDay={setSelectedDay} selectedDay={selectedDay} />
+                    <div className="px-3 px-md-0">
+                        <CalendarToolbar setSelectedDay={setSelectedDay} selectedDay={selectedDay} />
+                    </div>
                 </div>
-            </div>
 
-            <div className="row mb-3">
                 <div className="col-12">
-                    <DayDetail
-                        handleClickAddForm={handleClickAddForm}
-                        handleClickEditForm={handleClickEditForm}
-                        date={selectedDay} />
+                    <div className="px-3 px-md-0">
+                        <DayDetail
+                            handleClickAddForm={handleClickAddForm}
+                            handleClickEditForm={handleClickEditForm}
+                            date={selectedDay} 
+                        />
+                    </div>
                 </div>
-            </div>
 
-            <div className="row">
                 <div className="col-12">
-                    <div className="table-responsive">
-                        <table className="table table-bordered mb-0">
-                            <thead className="table-light">
+                    <div className={`table-responsive rounded-3 shadow-sm ${isDarkMode ? 'bg-dark' : 'bg-white'}`}>
+                        <table className={`table table-bordered m-0 ${isDarkMode ? 'table-dark' : ''}`}>
+                            <thead>
                                 <tr>
-                                    <th className="text-center p-1">Sun</th>
-                                    <th className="text-center p-1">Mon</th>
-                                    <th className="text-center p-1">Tue</th>
-                                    <th className="text-center p-1">Wed</th>
-                                    <th className="text-center p-1">Thu</th>
-                                    <th className="text-center p-1">Fri</th>
-                                    <th className="text-center p-1">Sat</th>
+                                    <th className="text-center p-2 text-secondary text-uppercase small">Sun</th>
+                                    <th className="text-center p-2 text-secondary text-uppercase small">Mon</th>
+                                    <th className="text-center p-2 text-secondary text-uppercase small">Tue</th>
+                                    <th className="text-center p-2 text-secondary text-uppercase small">Wed</th>
+                                    <th className="text-center p-2 text-secondary text-uppercase small">Thu</th>
+                                    <th className="text-center p-2 text-secondary text-uppercase small">Fri</th>
+                                    <th className="text-center p-2 text-secondary text-uppercase small">Sat</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -130,8 +133,12 @@ function Calendar() {
                                             const isPadded = isPrevMonth || isNextMonth;
 
                                             return (
-                                                <td key={dayIndex} className="p-0" style={{ height: '120px' }}>
-                                                    <Day date={date} isPadded={isPadded} setSelectedDay={setSelectedDay} />
+                                                <td key={dayIndex} className={`p-0 ${isDarkMode ? 'border-secondary' : ''}`} style={{width: '14.28%'}}>
+                                                    <Day 
+                                                        date={date} 
+                                                        isPadded={isPadded} 
+                                                        setSelectedDay={setSelectedDay} 
+                                                    />
                                                 </td>
                                             );
                                         })}
@@ -152,7 +159,8 @@ function Calendar() {
             {showEditForm && (
                 <EditWorkedHoursForm
                     workedHours={editWorkedHours}
-                    onClose={handleCloseEditForm} />
+                    onClose={handleCloseEditForm} 
+                />
             )}
         </div>
     );

@@ -14,6 +14,10 @@ function WorkedHoursForm({
             name: "project3",
             value: "Project 3"
         },
+        {
+            name: "Ultra super duper big long large project name",
+            value: "Ultra super duper big long large project name"
+        }
     ],
     defaultProject = "project1",
     defaultHours = 1,
