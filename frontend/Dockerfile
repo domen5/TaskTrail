@@ -3,6 +3,10 @@ FROM node:22.13-alpine AS builder
 
 WORKDIR /app
 
+# Add build argument
+ARG VITE_BACKEND_URL
+ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
+
 COPY package.json package-lock.json ./
 RUN npm install --silent
 
