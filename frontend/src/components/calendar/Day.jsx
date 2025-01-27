@@ -17,7 +17,7 @@ function Day({ date, isPadded, setSelectedDay }) {
 
     return (
         <div 
-            className={`day h-100 ${isDarkMode ? 'bg-dark text-light' : 'bg-white'} ${isPadded ? "text-muted" : ""} ${isToday ? 'today' : ''}`}
+            className={`day d-flex flex-column ${isDarkMode ? 'bg-dark text-light' : 'bg-white'} ${isPadded ? "text-muted" : ""} ${isToday ? 'today' : ''}`}
             onClick={handleClick}
         >
             <div className="d-flex justify-content-between align-items-center p-2">
@@ -31,7 +31,7 @@ function Day({ date, isPadded, setSelectedDay }) {
                 )}
             </div>
             {dayEntries.length > 0 && (
-                <div className="calendar-day-entries px-2">
+                <div className="flex-grow-1 px-2 overflow-auto" style={{height: "100px"}}>
                     {dayEntries.map((entry, index) => (
                         <div key={index} 
                             className={`p-2 mb-2 rounded border-start border-3 ${isDarkMode ? 'bg-dark-subtle border-success text-light' : 'bg-light border-success'}`}
@@ -44,7 +44,10 @@ function Day({ date, isPadded, setSelectedDay }) {
                                     {entry.hours}h
                                 </div>
                             </div>
-                            <div className={`small d-none d-md-block ${isDarkMode ? 'text-light-emphasis' : 'text-muted'}`}>
+                            <div 
+                                className={`small text-truncate d-none d-md-block ${isDarkMode ? 'text-light-emphasis' : 'text-muted'}`}
+                                title={entry.description || "No description"}
+                            >
                                 {entry.description || "No description"}
                             </div>
                         </div>

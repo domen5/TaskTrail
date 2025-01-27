@@ -1,5 +1,4 @@
 .day {
-    min-height: 120px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -18,11 +17,11 @@
     scrollbar-width: thin;
 }
 
-.calendar-day-entries::-webkit-scrollbar {
+::-webkit-scrollbar {
     width: 4px;
 }
 
-.calendar-day-entries::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
     background-color: var(--bs-gray-400);
     border-radius: 2px;
 }
