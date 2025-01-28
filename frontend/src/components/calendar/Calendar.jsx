@@ -112,7 +112,7 @@ function Calendar() {
 
                 <div className="col-12">
                     <div className={`table-responsive rounded-3 shadow-sm ${isDarkMode ? 'bg-dark' : 'bg-white'}`}>
-                        <table className={`table table-bordered m-0 ${isDarkMode ? 'table-dark' : ''}`} style={{ height: "800px" }}>
+                        <table className={`table table-bordered m-0 ${isDarkMode ? 'table-dark' : ''}`} style={{ height: '800px' }}>
                             <thead>
                                 <tr>
                                     <th className="text-center p-2 text-secondary text-uppercase small">Sun</th>
@@ -126,7 +126,7 @@ function Calendar() {
                             </thead>
                             <tbody>
                                 {weeks.map((week, index) => (
-                                    <tr key={index}>
+                                    <tr key={index} style={{ height: '100px' }}>
                                         {week.map((date, dayIndex) => {
                                             const isPrevMonth = index === 0 && dayIndex < prevMonthPadding;
                                             const isNextMonth = index === weeks.length - 1 && dayIndex >= 7 - nextMonthPadding;
