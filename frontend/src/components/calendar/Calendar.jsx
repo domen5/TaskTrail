@@ -112,7 +112,7 @@ function Calendar() {
 
                 <div className="col-12">
                     <div className={`table-responsive rounded-3 shadow-sm ${isDarkMode ? 'bg-dark' : 'bg-white'}`}>
-                        <table className={`table table-bordered m-0 ${isDarkMode ? 'table-dark' : ''}`}>
+                        <table className={`table table-bordered m-0 ${isDarkMode ? 'table-dark' : ''}`} style={{ height: "800px" }}>
                             <thead>
                                 <tr>
                                     <th className="text-center p-2 text-secondary text-uppercase small">Sun</th>

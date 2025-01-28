@@ -1,6 +1,7 @@
 .day {
     cursor: pointer;
     transition: all 0.2s ease;
+    height: 100%;
 }
 
 .day:hover {
@@ -14,7 +15,6 @@
 .calendar-day-entries {
     max-height: calc(100% - 35px);
     overflow-y: auto;
-    scrollbar-width: thin;
 }
 
 ::-webkit-scrollbar {
