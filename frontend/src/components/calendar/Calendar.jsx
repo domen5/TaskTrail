@@ -89,10 +89,10 @@ function Calendar() {
     }
 
     return (
-        <div className="container-md px-0">
+        <div className="container-md pt-3">
             <div className="row g-4">
                 <div className="col-12">
-                    <h2 className="display-6 mb-3 px-3 px-md-0">
+                    <h2 className="display-6 text-capitalize mb-3 px-3 px-md-0">
                         {selectedDay.toLocaleString('default', { month: 'long' }) + ' ' + selectedDay.getFullYear()}
                     </h2>
                     <div className="px-3 px-md-0">

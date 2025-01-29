@@ -1,6 +1,5 @@
-// Add this constant at the top of the file
 const BACKEND_URL = window.ENV?.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
-console.log('Backend URL:', BACKEND_URL);
+console.log('BACKEND_URL:', BACKEND_URL);
 
 // Get month data from the backend; Assumes 0 based months
 const getMonthWorkedHoursApiCall = async (year, month) => {
