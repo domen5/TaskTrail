@@ -5,7 +5,7 @@ function Home() {
     const { isDarkMode } = useTheme();
 
     return (
-        <div className={`container-md pt-5 text-center ${isDarkMode ? 'text-white' : 'text-dark'}`}>
+        <div className={`container-md text-center ${isDarkMode ? 'text-white' : 'text-dark'}`}>
             <div className="text-center py-3">
                 <h1 className="display-3 fw-bold mb-4"><i className="fas fa-chart-line me-2"></i>Welcome to Task Trail</h1>
                 <p className="lead mb-4">Effortlessly track your work hours and boost productivity.</p>

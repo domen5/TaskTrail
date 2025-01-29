@@ -1,13 +1,16 @@
 import { useTheme } from '../context/ThemeContext';
-import { Link } from 'react-router-dom';
 
 const About = () => {
     const { isDarkMode } = useTheme();
 
     return (
-        <div className={`container-md pt-5 text-center ${isDarkMode ? 'text-white' : 'text-dark'}`}>
+        <div className={`container-md pt-3 text-center ${isDarkMode ? 'text-white' : 'text-dark'}`}>
+            <div className="text-center">
+                <h1 className="display-3 fw-bold"><i className="fas fa-chart-line me-2"></i>About Task Trail</h1>
+                <p className="lead">Learn more about the development of Task Trail.</p>
+            </div>
 
-            <section className="my-5">
+            <section className="mt-5">
                 <h2 className="h4 mb-3"><i className="fas fa-layer-group me-2"></i>Frontend Architecture</h2>
                 <div className="mb-4">
                     <p>Built with React 18 for optimal performance and component reusability. Features include:</p>
@@ -19,7 +22,7 @@ const About = () => {
                 </div>
             </section>
 
-            <section className="my-5">
+            <section className="mt-5">
                 <h2 className="h4 mb-3"><i className="fas fa-server me-2"></i>Backend Infrastructure</h2>
                 <div className="mb-4">
                     <p>Powered by a robust Node.js/Express stack:</p>
@@ -31,9 +34,9 @@ const About = () => {
                 </div>
             </section>
 
-            <section className="my-5">
+            <section className="mt-5">
                 <h2 className="h4 mb-3"><i className="fas fa-cogs me-2"></i>DevOps & Deployment</h2>
-                <div className="mb-4">
+                <div>
                     <p>Containerized with Docker for consistent environments:</p>
                     <p>
                         Containerized development and production environments<br />
