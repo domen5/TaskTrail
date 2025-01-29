@@ -1,7 +1,10 @@
+const BACKEND_URL = window.ENV?.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+console.log('BACKEND_URL:', BACKEND_URL);
+
 // Get month data from the backend; Assumes 0 based months
 const getMonthWorkedHoursApiCall = async (year, month) => {
     const newMonth = month + 1; // Backend API expects 1-based months
-    const url = `http://localhost:3000/api/worked-hours/${year}/${newMonth}`;
+    const url = `${BACKEND_URL}/api/worked-hours/${year}/${newMonth}`;
 
     try {
         const response = await fetch(url);
@@ -42,7 +45,7 @@ const createWorkedHoursApiCall = async (date, formData) => {
     const month = date.getMonth() + 1;
     const day = date.getDate();
 
-    const url = `http://localhost:3000/api/worked-hours/${year}/${month}/${day}`;
+    const url = `${BACKEND_URL}/api/worked-hours/${year}/${month}/${day}`;
     const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -66,7 +69,7 @@ const deleteWorkedHoursApiCall = async (id) => {
         console.error('Error: ID is undefined in deleteWorkedHours');
         throw new Error('Failed deleting workedHours with id: ' + id);
     }
-    const url = `http://localhost:3000/api/worked-hours`;
+    const url = `${BACKEND_URL}/api/worked-hours`;
     const response = await fetch(url, {
         method: 'DELETE',
         headers: {
@@ -92,7 +95,7 @@ const updateWorkedHoursApiCall = async (workedHours) => {
         console.error('Error: Date is invalid in updateWorkedHoursApiCall');
         throw new Error('Failed updating workedHours with id: ' + workedHours._id);
     }
-    const url = `http://localhost:3000/api/worked-hours`;
+    const url = `${BACKEND_URL}/api/worked-hours`;
     const response = await fetch(url, {
         method: 'PUT',
         headers: {

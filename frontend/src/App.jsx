@@ -6,6 +6,7 @@ import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Profile from './components/Profile';
 import About from './components/About';
+import Footer from './components/Footer';
 import { TimeSheetProvider } from './context/TimeSheetContext';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
@@ -16,7 +17,7 @@ function App() {
       <TimeSheetProvider>
         <BrowserRouter>
           <Navbar />
-          <div className="min-vh-100 pt-5">
+          <div className="py-5">
             <Routes>
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/" element={<Home />} />
@@ -24,6 +25,7 @@ function App() {
               <Route path="/profile" element={<Profile />} />
             </Routes>
           </div>
+          <Footer />
         </BrowserRouter>
       </TimeSheetProvider>
     </ThemeProvider>

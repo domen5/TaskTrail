@@ -30,14 +30,15 @@ Track your daily tasks, calculate total hours, and generate exportable reports t
     - https://docs.docker.com/engine/install
     or Docker Desktop (Linux, MacOs, Windows):
     - https://docs.docker.com/desktop
-3. Rename env.example files to .env
+3. Make .env files following the example files
     ```bash
-    /backend/env.example -> /backend/.env
-    /db/env.example -> /db/.env
+    mv ./example.env ./.env
+    mv ./backend/env.example ./backend/.env
+    mv ./db/env.example ./db/.env
     ```
 4. Run docker compose:
     ```bash
-    docker compose up
+    docker compose up --build -d
     ```
 5. Access the web application at http://localhost:8080
 
@@ -50,7 +51,10 @@ Docker is required to run the database and enable backend functionality. However
    git clone https://github.com/domen5/TaskTrail.git
    cd TaskTrail
    ```
-
+2. Make .env files following the example files
+    ```bash
+    mv ./frontend/example.env ./frontend/.env
+    ```
 3. Start the frontend applciation:
     ```bash
    cd frontend

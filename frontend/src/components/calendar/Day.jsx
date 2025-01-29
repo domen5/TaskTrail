@@ -9,6 +9,7 @@ function Day({ date, isPadded, setSelectedDay }) {
     const dayNumber = date.getDate();
     const dayEntries = getDayData(date);
     const totalHours = dayEntries.reduce((sum, entry) => sum + (entry.hours || 0), 0);
+    const isToday = new Date().toDateString() === date.toDateString();
 
     const handleClick = () => {
         setSelectedDay(date);
@@ -16,23 +17,39 @@ function Day({ date, isPadded, setSelectedDay }) {
 
     return (
         <div 
-            className={`day ${isDarkMode ? 'bg-dark text-light' : 'bg-light'} ${isPadded ? "padded-day" : ""}`}
+            className={`day h-100 d-flex flex-column ${isDarkMode ? 'bg-dark text-light' : 'bg-white'} ${isPadded ? "text-muted" : ""} ${isToday ? 'today' : ''}`}
             onClick={handleClick}
         >
-            <div className="d-flex justify-content-between align-items-center mb-2">
-                <span className="fw-bold">{dayNumber}</span>
+            <div className="d-flex justify-content-between align-items-center p-2">
+                <span className={`${isToday ? 'badge rounded-pill bg-success' : ''} ${isPadded ? 'opacity-50' : ''} fs-6`}>
+                    {dayNumber}
+                </span>
                 {dayEntries.length > 0 && (
-                    <span className={`small ${isDarkMode ? 'text-light' : 'text-secondary'}`}>
+                    <span className="badge bg-success">
                         {totalHours}h
                     </span>
                 )}
             </div>
             {dayEntries.length > 0 && (
-                <div className="calendar-day-entries">
+                <div className="calendar-day-entries flex-grow-1 px-2 overflow-auto" style={{height: "100px"}}>
                     {dayEntries.map((entry, index) => (
-                        <div key={index} className="entry p-1 mb-2">
-                            <p className="fw-bold mb-1">{entry.project || "N/A"}</p>
-                            <p className="mb-0">{entry.hours || 0}h: {entry.description || "No description"}</p>
+                        <div key={index} 
+                            className={`p-2 mb-2 rounded border-start border-3 ${isDarkMode ? 'bg-dark-subtle border-success text-light' : 'bg-light border-success'}`}
+                        >
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div className="text-truncate me-2 fw-bold" title={entry.project}>
+                                    {entry.project || "N/A"}
+                                </div>
+                                <div className="flex-shrink-0">
+                                    {entry.hours}h
+                                </div>
+                            </div>
+                            <div 
+                                className={`small text-truncate d-none d-md-block ${isDarkMode ? 'text-light-emphasis' : 'text-muted'}`}
+                                title={entry.description || "No description"}
+                            >
+                                {entry.description || "No description"}
+                            </div>
                         </div>
                     ))}
                 </div>
