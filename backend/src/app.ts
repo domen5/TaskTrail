@@ -1,8 +1,8 @@
 import { initializeDatabase } from './db/dataStore';
 import routes from './api/routes';
+import userRoutes from './api/userRoutes';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-
 import { PORT } from "./config"
 
 async function startServer() {
@@ -12,7 +12,8 @@ async function startServer() {
     app.use(express.json());
     app.use(cors());
     app.use('/api', routes);
-
+    app.use('/api/user', userRoutes);
+    
     app.get('/', (req: Request, res: Response) => {
         res.send('Hello, World!');
     });
