@@ -1,3 +1,4 @@
+import 'mocha';
 import { expect } from 'chai';
 import * as supertest from 'supertest';
 import * as express from 'express';

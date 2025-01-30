@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import User, { UserModel } from "../models/User";
+import { UserModel } from "../models/User";
 import { register } from "../db/userService";
 
 const routes = express.Router();
@@ -13,7 +13,7 @@ routes.post('/register', async (req: Request, res: Response) => {
         res.status(500).send({ message: 'Something went wrong' });
     }
 });
-    
+
 routes.post('/login', async (req: Request, res: Response) => {
     const { username, password } = req.body;
     try {
