@@ -3,8 +3,10 @@ import { registerUser, retrieveUser } from "../db/userStore";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from "../config";
-const routes = express.Router();
+import { newToken } from "../utils/jwtTokens";
 
+const routes = express.Router();
+const tokenExpiry = 30 * 60 * 1000;
 routes.post('/register', async (req: Request, res: Response) => {
     try {
         const { username, password } = req.body;
@@ -29,11 +31,12 @@ routes.post('/login', async (req: Request, res: Response) => {
         }
         const isMatch = await bcrypt.compare(password, foundUser.password);
         if (isMatch) {
-            // TODO: Lookup if async version is available
-            const token = jwt.sign(
-                {_id: foundUser._id.toString(), username: foundUser.username},
-                JWT_SECRET,
-                {expiresIn: 30*60*1000});
+            const token = await newToken({
+                _id: foundUser._id.toString(),
+                username: foundUser.username,
+                exp: tokenExpiry
+                },
+                JWT_SECRET);
             res.status(200).send({ token });
             return;
         }
