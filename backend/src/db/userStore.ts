@@ -1,6 +1,6 @@
 import User, { UserModel } from "../models/User";
 
-export const register = async (user: User): Promise<User> => {
+export const registerUser = async (user: User) => {
     try {
         await UserModel.create(user);
         return user;
@@ -9,9 +9,9 @@ export const register = async (user: User): Promise<User> => {
     }
 };
 
-export const login = async (user: User): Promise<User> => {
+export const retrieveUser = async (user: User) => {
     try {
-        const foundUser = await UserModel.findOne({ username: user.username, password: user.password });
+        const foundUser = await UserModel.findOne({ username: user.username });
         return foundUser;
     } catch (err) {
         throw err;
