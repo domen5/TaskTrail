@@ -4,6 +4,8 @@ import supertest from 'supertest';
 import express from 'express';
 import userRoutes from '../../src/api/userRoutes';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../../src/config';
 
 describe('User API Tests', () => {
     let app: express.Express;
@@ -62,6 +64,69 @@ describe('User API Tests', () => {
 
             expect(response.status).to.equal(500);
             expect(response.body).to.have.property('message', 'Something went wrong');
+        });
+    });
+
+    describe('POST /user/login', () => {
+        it('should login successfully with valid credentials', async () => {
+            await supertest(app)
+                .post('/api/user/register')
+                .send({ username: 'validuser', password: 'validpassword' });
+
+            const response = await supertest(app)
+                .post('/api/user/login')
+                .send({ username: 'validuser', password: 'validpassword' });
+
+            expect(response.status).to.equal(200);
+            expect(response.body).to.have.property('token');
+            expect(response.body.token).to.not.be.empty;
+
+            const decoded = jwt.verify(response.body.token, JWT_SECRET) as any;
+            expect(decoded).to.have.property('_id');
+            expect(decoded._id).to.not.be.empty;
+            expect(decoded).to.have.property('username', 'validuser');
+            expect(decoded).to.have.property('exp');
+            expect(decoded.exp).to.be.above(0);
+        });
+
+        it('should return an error for an invalid username', async () => {
+            const response = await supertest(app)
+                .post('/api/user/login')
+                .send({ username: 'invaliduser', password: 'validpassword' });
+
+            expect(response.status).to.equal(401);
+            expect(response.body).to.have.property('message', 'Invalid username or password');
+        });
+
+        it('should return an error for an invalid password', async () => {
+            await supertest(app)
+                .post('/api/user/register')
+                .send({ username: 'validuser', password: 'validpassword' });
+
+            const response = await supertest(app)
+                .post('/api/user/login')
+                .send({ username: 'validuser', password: 'invalidpassword' });
+
+            expect(response.status).to.equal(401);
+            expect(response.body).to.have.property('message', 'Invalid username or password');
+        });
+
+        it('should return an error for missing username', async () => {
+            const response = await supertest(app)
+                .post('/api/user/login')
+                .send({ password: 'validpassword' });
+
+            expect(response.status).to.equal(422);
+            expect(response.body).to.have.property('message', 'Username and password are required');
+        });
+
+        it('should return an error for missing password', async () => {
+            const response = await supertest(app)
+                .post('/api/user/login')
+                .send({ username: 'validuser' });
+
+            expect(response.status).to.equal(422);
+            expect(response.body).to.have.property('message', 'Username and password are required');
         });
     });
 });

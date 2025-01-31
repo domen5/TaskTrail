@@ -17,6 +17,10 @@ routes.post('/register', async (req: Request, res: Response) => {
 
 routes.post('/login', async (req: Request, res: Response) => {
     try {
+        if (!req.body.username || !req.body.password) {
+            res.status(422).send({ message: 'Username and password are required' });
+            return;
+        }
         const { username, password } = req.body;
         const foundUser = await retrieveUser({ username, password });
         if (!foundUser) {
