@@ -1,7 +1,7 @@
 import 'mocha';
 import { expect } from 'chai';
-import * as supertest from 'supertest';
-import * as express from 'express';
+import supertest from 'supertest';
+import express from 'express';
 import routes from '../../src/api/routes';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 
@@ -10,8 +10,8 @@ describe('API Tests', () => {
 
     before(async () => {
         await setupTestDB();
-        app = express.default();
-        app.use(express.default.json());
+        app = express();
+        app.use(express.json());
         app.use('/api', routes);
     });
 
@@ -35,7 +35,7 @@ describe('API Tests', () => {
                 }
             };
 
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
                 .send(workedHours)
                 .expect(201);
@@ -58,7 +58,7 @@ describe('API Tests', () => {
                 }
             };
 
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
                 .send(invalidData)
                 .expect(400);
@@ -80,13 +80,13 @@ describe('API Tests', () => {
                 }
             };
 
-            await supertest.default(app)
+            await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
                 .send(workedHours)
                 .expect(201);
 
             // Then test GET endpoint
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
                 .expect(200);
 
@@ -98,13 +98,13 @@ describe('API Tests', () => {
         });
 
         it('should return 400 for invalid date parameters', async () => {
-            await supertest.default(app)
+            await supertest(app)
                 .get('/api/worked-hours/invalid/month/day')
                 .expect(400);
         });
 
         it('should return empty array when no entries exist', async () => {
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .get('/api/worked-hours/2024/3/21')
                 .expect(200);
 
@@ -125,19 +125,19 @@ describe('API Tests', () => {
                 }
             };
 
-            const createResponse = await supertest.default(app)
+            const createResponse = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
                 .send(workedHours)
                 .expect(201);
 
             // Then test DELETE endpoint
-            await supertest.default(app)
+            await supertest(app)
                 .delete('/api/worked-hours')
                 .send({ id: createResponse.body._id })
                 .expect(200);
 
             // Verify the entry was deleted
-            const getResponse = await supertest.default(app)
+            const getResponse = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
                 .expect(200);
 
@@ -145,7 +145,7 @@ describe('API Tests', () => {
         });
 
         it('should return 400 for invalid id', async () => {
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .delete('/api/worked-hours')
                 .send({ id: 'invalid-id' })
                 .expect(400);
@@ -167,7 +167,7 @@ describe('API Tests', () => {
                 }
             };
 
-            const createResponse = await supertest.default(app)
+            const createResponse = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
                 .send(workedHours)
                 .expect(201);
@@ -184,7 +184,7 @@ describe('API Tests', () => {
                 }
             };
 
-            const updateResponse = await supertest.default(app)
+            const updateResponse = await supertest(app)
                 .put('/api/worked-hours')
                 .send(updatedData)
                 .expect(200);
@@ -195,7 +195,7 @@ describe('API Tests', () => {
             expect(updateResponse.body).to.have.property('overtime', true);
 
             // Verify the update persisted
-            const getResponse = await supertest.default(app)
+            const getResponse = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
                 .expect(200);
 
@@ -215,7 +215,7 @@ describe('API Tests', () => {
                 }
             };
 
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .put('/api/worked-hours')
                 .send(invalidData)
                 .expect(400);
@@ -235,7 +235,7 @@ describe('API Tests', () => {
                 }
             };
 
-            const createResponse = await supertest.default(app)
+            const createResponse = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
                 .send(workedHours)
                 .expect(201);
@@ -252,7 +252,7 @@ describe('API Tests', () => {
                 }
             };
 
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .put('/api/worked-hours')
                 .send(invalidUpdate)
                 .expect(400);
@@ -284,18 +284,18 @@ describe('API Tests', () => {
                 }
             };
 
-            await supertest.default(app)
+            await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
                 .send(workedHours1)
                 .expect(201);
 
-            await supertest.default(app)
+            await supertest(app)
                 .post('/api/worked-hours/2024/3/21')
                 .send(workedHours2)
                 .expect(201);
 
             // Then test GET month endpoint
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .get('/api/worked-hours/2024/3')
                 .expect(200);
 
@@ -307,17 +307,17 @@ describe('API Tests', () => {
         });
 
         it('should return 400 for invalid month parameters', async () => {
-            await supertest.default(app)
+            await supertest(app)
                 .get('/api/worked-hours/2024/invalid')
                 .expect(400);
         });
 
         it('should return empty array when no entries exist for month', async () => {
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .get('/api/worked-hours/2024/4')
                 .expect(200);
 
             expect(response.body).to.be.an('array').that.is.empty;
         });
     });
-}); 
+});
