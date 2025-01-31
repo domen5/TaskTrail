@@ -29,4 +29,26 @@ describe('JWT Token Utility Tests', () => {
         expect(decoded).to.have.property('exp');
         expect(decoded.exp).to.be.above(0);
     });
-}); 
+
+    it('should throw an error with empty secret', async () => {
+        try {
+            await newToken(testUser, '');
+            expect.fail('Should have thrown an error');
+        } catch (err) {
+            expect(err).to.exist;
+            expect(err.message).to.include('Secret is empty');
+        }
+
+    });
+
+    it('should throw an error with missing payload fields', async () => {
+        const incompleteUser = { _id: '12345' };
+        try {
+            await newToken(incompleteUser as any, JWT_SECRET);
+            expect.fail('Should have thrown an error');
+        } catch (err) {
+            expect(err).to.exist;
+            expect(err.message).to.include('Missing payload fields');
+        }
+    });
+});
