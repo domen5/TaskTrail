@@ -2,11 +2,12 @@ import express from 'express';
 import { createWorkedHours, getWorkedHours, getMonthWorkedHours, deleteWorkedHours, updateWorkedHours } from '../db/dataStore';
 import WorkedHours from '../models/WorkedHours';
 import { InputError } from '../utils/errors';
+import { verifyToken } from '../utils/auth';
 
 const routes = express.Router();
 
 // CREATE WorkedHours
-routes.post('/worked-hours/:year/:month/:day', async (req, res) => {
+routes.post('/worked-hours/:year/:month/:day', verifyToken, async (req, res) => {
     const { year, month, day } = req.params;
     const formData: WorkedHours = {
         date: req.body.workedHours.date,

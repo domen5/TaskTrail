@@ -7,7 +7,7 @@ interface JwtTokenArgs {
     exp: number;
 }
 
-const makeJwt = async (args: JwtTokenArgs, secret: string): Promise<string> => {
+const makeToken = async (args: JwtTokenArgs, secret: string): Promise<string> => {
     if (secret === '') {
         throw new Error('Secret is empty');
     }
@@ -21,11 +21,12 @@ const makeJwt = async (args: JwtTokenArgs, secret: string): Promise<string> => {
     return token;
 };
 
-const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
+const verifyToken = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
-        return res.status(401).send({ message: 'Access Denied: No Token Provided!' });
+        res.status(401).send({ message: 'Access Denied: No Token Provided!' });
+        return;
     }
 
     try {
@@ -38,4 +39,4 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 
-export { JwtTokenArgs, makeJwt, verifyToken };
+export { JwtTokenArgs, makeToken, verifyToken };

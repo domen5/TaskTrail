@@ -4,15 +4,20 @@ import supertest from 'supertest';
 import express from 'express';
 import routes from '../../src/api/routes';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
+import { makeToken } from '../../src/utils/auth';
+import { JWT_SECRET } from '../../src/config';
 
 describe('API Tests', () => {
     let app: express.Express;
+    let token: string;
 
     before(async () => {
         await setupTestDB();
         app = express();
         app.use(express.json());
         app.use('/api', routes);
+        // Generate a token for testing
+        token = await makeToken({ _id: 'testUserId', username: 'testUser', exp: 1000 *60 * 60 }, JWT_SECRET);
     });
 
     after(async () => {
@@ -37,6 +42,7 @@ describe('API Tests', () => {
 
             const response = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Authorization', `Bearer ${token}`)
                 .send(workedHours)
                 .expect(201);
 
@@ -60,6 +66,7 @@ describe('API Tests', () => {
 
             const response = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Authorization', `Bearer ${token}`)
                 .send(invalidData)
                 .expect(400);
 
@@ -82,6 +89,7 @@ describe('API Tests', () => {
 
             await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Authorization', `Bearer ${token}`)
                 .send(workedHours)
                 .expect(201);
 
@@ -127,6 +135,7 @@ describe('API Tests', () => {
 
             const createResponse = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Authorization', `Bearer ${token}`)
                 .send(workedHours)
                 .expect(201);
 
@@ -169,6 +178,7 @@ describe('API Tests', () => {
 
             const createResponse = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Authorization', `Bearer ${token}`)
                 .send(workedHours)
                 .expect(201);
 
@@ -237,6 +247,7 @@ describe('API Tests', () => {
 
             const createResponse = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Authorization', `Bearer ${token}`)
                 .send(workedHours)
                 .expect(201);
 
@@ -286,11 +297,13 @@ describe('API Tests', () => {
 
             await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Authorization', `Bearer ${token}`)
                 .send(workedHours1)
                 .expect(201);
 
             await supertest(app)
                 .post('/api/worked-hours/2024/3/21')
+                .set('Authorization', `Bearer ${token}`)
                 .send(workedHours2)
                 .expect(201);
 

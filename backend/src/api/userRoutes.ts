@@ -1,9 +1,8 @@
 import express, { Request, Response } from "express";
 import { registerUser, retrieveUser } from "../db/userStore";
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from "../config";
-import { makeJwt } from "../utils/auth";
+import { makeToken } from "../utils/auth";
 
 const routes = express.Router();
 const tokenExpiry = 30 * 60 * 1000;
@@ -31,7 +30,7 @@ routes.post('/login', async (req: Request, res: Response) => {
         }
         const isMatch = await bcrypt.compare(password, foundUser.password);
         if (isMatch) {
-            const token = await makeJwt({
+            const token = await makeToken({
                 _id: foundUser._id.toString(),
                 username: foundUser.username,
                 exp: tokenExpiry
