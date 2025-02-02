@@ -66,7 +66,7 @@ routes.put('/worked-hours', verifyToken, async (req, res) => {
 });
 
 // DELETE WorkedHours
-routes.delete('/worked-hours', async (req, res) => {
+routes.delete('/worked-hours', verifyToken, async (req, res) => {
     try {
         const id = req.body.id;
         await deleteWorkedHours(id);

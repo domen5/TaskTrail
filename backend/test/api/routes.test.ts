@@ -145,6 +145,7 @@ describe('API Tests', () => {
             // Then test DELETE endpoint
             await supertest(app)
                 .delete('/api/worked-hours')
+                .set('Authorization', `Bearer ${token}`)
                 .send({ id: createResponse.body._id })
                 .expect(200);
 
@@ -160,6 +161,7 @@ describe('API Tests', () => {
         it('should return 400 for invalid id', async () => {
             const response = await supertest(app)
                 .delete('/api/worked-hours')
+                .set('Authorization', `Bearer ${token}`)
                 .send({ id: 'invalid-id' })
                 .expect(400);
 
