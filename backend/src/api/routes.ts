@@ -29,7 +29,7 @@ routes.post('/worked-hours/:year/:month/:day', verifyToken, async (req, res) => 
 });
 
 // READ WorkedHours
-routes.get('/worked-hours/:year/:month/:day', async (req, res) => {
+routes.get('/worked-hours/:year/:month/:day', verifyToken, async (req, res) => {
     const { year, month, day } = req.params;
     try {
         const data = await getWorkedHours(parseInt(year), parseInt(month), parseInt(day));
@@ -44,7 +44,7 @@ routes.get('/worked-hours/:year/:month/:day', async (req, res) => {
 });
 
 // UPDATE WorkedHours
-routes.put('/worked-hours', async (req, res) => {
+routes.put('/worked-hours', verifyToken, async (req, res) => {
     const id = req.body.workedHours._id;
     try {
         const formData: WorkedHours = {

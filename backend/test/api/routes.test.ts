@@ -96,6 +96,7 @@ describe('API Tests', () => {
             // Then test GET endpoint
             const response = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
+                .set('Authorization', `Bearer ${token}`)
                 .expect(200);
 
             expect(response.body).to.be.an('array');
@@ -108,12 +109,14 @@ describe('API Tests', () => {
         it('should return 400 for invalid date parameters', async () => {
             await supertest(app)
                 .get('/api/worked-hours/invalid/month/day')
+                .set('Authorization', `Bearer ${token}`)
                 .expect(400);
         });
 
         it('should return empty array when no entries exist', async () => {
             const response = await supertest(app)
                 .get('/api/worked-hours/2024/3/21')
+                .set('Authorization', `Bearer ${token}`)
                 .expect(200);
 
             expect(response.body).to.be.an('array').that.is.empty;
@@ -148,6 +151,7 @@ describe('API Tests', () => {
             // Verify the entry was deleted
             const getResponse = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
+                .set('Authorization', `Bearer ${token}`)
                 .expect(200);
 
             expect(getResponse.body).to.be.an('array').that.is.empty;
@@ -196,6 +200,7 @@ describe('API Tests', () => {
 
             const updateResponse = await supertest(app)
                 .put('/api/worked-hours')
+                .set('Authorization', `Bearer ${token}`)
                 .send(updatedData)
                 .expect(200);
 
@@ -207,6 +212,7 @@ describe('API Tests', () => {
             // Verify the update persisted
             const getResponse = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
+                .set('Authorization', `Bearer ${token}`)
                 .expect(200);
 
             expect(getResponse.body[0]).to.have.property('project', 'Updated Project');
@@ -227,6 +233,7 @@ describe('API Tests', () => {
 
             const response = await supertest(app)
                 .put('/api/worked-hours')
+                .set('Authorization', `Bearer ${token}`)
                 .send(invalidData)
                 .expect(400);
 
@@ -265,6 +272,7 @@ describe('API Tests', () => {
 
             const response = await supertest(app)
                 .put('/api/worked-hours')
+                .set('Authorization', `Bearer ${token}`)
                 .send(invalidUpdate)
                 .expect(400);
 
