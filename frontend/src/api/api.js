@@ -1,6 +1,4 @@
-const BACKEND_URL = window.ENV?.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
-console.log('BACKEND_URL:', BACKEND_URL);
-
+import { BACKEND_URL } from '../utils/config';
 // Get month data from the backend; Assumes 0 based months
 const getMonthWorkedHoursApiCall = async (year, month) => {
     const newMonth = month + 1; // Backend API expects 1-based months
@@ -23,7 +21,7 @@ const getMonthWorkedHoursApiCall = async (year, month) => {
             if (item.date) {
                 // If the date already exists in the accumulator, push the item to the array
                 if (!acc[item.date]) {
-                    acc[item.date] = [];  // Initialize an empty array if not present
+                    acc[item.date] = [];
                 }
                 acc[item.date].push(item);
             } else {
@@ -107,7 +105,7 @@ const updateWorkedHoursApiCall = async (workedHours) => {
     if (!response.ok) {
         throw new Error('Failed updating workedHours with id: ' + workedHours._id);
     }
-    return await response.json()
+    return await response.json();
 }
 
 export {
