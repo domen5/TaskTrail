@@ -36,7 +36,13 @@ routes.post('/login', async (req: Request, res: Response) => {
                 exp: tokenExpiry
                 },
                 JWT_SECRET);
-            res.status(200).send({ token });
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                maxAge: tokenExpiry
+            });
+            res.status(200).send({ message: 'Login successful' });
             return;
         }
         res.status(401).send({ message: 'Invalid username or password' });

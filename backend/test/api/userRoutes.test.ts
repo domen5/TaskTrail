@@ -78,15 +78,12 @@ describe('User API Tests', () => {
                 .send({ username: 'validuser', password: 'validpassword' });
 
             expect(response.status).to.equal(200);
-            expect(response.body).to.have.property('token');
-            expect(response.body.token).to.not.be.empty;
-
-            const decoded = jwt.verify(response.body.token, JWT_SECRET) as any;
-            expect(decoded).to.have.property('_id');
-            expect(decoded._id).to.not.be.empty;
-            expect(decoded).to.have.property('username', 'validuser');
-            expect(decoded).to.have.property('exp');
-            expect(decoded.exp).to.be.above(0);
+            expect(response.headers['set-cookie']).to.exist;
+            const cookies = response.headers['set-cookie'][0];
+            expect(cookies).to.include('token=');
+            expect(cookies).to.include('HttpOnly');
+            expect(cookies).to.include('Secure');
+            expect(cookies).to.include('SameSite=Strict');
         });
 
         it('should return an error for an invalid username', async () => {
