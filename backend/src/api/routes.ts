@@ -81,7 +81,7 @@ routes.delete('/worked-hours', verifyToken, async (req, res) => {
 });
 
 // READ Month WorkedHours
-routes.get('/worked-hours/:year/:month/', async (req, res) => {
+routes.get('/worked-hours/:year/:month/', verifyToken, async (req, res) => {
     const { year, month } = req.params;
     try {
         const data = await getMonthWorkedHours(parseInt(year), parseInt(month));

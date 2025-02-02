@@ -320,6 +320,7 @@ describe('API Tests', () => {
             // Then test GET month endpoint
             const response = await supertest(app)
                 .get('/api/worked-hours/2024/3')
+                .set('Authorization', `Bearer ${token}`)
                 .expect(200);
 
             expect(response.body).to.be.an('array').with.lengthOf(2);
@@ -332,12 +333,14 @@ describe('API Tests', () => {
         it('should return 400 for invalid month parameters', async () => {
             await supertest(app)
                 .get('/api/worked-hours/2024/invalid')
+                .set('Authorization', `Bearer ${token}`)
                 .expect(400);
         });
 
         it('should return empty array when no entries exist for month', async () => {
             const response = await supertest(app)
                 .get('/api/worked-hours/2024/4')
+                .set('Authorization', `Bearer ${token}`)
                 .expect(200);
 
             expect(response.body).to.be.an('array').that.is.empty;
