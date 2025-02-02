@@ -39,11 +39,12 @@ function Login({ onClose }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form submitted:', formData);
-        const token = await login(formData.username, formData.inputPassword);
-        console.log('token:', token);
+
+        await login(formData.username, formData.inputPassword);
+
         setFormData({
-            emailAddress: '',
+            // emailAddress: '',
+            username: '',
             inputPassword: ''
         });
         onClose();

@@ -5,7 +5,9 @@ const getMonthWorkedHoursApiCall = async (year, month) => {
     const url = `${BACKEND_URL}/api/worked-hours/${year}/${newMonth}`;
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            credentials: 'include'
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch month data from backend');
         }
@@ -52,7 +54,8 @@ const createWorkedHoursApiCall = async (date, formData) => {
         },
         body: JSON.stringify({
             workedHours: formData
-        })
+        }),
+        credentials: 'include'
     });
     if (!response.ok) {
         throw new Error('Failed post day data to backend');
@@ -76,7 +79,8 @@ const deleteWorkedHoursApiCall = async (id) => {
         },
         body: JSON.stringify({
             id: id
-        })
+        }),
+        credentials: 'include'
     });
     if (!response.ok) {
         throw new Error('Failed deleting workedHours with id: ' + id);
@@ -100,7 +104,8 @@ const updateWorkedHoursApiCall = async (workedHours) => {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ "workedHours": workedHours })
+        body: JSON.stringify({ "workedHours": workedHours }),
+        credentials: 'include'
     });
     if (!response.ok) {
         throw new Error('Failed updating workedHours with id: ' + workedHours._id);
