@@ -12,8 +12,16 @@ async function startServer() {
     const app = express();
     app.use(express.json());
     // TODO: Retrieve frontend url from env
+    const allowedOrigins = ['http://localhost:5173', 'http://localhost:8080'];
+
     app.use(cors({
-        origin: 'http://localhost:5173',
+        origin: (origin, callback) => {
+            if (allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
         credentials: true
     }));
     app.use(cookieParser());
