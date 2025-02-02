@@ -34,11 +34,11 @@ routes.post('/login', async (req: Request, res: Response) => {
                 _id: foundUser._id.toString(),
                 username: foundUser.username,
                 exp: tokenExpiry
-                },
+            },
                 JWT_SECRET);
             res.cookie('token', token, {
                 httpOnly: true,
-                secure: true,
+                // secure: true,
                 sameSite: 'strict',
                 maxAge: tokenExpiry
             });

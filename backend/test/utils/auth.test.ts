@@ -61,7 +61,7 @@ describe('verifyToken Middleware Tests', () => {
     let next: sinon.SinonSpy;
 
     beforeEach(() => {
-        req = { headers: {} } as Partial<Request>;
+        req = { cookies: {} } as Partial<Request>;
         res = {
             status: sinon.stub().returnsThis() as any,
             send: sinon.stub() as any
@@ -76,7 +76,7 @@ describe('verifyToken Middleware Tests', () => {
     });
 
     it('should return 400 if token is invalid', async () => {
-        req.headers = { authorization: 'Bearer invalidtoken' };
+        req.cookies = { token: 'invalidtoken' };
         await verifyToken(req as Request, res as Response, next);
         expect((res.status as sinon.SinonStub).calledWith(400)).to.be.true;
         expect((res.send as sinon.SinonStub).calledWith({ message: 'Invalid Token' })).to.be.true;
@@ -84,7 +84,7 @@ describe('verifyToken Middleware Tests', () => {
 
     it('should call next if token is valid', async () => {
         const validToken = await makeToken(testUser, JWT_SECRET);
-        req.headers = { authorization: `Bearer ${validToken}` };
+        req.cookies = { token: validToken };
         await verifyToken(req as Request, res as Response, next);
         expect(next.calledOnce).to.be.true;
     });
