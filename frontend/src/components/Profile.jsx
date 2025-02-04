@@ -1,11 +1,6 @@
-import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
-import Login from "./Login";
-
 function Profile() {
-    const [showForm, setShowForm] = useState(true);
     const { isDarkMode, setIsDarkMode } = useTheme();
-    const handleClose = () => setShowForm(false);
     const toggleDarkMode = () => setIsDarkMode(prevMode => !prevMode);
 
     return (
@@ -24,9 +19,6 @@ function Profile() {
                     Dark Mode
                 </label>
             </div>
-            {showForm && (
-                <Login onClose={handleClose} />
-            )}
         </div>
     );
 }
