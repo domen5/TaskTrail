@@ -31,4 +31,16 @@ const verifyTokenApiCall = async () => {
     }
 };
 
-export { loginApiCall, verifyTokenApiCall };
+const logoutApiCall = async () => {
+    const url = `${BACKEND_URL}/api/user/logout`;
+    const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'include'
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to logout');
+    }
+};
+
+export { loginApiCall, verifyTokenApiCall, logoutApiCall };

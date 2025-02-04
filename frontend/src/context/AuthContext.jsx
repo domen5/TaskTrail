@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { verifyTokenApiCall } from '../api/auth';
+import { verifyTokenApiCall, logoutApiCall } from '../api/auth';
 
 export const AuthContext = createContext();
 
@@ -15,8 +15,17 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  const logout = async () => {
+    try {
+      await logoutApiCall();
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated }}>
+    <AuthContext.Provider value={{ isAuthenticated, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -53,7 +53,6 @@ routes.post('/login', async (req: Request, res: Response) => {
 
 routes.get('/verify', verifyToken, async (req: Request, res: Response) => {
     const user = (req as any).user;
-    console.log('User:', user);
     res.status(200).send({ message: 'Token is valid', user });
 });
 

@@ -1,6 +1,11 @@
 import { useTheme } from "../context/ThemeContext";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 function Profile() {
     const { isDarkMode, setIsDarkMode } = useTheme();
+    const { logout } = useContext(AuthContext);
+
     const toggleDarkMode = () => setIsDarkMode(prevMode => !prevMode);
 
     return (
@@ -19,6 +24,9 @@ function Profile() {
                     Dark Mode
                 </label>
             </div>
+            <button onClick={logout} className="btn btn-primary mt-3">
+                Logout
+            </button>
         </div>
     );
 }
