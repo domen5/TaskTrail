@@ -180,4 +180,36 @@ describe('User API Tests', () => {
         });
     });
 
+    describe('POST /user/logout', () => {
+        it('should clear the token cookie and return a success message', async () => {
+            // First, register and login a user to set a token cookie
+            await supertest(app)
+                .post('/api/user/register')
+                .send({ username: 'testuser', password: 'testpassword' });
+
+            const loginResponse = await supertest(app)
+                .post('/api/user/login')
+                .send({ username: 'testuser', password: 'testpassword' });
+
+            const cookies = loginResponse.headers['set-cookie'][0];
+
+            // Now, logout the user
+            const response = await supertest(app)
+                .post('/api/user/logout')
+                .set('Cookie', cookies);
+
+            expect(response.status).to.equal(200);
+            expect(response.body).to.have.property('message', 'Logout successful');
+            expect(response.headers['set-cookie'][0]).to.include('token=;');
+        });
+
+        it('should return a success message even if no token is present', async () => {
+            const response = await supertest(app)
+                .post('/api/user/logout');
+
+            expect(response.status).to.equal(200);
+            expect(response.body).to.have.property('message', 'Logout successful');
+        });
+    });
+
 });

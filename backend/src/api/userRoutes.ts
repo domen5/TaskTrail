@@ -57,4 +57,13 @@ routes.get('/verify', verifyToken, async (req: Request, res: Response) => {
     res.status(200).send({ message: 'Token is valid', user });
 });
 
+routes.post('/logout', (req, res) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        // secure: true,
+        sameSite: 'strict'
+    });
+    res.status(200).json({ message: 'Logout successful' });
+});
+
 export default routes;
