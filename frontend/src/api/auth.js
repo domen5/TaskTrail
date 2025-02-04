@@ -1,6 +1,6 @@
 import { BACKEND_URL } from '../utils/config';
 
-const login = async (username, password) => {
+const loginApiCall = async (username, password) => {
     if (!username || !password || !username.trim() || !password.trim()) {
         throw new Error('Username and password are required');
     }
@@ -19,4 +19,16 @@ const login = async (username, password) => {
     }
 };
 
-export { login };
+const verifyTokenApiCall = async () => {
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/user/verify`, {
+            credentials: 'include',
+        });
+        return response.ok;
+    } catch (error) {
+        console.error('Error verifying token:', error);
+        return false;
+    }
+};
+
+export { loginApiCall, verifyTokenApiCall };
