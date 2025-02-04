@@ -1,10 +1,12 @@
 import Modal from "./Modal";
 // import { validateEmail } from "../utils/utils";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { loginApiCall } from "../api/auth";
 import { useNavigate, useLocation } from 'react-router-dom';
+import { AuthContext } from "../context/AuthContext";
 
 function Login({ onClose }) {
+    const { login } = useContext(AuthContext);
     // Temporarily disable email validation
     // const [isEmailValid, setIsEmailValid] = useState(false);
     const [isPasswordNotEmpty, setIsPasswordNotEmpty] = useState(false);
@@ -42,7 +44,7 @@ function Login({ onClose }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await loginApiCall(formData.username, formData.inputPassword);
+            await login(formData.username, formData.inputPassword);
             // Redirect to the intended route or default to home
             const from = location.state?.from?.pathname || '/';
             navigate(from);
