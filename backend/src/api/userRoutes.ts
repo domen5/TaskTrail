@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import { registerUser, retrieveUser } from "../db/userStore";
 import bcrypt from 'bcrypt';
 import { JWT_SECRET } from "../config";
-import { makeToken } from "../utils/auth";
+import { makeToken, verifyToken } from "../utils/auth";
 
 const routes = express.Router();
 const tokenExpiry = 30 * 60 * 1000;
@@ -49,6 +49,12 @@ routes.post('/login', async (req: Request, res: Response) => {
     } catch (err) {
         res.status(500).send({ message: 'Something went wrong' });
     }
+});
+
+routes.get('/verify', verifyToken, async (req: Request, res: Response) => {
+    const user = (req as any).user;
+    console.log('User:', user);
+    res.status(200).send({ message: 'Token is valid', user });
 });
 
 export default routes;

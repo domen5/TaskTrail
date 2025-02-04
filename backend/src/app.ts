@@ -16,7 +16,8 @@ async function startServer() {
 
     app.use(cors({
         origin: (origin, callback) => {
-            if (allowedOrigins.includes(origin)) {
+            // Allow requests from any origin if origin is not present to allow Postman requests
+            if (!origin || allowedOrigins.includes(origin)) {
                 callback(null, true);
             } else {
                 callback(new Error('Not allowed by CORS'));
