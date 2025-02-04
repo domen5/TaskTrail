@@ -1,13 +1,13 @@
-const BACKEND_URL = window.ENV?.BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
-console.log('BACKEND_URL:', BACKEND_URL);
-
+import { BACKEND_URL } from '../utils/config';
 // Get month data from the backend; Assumes 0 based months
 const getMonthWorkedHoursApiCall = async (year, month) => {
     const newMonth = month + 1; // Backend API expects 1-based months
     const url = `${BACKEND_URL}/api/worked-hours/${year}/${newMonth}`;
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            credentials: 'include'
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch month data from backend');
         }
@@ -23,7 +23,7 @@ const getMonthWorkedHoursApiCall = async (year, month) => {
             if (item.date) {
                 // If the date already exists in the accumulator, push the item to the array
                 if (!acc[item.date]) {
-                    acc[item.date] = [];  // Initialize an empty array if not present
+                    acc[item.date] = [];
                 }
                 acc[item.date].push(item);
             } else {
@@ -54,7 +54,8 @@ const createWorkedHoursApiCall = async (date, formData) => {
         },
         body: JSON.stringify({
             workedHours: formData
-        })
+        }),
+        credentials: 'include'
     });
     if (!response.ok) {
         throw new Error('Failed post day data to backend');
@@ -78,7 +79,8 @@ const deleteWorkedHoursApiCall = async (id) => {
         },
         body: JSON.stringify({
             id: id
-        })
+        }),
+        credentials: 'include'
     });
     if (!response.ok) {
         throw new Error('Failed deleting workedHours with id: ' + id);
@@ -102,12 +104,13 @@ const updateWorkedHoursApiCall = async (workedHours) => {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ "workedHours": workedHours })
+        body: JSON.stringify({ "workedHours": workedHours }),
+        credentials: 'include'
     });
     if (!response.ok) {
         throw new Error('Failed updating workedHours with id: ' + workedHours._id);
     }
-    return await response.json()
+    return await response.json();
 }
 
 export {

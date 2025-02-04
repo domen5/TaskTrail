@@ -1,3 +1,4 @@
+import 'mocha';
 import { expect } from 'chai';
 import { createWorkedHours, updateWorkedHours, deleteWorkedHours, getWorkedHours, getMonthWorkedHours } from '../../src/db/dataStore';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';

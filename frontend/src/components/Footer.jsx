@@ -4,10 +4,6 @@ const GITHUB_URL = window.ENV?.GITHUB_URL || import.meta.env.VITE_GITHUB_URL || 
 const REPOSITORY_URL = window.ENV?.REPOSITORY_URL || import.meta.env.VITE_REPOSITORY_URL || 'https://github.com/username/repository';
 const LINKEDIN_URL = window.ENV?.LINKEDIN_URL || import.meta.env.VITE_LINKEDIN_URL || 'https://linkedin.com/in/username';
 
-console.log('GITHUB_URL:', GITHUB_URL);
-console.log('REPOSITORY_URL:', REPOSITORY_URL);
-console.log('LINKEDIN_URL:', LINKEDIN_URL);
-
 const Footer = () => {
     return (
         <footer className="text-center">

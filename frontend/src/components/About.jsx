@@ -13,11 +13,12 @@ const About = () => {
             <section className="mt-5">
                 <h2 className="h4 mb-3"><i className="fas fa-layer-group me-2"></i>Frontend Architecture</h2>
                 <div className="mb-4">
-                    <p>Built with React 18 for optimal performance and component reusability. Features include:</p>
+                    <p>Built with ReactJS for optimal performance and component reusability. Features include:</p>
                     <p>
+                        A Custom built Calendar component<br />
                         Custom theme implementation using Context API for seamless dark/light mode switching<br />
-                        Responsive design using Tailwind CSS utility classes<br />
-                        React Router v6 for client-side routing and navigation
+                        Responsive design using Bootstrap 5<br />
+                        
                     </p>
                 </div>
             </section>
@@ -39,9 +40,9 @@ const About = () => {
                 <div>
                     <p>Containerized with Docker for consistent environments:</p>
                     <p>
-                        Containerized development and production environments<br />
-                        MongoDB replication for high availability<br />
-                        Automated testing and deployment pipelines
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.<br />
+                        At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos<br />
+                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa<br />
                     </p>
                 </div>
             </section>

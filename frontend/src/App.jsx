@@ -10,25 +10,45 @@ import Footer from './components/Footer';
 import { TimeSheetProvider } from './context/TimeSheetContext';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './components/Login';
 
 function App() {
   return (
-    <ThemeProvider>
-      <TimeSheetProvider>
-        <BrowserRouter>
-          <Navbar />
-          <div className="py-5">
-            <Routes>
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/profile" element={<Profile />} />
-            </Routes>
-          </div>
-          <Footer />
-        </BrowserRouter>
-      </TimeSheetProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <TimeSheetProvider>
+          <BrowserRouter>
+            <Navbar />
+            <div className="py-5">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/calendar"
+                  element={
+                    <ProtectedRoute>
+                      <Calendar />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/about" element={<About />} />
+              </Routes>
+            </div>
+            <Footer />
+          </BrowserRouter>
+        </TimeSheetProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

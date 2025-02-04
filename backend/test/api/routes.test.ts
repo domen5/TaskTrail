@@ -1,17 +1,24 @@
+import 'mocha';
 import { expect } from 'chai';
-import * as supertest from 'supertest';
-import * as express from 'express';
+import supertest from 'supertest';
+import express from 'express';
+import cookieParser from 'cookie-parser';
 import routes from '../../src/api/routes';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
+import { makeToken } from '../../src/utils/auth';
+import { JWT_SECRET } from '../../src/config';
 
 describe('API Tests', () => {
     let app: express.Express;
+    let token: string;
 
     before(async () => {
         await setupTestDB();
-        app = express.default();
-        app.use(express.default.json());
+        app = express();
+        app.use(express.json());
+        app.use(cookieParser());
         app.use('/api', routes);
+        token = await makeToken({ _id: 'testUserId', username: 'testUser', exp: 1000 *60 * 60 }, JWT_SECRET);
     });
 
     after(async () => {
@@ -34,8 +41,9 @@ describe('API Tests', () => {
                 }
             };
 
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
                 .send(workedHours)
                 .expect(201);
 
@@ -57,8 +65,9 @@ describe('API Tests', () => {
                 }
             };
 
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
                 .send(invalidData)
                 .expect(400);
 
@@ -79,14 +88,16 @@ describe('API Tests', () => {
                 }
             };
 
-            await supertest.default(app)
+            await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
                 .send(workedHours)
                 .expect(201);
 
             // Then test GET endpoint
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
                 .expect(200);
 
             expect(response.body).to.be.an('array');
@@ -97,14 +108,16 @@ describe('API Tests', () => {
         });
 
         it('should return 400 for invalid date parameters', async () => {
-            await supertest.default(app)
+            await supertest(app)
                 .get('/api/worked-hours/invalid/month/day')
+                .set('Cookie', `token=${token}`)
                 .expect(400);
         });
 
         it('should return empty array when no entries exist', async () => {
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .get('/api/worked-hours/2024/3/21')
+                .set('Cookie', `token=${token}`)
                 .expect(200);
 
             expect(response.body).to.be.an('array').that.is.empty;
@@ -124,28 +137,32 @@ describe('API Tests', () => {
                 }
             };
 
-            const createResponse = await supertest.default(app)
+            const createResponse = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
                 .send(workedHours)
                 .expect(201);
 
             // Then test DELETE endpoint
-            await supertest.default(app)
+            await supertest(app)
                 .delete('/api/worked-hours')
+                .set('Cookie', `token=${token}`)
                 .send({ id: createResponse.body._id })
                 .expect(200);
 
             // Verify the entry was deleted
-            const getResponse = await supertest.default(app)
+            const getResponse = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
                 .expect(200);
 
             expect(getResponse.body).to.be.an('array').that.is.empty;
         });
 
         it('should return 400 for invalid id', async () => {
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .delete('/api/worked-hours')
+                .set('Cookie', `token=${token}`)
                 .send({ id: 'invalid-id' })
                 .expect(400);
 
@@ -166,8 +183,9 @@ describe('API Tests', () => {
                 }
             };
 
-            const createResponse = await supertest.default(app)
+            const createResponse = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
                 .send(workedHours)
                 .expect(201);
 
@@ -183,8 +201,9 @@ describe('API Tests', () => {
                 }
             };
 
-            const updateResponse = await supertest.default(app)
+            const updateResponse = await supertest(app)
                 .put('/api/worked-hours')
+                .set('Cookie', `token=${token}`)
                 .send(updatedData)
                 .expect(200);
 
@@ -194,8 +213,9 @@ describe('API Tests', () => {
             expect(updateResponse.body).to.have.property('overtime', true);
 
             // Verify the update persisted
-            const getResponse = await supertest.default(app)
+            const getResponse = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
                 .expect(200);
 
             expect(getResponse.body[0]).to.have.property('project', 'Updated Project');
@@ -214,8 +234,9 @@ describe('API Tests', () => {
                 }
             };
 
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .put('/api/worked-hours')
+                .set('Cookie', `token=${token}`)
                 .send(invalidData)
                 .expect(400);
 
@@ -234,8 +255,9 @@ describe('API Tests', () => {
                 }
             };
 
-            const createResponse = await supertest.default(app)
+            const createResponse = await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
                 .send(workedHours)
                 .expect(201);
 
@@ -251,8 +273,9 @@ describe('API Tests', () => {
                 }
             };
 
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .put('/api/worked-hours')
+                .set('Cookie', `token=${token}`)
                 .send(invalidUpdate)
                 .expect(400);
 
@@ -283,19 +306,22 @@ describe('API Tests', () => {
                 }
             };
 
-            await supertest.default(app)
+            await supertest(app)
                 .post('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
                 .send(workedHours1)
                 .expect(201);
 
-            await supertest.default(app)
+            await supertest(app)
                 .post('/api/worked-hours/2024/3/21')
+                .set('Cookie', `token=${token}`)
                 .send(workedHours2)
                 .expect(201);
 
             // Then test GET month endpoint
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .get('/api/worked-hours/2024/3')
+                .set('Cookie', `token=${token}`)
                 .expect(200);
 
             expect(response.body).to.be.an('array').with.lengthOf(2);
@@ -306,17 +332,19 @@ describe('API Tests', () => {
         });
 
         it('should return 400 for invalid month parameters', async () => {
-            await supertest.default(app)
+            await supertest(app)
                 .get('/api/worked-hours/2024/invalid')
+                .set('Cookie', `token=${token}`)
                 .expect(400);
         });
 
         it('should return empty array when no entries exist for month', async () => {
-            const response = await supertest.default(app)
+            const response = await supertest(app)
                 .get('/api/worked-hours/2024/4')
+                .set('Cookie', `token=${token}`)
                 .expect(200);
 
             expect(response.body).to.be.an('array').that.is.empty;
         });
     });
-}); 
+});

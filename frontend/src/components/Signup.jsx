@@ -1,22 +1,21 @@
 import Modal from "./Modal";
 // import { validateEmail } from "../utils/utils";
 import React, { useState } from "react";
-import { loginApiCall } from "../api/auth";
-import { useNavigate, useLocation } from 'react-router-dom';
+// import { Signup } from "../api/auth";
 
-function Login({ onClose }) {
+function Signup({ onClose }) {
     // Temporarily disable email validation
     // const [isEmailValid, setIsEmailValid] = useState(false);
     const [isPasswordNotEmpty, setIsPasswordNotEmpty] = useState(false);
     const [isUsernameNotEmpty, setIsUsernameNotEmpty] = useState(false);
-    const navigate = useNavigate();
-    const location = useLocation();
+    const [isPasswordConfirmed, setIsPasswordConfirmed] = useState(false);
 
-    const title = 'Login';
+    const title = 'Signup';
     const [formData, setFormData] = useState({
         // emailAddress: '',
         username: '',
-        inputPassword: ''
+        inputPassword: '',
+        confirmPassword: ''
     });
 
     const handleChange = (e) => {
@@ -30,9 +29,10 @@ function Login({ onClose }) {
         // if (id === 'emailAddress') {
         //     setIsEmailValid(validateEmail(value));
         // }
-        if (id === 'inputPassword') {
+        if (id === 'inputPassword' || id === 'confirmPassword') {
             // TODO: Add password validation with at least 8 characters and two of the following: uppercase letters, lowercase letters, numbers, and symbols
-            setIsPasswordNotEmpty(value.trim() !== '');
+            setIsPasswordNotEmpty(formData.inputPassword.trim() !== '');
+            setIsPasswordConfirmed(formData.inputPassword === value || formData.confirmPassword === value);
         }
         if (id === 'username') {
             setIsUsernameNotEmpty(value.trim() !== '');
@@ -41,14 +41,21 @@ function Login({ onClose }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            await loginApiCall(formData.username, formData.inputPassword);
-            // Redirect to the intended route or default to home
-            const from = location.state?.from?.pathname || '/';
-            navigate(from);
-        } catch (error) {
-            console.error('Login failed:', error);
+
+        if (formData.inputPassword !== formData.confirmPassword) {
+            alert("Passwords don't match!");
+            return;
         }
+
+        await Signup(formData.username, formData.inputPassword);
+
+        setFormData({
+            // emailAddress: '',
+            username: '',
+            inputPassword: '',
+            confirmPassword: ''
+        });
+        onClose();
     };
 
     return (
@@ -69,7 +76,7 @@ function Login({ onClose }) {
                         type="text"
                         className="form-control"
                         id="username"
-                        placeholder="Enter your username"
+                        placeholder="Choose a username"
                         value={formData.username}
                         onChange={handleChange}
                     />
@@ -82,12 +89,25 @@ function Login({ onClose }) {
                         value={formData.inputPassword}
                         onChange={handleChange}
                     />
+                    <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+                    <input
+                        type="password"
+                        className="form-control"
+                        id="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                    />
                     <div id="passwordHelpBlock" className="form-text">
                         Passwords must have at least 8 characters and contain at least two of the following: uppercase letters, lowercase letters, numbers, and symbols
                     </div>
                     <div className="button-group">
                         <button type="button" className="btn btn-danger" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn btn-success" disabled={!isUsernameNotEmpty || !isPasswordNotEmpty}>Submit</button>
+                        <button 
+                            type="submit" 
+                            className="btn btn-success" 
+                            disabled={!isUsernameNotEmpty || !isPasswordNotEmpty || !isPasswordConfirmed}>
+                            Signup
+                        </button>
                     </div>
                 </div>
             </form>
@@ -95,4 +115,4 @@ function Login({ onClose }) {
     );
 }
 
-export default Login;
+export default Signup;

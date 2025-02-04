@@ -2,11 +2,12 @@ import express from 'express';
 import { createWorkedHours, getWorkedHours, getMonthWorkedHours, deleteWorkedHours, updateWorkedHours } from '../db/dataStore';
 import WorkedHours from '../models/WorkedHours';
 import { InputError } from '../utils/errors';
+import { verifyToken } from '../utils/auth';
 
 const routes = express.Router();
 
 // CREATE WorkedHours
-routes.post('/worked-hours/:year/:month/:day', async (req, res) => {
+routes.post('/worked-hours/:year/:month/:day', verifyToken, async (req, res) => {
     const { year, month, day } = req.params;
     const formData: WorkedHours = {
         date: req.body.workedHours.date,
@@ -28,7 +29,7 @@ routes.post('/worked-hours/:year/:month/:day', async (req, res) => {
 });
 
 // READ WorkedHours
-routes.get('/worked-hours/:year/:month/:day', async (req, res) => {
+routes.get('/worked-hours/:year/:month/:day', verifyToken, async (req, res) => {
     const { year, month, day } = req.params;
     try {
         const data = await getWorkedHours(parseInt(year), parseInt(month), parseInt(day));
@@ -43,7 +44,7 @@ routes.get('/worked-hours/:year/:month/:day', async (req, res) => {
 });
 
 // UPDATE WorkedHours
-routes.put('/worked-hours', async (req, res) => {
+routes.put('/worked-hours', verifyToken, async (req, res) => {
     const id = req.body.workedHours._id;
     try {
         const formData: WorkedHours = {
@@ -65,7 +66,7 @@ routes.put('/worked-hours', async (req, res) => {
 });
 
 // DELETE WorkedHours
-routes.delete('/worked-hours', async (req, res) => {
+routes.delete('/worked-hours', verifyToken, async (req, res) => {
     try {
         const id = req.body.id;
         await deleteWorkedHours(id);
@@ -80,7 +81,7 @@ routes.delete('/worked-hours', async (req, res) => {
 });
 
 // READ Month WorkedHours
-routes.get('/worked-hours/:year/:month/', async (req, res) => {
+routes.get('/worked-hours/:year/:month/', verifyToken, async (req, res) => {
     const { year, month } = req.params;
     try {
         const data = await getMonthWorkedHours(parseInt(year), parseInt(month));

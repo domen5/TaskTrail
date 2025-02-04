@@ -1,13 +1,13 @@
 import { useState } from "react";
-// import Login from "./Login";
 import { useTheme } from "../context/ThemeContext";
+import Login from "./Login";
 
 function Profile() {
     const [showForm, setShowForm] = useState(true);
     const { isDarkMode, setIsDarkMode } = useTheme();
     const handleClose = () => setShowForm(false);
     const toggleDarkMode = () => setIsDarkMode(prevMode => !prevMode);
-    
+
     return (
         <div className={`container py-4 ${isDarkMode ? 'text-light' : ''}`}>
             <h1>Profile</h1>
@@ -24,9 +24,9 @@ function Profile() {
                     Dark Mode
                 </label>
             </div>
-            {/* {showForm && (
+            {showForm && (
                 <Login onClose={handleClose} />
-            )} */}
+            )}
         </div>
     );
 }
