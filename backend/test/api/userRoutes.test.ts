@@ -167,7 +167,7 @@ describe('User API Tests', () => {
     });
 
     describe('POST /user/logout', () => {
-        it('should clear the token cookie and return a success message', async () => {
+        it('should clear the token cookie, blacklist the token and return a success message', async () => {
             await supertest(app)
                 .post('/api/user/register')
                 .send({ username: 'testuser', password: 'testpassword' });
@@ -185,6 +185,13 @@ describe('User API Tests', () => {
             expect(response.status).to.equal(200);
             expect(response.body).to.have.property('message', 'Logout successful');
             expect(response.headers['set-cookie'][0]).to.include('token=;');
+
+            const verifyResponse = await supertest(app)
+                .get('/api/user/verify')
+                .set('Cookie', cookies);
+
+            expect(verifyResponse.status).to.equal(401);
+            expect(verifyResponse.body).to.have.property('message', 'Access Denied: Token is blacklisted!');
         });
 
         it('should return a success message even if no token is present', async () => {
@@ -197,7 +204,7 @@ describe('User API Tests', () => {
     });
 
     describe('POST /user/refresh-token', () => {
-        it('should refresh the token successfully with a valid token', async () => {
+        it('should refresh the token successfully and blacklist the old token', async () => {
             await supertest(app)
                 .post('/api/user/register')
                 .send({ username: 'validuser', password: 'validpassword' });
@@ -206,15 +213,32 @@ describe('User API Tests', () => {
                 .post('/api/user/login')
                 .send({ username: 'validuser', password: 'validpassword' });
 
-            const cookies = loginResponse.headers['set-cookie'][0];
+            const oldCookie = loginResponse.headers['set-cookie'][0];
 
-            const response = await supertest(app)
+            const refreshResponse = await supertest(app)
                 .post('/api/user/refresh-token')
-                .set('Cookie', cookies);
+                .set('Cookie', oldCookie);
 
-            expect(response.status).to.equal(200);
-            expect(response.body).to.have.property('message', 'Token refreshed successfully');
-            expect(response.headers['set-cookie'][0]).to.include('token=');
+            expect(refreshResponse.status).to.equal(200);
+            expect(refreshResponse.body).to.have.property('message', 'Token refreshed successfully');
+            expect(refreshResponse.headers['set-cookie'][0]).to.include('token=');
+
+            // Verify that the old token is blacklisted
+            const verifyOldTokenResponse = await supertest(app)
+                .get('/api/user/verify')
+                .set('Cookie', oldCookie);
+
+            expect(verifyOldTokenResponse.status).to.equal(401);
+            expect(verifyOldTokenResponse.body).to.have.property('message', 'Access Denied: Token is blacklisted!');
+
+            // Verify that the new token works
+            const newCookies = refreshResponse.headers['set-cookie'][0];
+            const verifyNewTokenResponse = await supertest(app)
+                .get('/api/user/verify')
+                .set('Cookie', newCookies);
+
+            expect(verifyNewTokenResponse.status).to.equal(200);
+            expect(verifyNewTokenResponse.body).to.have.property('message', 'Token is valid');
         });
 
         it('should return an error for a missing token', async () => {
@@ -232,6 +256,31 @@ describe('User API Tests', () => {
 
             expect(response.status).to.equal(400);
             expect(response.body).to.have.property('message', 'Invalid Token');
+        });
+
+        it('should not allow reuse of a blacklisted token', async () => {
+            await supertest(app)
+                .post('/api/user/register')
+                .send({ username: 'validuser', password: 'validpassword' });
+
+            const loginResponse = await supertest(app)
+                .post('/api/user/login')
+                .send({ username: 'validuser', password: 'validpassword' });
+
+            const cookies = loginResponse.headers['set-cookie'][0];
+
+            // First refresh should succeed
+            await supertest(app)
+                .post('/api/user/refresh-token')
+                .set('Cookie', cookies);
+
+            // Second refresh with same token should fail
+            const secondRefreshResponse = await supertest(app)
+                .post('/api/user/refresh-token')
+                .set('Cookie', cookies);
+
+            expect(secondRefreshResponse.status).to.equal(401);
+            expect(secondRefreshResponse.body).to.have.property('message', 'Access Denied: Token is blacklisted!');
         });
     });
 
