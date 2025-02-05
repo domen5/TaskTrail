@@ -4,8 +4,11 @@ import bcrypt from 'bcrypt';
 import { JWT_SECRET } from "../config";
 import { makeToken, verifyToken } from "../utils/auth";
 
+// TODO: Implement CustomRequest to avoid typecasting
+// TODO: add expirty date to the httpOnly cookie
+
 const routes = express.Router();
-const tokenExpiry = 30 * 60 * 1000;
+const TOKEN_EXPIRY = 30 * 60 * 1000;
 routes.post('/register', async (req: Request, res: Response) => {
     try {
         const { username, password } = req.body;
@@ -33,14 +36,14 @@ routes.post('/login', async (req: Request, res: Response) => {
             const token = await makeToken({
                 _id: foundUser._id.toString(),
                 username: foundUser.username,
-                exp: tokenExpiry
+                exp: TOKEN_EXPIRY
             },
                 JWT_SECRET);
             res.cookie('token', token, {
                 httpOnly: true,
                 // secure: true,
                 sameSite: 'strict',
-                maxAge: tokenExpiry
+                maxAge: TOKEN_EXPIRY
             });
             res.status(200).send({ message: 'Login successful' });
             return;
@@ -71,13 +74,13 @@ routes.post('/refresh-token', verifyToken, async (req: Request, res: Response) =
         const newToken = await makeToken({
             _id: user._id,
             username: user.username,
-            exp: tokenExpiry
+            exp: TOKEN_EXPIRY
         }, JWT_SECRET);
         res.cookie('token', newToken, {
             httpOnly: true,
             // secure: true,
             sameSite: 'strict',
-            maxAge: tokenExpiry
+            maxAge: TOKEN_EXPIRY
         });
         res.status(200).send({ message: 'Token refreshed successfully' });
     } catch (err) {
