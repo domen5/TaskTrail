@@ -24,7 +24,10 @@ const isTokenBlacklisted = async (token: string): Promise<boolean> => {
 
 const getTokenVersion = async (userId: string): Promise<number> => {
     const record = await TokenVersion.findOne({ userId });
-    return record ? record.version : 1;
+    if (!record) {
+        throw new Error('Token version record not found');
+    }
+    return record.version;
 };
 
 const incrementTokenVersion = async (userId: string) => {
