@@ -76,13 +76,21 @@ routes.get('/verify', verifyToken, async (req: Request, res: Response) => {
     res.status(200).send({ message: 'Token is valid', user });
 });
 
-routes.post('/logout', (req, res) => {
-    res.clearCookie('token', {
-        httpOnly: true,
-        // secure: true,
-        sameSite: 'strict'
-    });
-    res.status(200).json({ message: 'Logout successful' });
+routes.post('/logout', async (req, res) => {
+    try {
+        const token = req.cookies.token;
+        if (token) {
+            await addToBlacklist(token);
+        }
+        res.clearCookie('token', {
+            httpOnly: true,
+            // secure: true,
+            sameSite: 'strict'
+        });
+        res.status(200).json({ message: 'Logout successful' });
+    } catch (err) {
+        res.status(500).json({ message: 'Error during logout' });
+    }
 });
 
 routes.post('/refresh-token', verifyToken, async (req: Request, res: Response) => {
