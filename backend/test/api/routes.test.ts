@@ -7,10 +7,12 @@ import routes from '../../src/api/routes';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 import { makeToken } from '../../src/utils/auth';
 import { JWT_SECRET } from '../../src/config';
+import { TokenVersion } from '../../src/db/tokenStore';
 
 describe('API Tests', () => {
     let app: express.Express;
     let token: string;
+    const testUserId = 'testUserId';
 
     before(async () => {
         await setupTestDB();
@@ -18,7 +20,14 @@ describe('API Tests', () => {
         app.use(express.json());
         app.use(cookieParser());
         app.use('/api', routes);
-        token = await makeToken({ _id: 'testUserId', username: 'testUser', exp: 1000 *60 * 60 }, JWT_SECRET);
+        
+        await TokenVersion.create({ userId: testUserId, version: 1 });
+        token = await makeToken({ 
+            _id: testUserId, 
+            username: 'testUser', 
+            exp: 1000 * 60 * 60, 
+            version: 1 
+        }, JWT_SECRET);
     });
 
     after(async () => {
@@ -27,6 +36,7 @@ describe('API Tests', () => {
 
     beforeEach(async () => {
         await clearDatabase();
+        await TokenVersion.create({ userId: testUserId, version: 1 });
     });
 
     describe('POST /worked-hours/:year/:month/:day', () => {
