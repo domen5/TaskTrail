@@ -65,4 +65,24 @@ routes.post('/logout', (req, res) => {
     res.status(200).json({ message: 'Logout successful' });
 });
 
+routes.post('/refresh-token', verifyToken, async (req: Request, res: Response) => {
+    try {
+        const user = (req as any).user;
+        const newToken = await makeToken({
+            _id: user._id,
+            username: user.username,
+            exp: tokenExpiry
+        }, JWT_SECRET);
+        res.cookie('token', newToken, {
+            httpOnly: true,
+            // secure: true,
+            sameSite: 'strict',
+            maxAge: tokenExpiry
+        });
+        res.status(200).send({ message: 'Token refreshed successfully' });
+    } catch (err) {
+        res.status(500).send({ message: 'Something went wrong' });
+    }
+});
+
 export default routes;
