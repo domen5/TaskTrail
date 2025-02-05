@@ -130,7 +130,6 @@ describe('User API Tests', () => {
     describe('GET /user/verify', () => {
         it('should verify a valid token successfully', async () => {
             console.log('Starting test for valid token verification');
-            // First, register and login a user to get a valid token
             await supertest(app)
                 .post('/api/user/register')
                 .send({ username: 'validuser', password: 'validpassword' });
@@ -182,7 +181,6 @@ describe('User API Tests', () => {
 
     describe('POST /user/logout', () => {
         it('should clear the token cookie and return a success message', async () => {
-            // First, register and login a user to set a token cookie
             await supertest(app)
                 .post('/api/user/register')
                 .send({ username: 'testuser', password: 'testpassword' });
@@ -193,7 +191,6 @@ describe('User API Tests', () => {
 
             const cookies = loginResponse.headers['set-cookie'][0];
 
-            // Now, logout the user
             const response = await supertest(app)
                 .post('/api/user/logout')
                 .set('Cookie', cookies);
@@ -209,6 +206,45 @@ describe('User API Tests', () => {
 
             expect(response.status).to.equal(200);
             expect(response.body).to.have.property('message', 'Logout successful');
+        });
+    });
+
+    describe('POST /user/refresh-token', () => {
+        it('should refresh the token successfully with a valid token', async () => {
+            await supertest(app)
+                .post('/api/user/register')
+                .send({ username: 'validuser', password: 'validpassword' });
+
+            const loginResponse = await supertest(app)
+                .post('/api/user/login')
+                .send({ username: 'validuser', password: 'validpassword' });
+
+            const cookies = loginResponse.headers['set-cookie'][0];
+
+            const response = await supertest(app)
+                .post('/api/user/refresh-token')
+                .set('Cookie', cookies);
+
+            expect(response.status).to.equal(200);
+            expect(response.body).to.have.property('message', 'Token refreshed successfully');
+            expect(response.headers['set-cookie'][0]).to.include('token=');
+        });
+
+        it('should return an error for a missing token', async () => {
+            const response = await supertest(app)
+                .post('/api/user/refresh-token');
+
+            expect(response.status).to.equal(401);
+            expect(response.body).to.have.property('message', 'Access Denied: No Token Provided!');
+        });
+
+        it('should return an error for an invalid token', async () => {
+            const response = await supertest(app)
+                .post('/api/user/refresh-token')
+                .set('Cookie', 'token=invalidtoken');
+
+            expect(response.status).to.equal(400);
+            expect(response.body).to.have.property('message', 'Invalid Token');
         });
     });
 
