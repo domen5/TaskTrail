@@ -10,7 +10,7 @@ import { TokenVersion } from '../db/tokenStore';
 // TODO: add expirty date to the httpOnly cookie
 
 const routes = express.Router();
-const TOKEN_EXPIRY = 30 * 60 * 1000;
+const TOKEN_EXPIRY = 30 * 60 * 1000; // 30 minutes
 routes.post('/register', async (req: Request, res: Response) => {
     try {
         const { username, password } = req.body;
@@ -65,7 +65,7 @@ routes.post('/login', async (req: Request, res: Response) => {
             sameSite: 'strict',
             maxAge: TOKEN_EXPIRY
         });
-        res.status(200).send({ message: 'Login successful' });
+        res.status(200).send({ message: 'Login successful', expiresIn: TOKEN_EXPIRY });
     } catch (err) {
         res.status(500).send({ message: 'Something went wrong' });
     }
@@ -73,7 +73,7 @@ routes.post('/login', async (req: Request, res: Response) => {
 
 routes.get('/verify', verifyToken, async (req: Request, res: Response) => {
     const user = (req as any).user;
-    res.status(200).send({ message: 'Token is valid', user });
+    res.status(200).send({ message: 'Token is valid', user, expiresIn: TOKEN_EXPIRY });
 });
 
 routes.post('/logout', async (req, res) => {
@@ -116,7 +116,7 @@ routes.post('/refresh-token', verifyToken, async (req: Request, res: Response) =
             sameSite: 'strict',
             maxAge: TOKEN_EXPIRY
         });
-        res.status(200).send({ message: 'Token refreshed successfully' });
+        res.status(200).send({ message: 'Token refreshed successfully', expiresIn: TOKEN_EXPIRY });
     } catch (err) {
         res.status(500).send({ message: 'Something went wrong' });
     }
