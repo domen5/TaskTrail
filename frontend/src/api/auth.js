@@ -17,6 +17,10 @@ const loginApiCall = async (username, password) => {
     if (!response.ok) {
         throw new Error('Failed to login');
     }
+
+    const data = await response.json();
+    console.log('Login response:', data);
+    return data;
 };
 
 const verifyTokenApiCall = async () => {
@@ -24,10 +28,14 @@ const verifyTokenApiCall = async () => {
         const response = await fetch(`${BACKEND_URL}/api/user/verify`, {
             credentials: 'include',
         });
-        return response.ok;
+        if (!response.ok) {
+            return { isAuthenticated: false };
+        }
+        const data = await response.json();
+        return { isAuthenticated: true, ...data };
     } catch (error) {
         console.error('Error verifying token:', error);
-        return false;
+        return { isAuthenticated: false };
     }
 };
 
@@ -43,4 +51,19 @@ const logoutApiCall = async () => {
     }
 };
 
-export { loginApiCall, verifyTokenApiCall, logoutApiCall };
+const refreshTokenApiCall = async () => {
+    const url = `${BACKEND_URL}/api/user/refresh-token`;
+    const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'include'
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to refresh token');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+export { loginApiCall, verifyTokenApiCall, logoutApiCall, refreshTokenApiCall };
