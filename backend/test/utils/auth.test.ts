@@ -3,11 +3,12 @@ import { expect } from 'chai';
 import jwt from 'jsonwebtoken';
 import { makeToken, verifyToken } from '../../src/utils/auth';
 import { JWT_SECRET } from '../../src/config';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import sinon from 'sinon';
 import { addToBlacklist, incrementTokenVersion } from '../../src/db/tokenStore';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 import { TokenVersion } from '../../src/db/tokenStore';
+import { AuthRequest } from '../../src/types/auth';
 
 const testUser = {
     _id: '12345',
@@ -57,7 +58,6 @@ describe('JWT Token Utility Tests', () => {
             expect(err).to.exist;
             expect(err.message).to.include('Secret is empty');
         }
-
     });
 
     it('should throw an error with missing payload fields', async () => {
@@ -73,7 +73,7 @@ describe('JWT Token Utility Tests', () => {
 });
 
 describe('verifyToken Middleware Tests', () => {
-    let req: Partial<Request>;
+    let req: Partial<AuthRequest>;
     let res: Partial<Response>;
     let next: sinon.SinonSpy;
 
@@ -87,7 +87,7 @@ describe('verifyToken Middleware Tests', () => {
 
     beforeEach(async () => {
         await clearDatabase();
-        req = { cookies: {} } as Partial<Request>;
+        req = { cookies: {} } as Partial<AuthRequest>;
         res = {
             status: sinon.stub().returnsThis() as any,
             send: sinon.stub() as any
@@ -96,14 +96,14 @@ describe('verifyToken Middleware Tests', () => {
     });
 
     it('should return 401 if no token is provided', async () => {
-        await verifyToken(req as Request, res as Response, next);
+        await verifyToken(req as AuthRequest, res as Response, next);
         expect((res.status as sinon.SinonStub).calledWith(401)).to.be.true;
         expect((res.send as sinon.SinonStub).calledWith({ message: 'Access Denied: No Token Provided!' })).to.be.true;
     });
 
     it('should return 400 if token is invalid', async () => {
         req.cookies = { token: 'invalidtoken' };
-        await verifyToken(req as Request, res as Response, next);
+        await verifyToken(req as AuthRequest, res as Response, next);
         expect((res.status as sinon.SinonStub).calledWith(400)).to.be.true;
         expect((res.send as sinon.SinonStub).calledWith({ message: 'Invalid Token' })).to.be.true;
     });
@@ -112,8 +112,12 @@ describe('verifyToken Middleware Tests', () => {
         await TokenVersion.create({ userId: testUser._id, version: 1 });
         const validToken = await makeToken(testUser, JWT_SECRET);
         req.cookies = { token: validToken };
-        await verifyToken(req as Request, res as Response, next);
+        await verifyToken(req as AuthRequest, res as Response, next);
         expect(next.calledOnce).to.be.true;
+        expect(req.user).to.exist;
+        expect(req.user?._id).to.equal(testUser._id);
+        expect(req.user?.username).to.equal(testUser.username);
+        expect(req.user?.version).to.equal(testUser.version);
     });
 
     it('should return 401 if token is blacklisted', async () => {
@@ -121,7 +125,7 @@ describe('verifyToken Middleware Tests', () => {
         const validToken = await makeToken(testUser, JWT_SECRET);
         await addToBlacklist(validToken);
         req.cookies = { token: validToken };
-        await verifyToken(req as Request, res as Response, next);
+        await verifyToken(req as AuthRequest, res as Response, next);
         expect((res.status as sinon.SinonStub).calledWith(401)).to.be.true;
         expect((res.send as sinon.SinonStub).calledWith({ message: 'Access Denied: Token is blacklisted!' })).to.be.true;
     });
@@ -131,7 +135,7 @@ describe('verifyToken Middleware Tests', () => {
         const validToken = await makeToken(testUser, JWT_SECRET);
         req.cookies = { token: validToken };
         await incrementTokenVersion(testUser._id);
-        await verifyToken(req as Request, res as Response, next);
+        await verifyToken(req as AuthRequest, res as Response, next);
         expect((res.status as sinon.SinonStub).calledWith(401)).to.be.true;
         expect((res.send as sinon.SinonStub).calledWith({ message: 'Access Denied: Token version is outdated!' })).to.be.true;
     });
@@ -139,7 +143,7 @@ describe('verifyToken Middleware Tests', () => {
     it('should return 500 if token version record is missing', async () => {
         const validToken = await makeToken(testUser, JWT_SECRET);
         req.cookies = { token: validToken };
-        await verifyToken(req as Request, res as Response, next);
+        await verifyToken(req as AuthRequest, res as Response, next);
         expect((res.status as sinon.SinonStub).calledWith(500)).to.be.true;
         expect((res.send as sinon.SinonStub).calledWith({ message: 'Internal Server Error: Token version record missing' })).to.be.true;
     });

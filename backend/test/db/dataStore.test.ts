@@ -4,8 +4,11 @@ import { createWorkedHours, updateWorkedHours, deleteWorkedHours, getWorkedHours
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 import { WorkedHoursModel } from '../../src/models/WorkedHours';
 import { InputError } from '../../src/utils/errors';
+import { Types } from 'mongoose';
 
 describe('DataStore Tests', () => {
+    const testUserId = new Types.ObjectId();
+
     before(async () => {
         await setupTestDB();
     });
@@ -22,6 +25,7 @@ describe('DataStore Tests', () => {
         it('should create a new worked hours entry with trimmed strings', async () => {
             const testDate = new Date(2024, 2, 20); // March 20, 2024
             const formData = {
+                user: testUserId,
                 date: testDate,
                 project: '  Test Project  ',
                 hours: 8,
@@ -33,6 +37,7 @@ describe('DataStore Tests', () => {
 
             expect(result).to.have.property('project', 'Test Project');
             expect(result).to.have.property('description', 'Test description');
+            expect(result.user.toString()).to.equal(testUserId.toString());
             expect(new Date(result.date).getTime()).to.equal(testDate.getTime());
             expect(result).to.have.property('createdAt');
             expect(result).to.have.property('updatedAt');
@@ -41,6 +46,7 @@ describe('DataStore Tests', () => {
             const savedData = await WorkedHoursModel.findById(result._id);
             expect(savedData?.project).to.equal('Test Project');
             expect(savedData?.description).to.equal('Test description');
+            expect(savedData?.user.toString()).to.equal(testUserId.toString());
             expect(savedData?.date.getTime()).to.equal(testDate.getTime());
             expect(savedData?.createdAt?.getTime()).to.equal(new Date(result.createdAt!).getTime());
             expect(savedData?.updatedAt?.getTime()).to.equal(new Date(result.updatedAt!).getTime());
@@ -49,6 +55,7 @@ describe('DataStore Tests', () => {
         it('should handle empty description', async () => {
             const testDate = new Date(2024, 2, 20);
             const formData = {
+                user: testUserId,
                 date: testDate,
                 project: 'Test Project',
                 hours: 8,
@@ -63,6 +70,7 @@ describe('DataStore Tests', () => {
         it('should throw InputError for empty project name', async () => {
             const testDate = new Date(2024, 2, 20);
             const formData = {
+                user: testUserId,
                 date: testDate,
                 project: '   ',
                 hours: 8,
@@ -82,6 +90,7 @@ describe('DataStore Tests', () => {
         it('should throw InputError for non-positive hours', async () => {
             const testDate = new Date(2024, 2, 20);
             const formData = {
+                user: testUserId,
                 date: testDate,
                 project: 'Test Project',
                 hours: 0,
@@ -101,6 +110,7 @@ describe('DataStore Tests', () => {
         it('should throw InputError for invalid overtime type', async () => {
             const testDate = new Date(2024, 2, 20);
             const formData = {
+                user: testUserId,
                 date: testDate,
                 project: 'Test Project',
                 hours: 8,
@@ -120,6 +130,7 @@ describe('DataStore Tests', () => {
         it('should throw InputError for invalid year', async () => {
             const testDate = new Date(-10, 2, 20);
             const formData = {
+                user: testUserId,
                 date: testDate,
                 project: 'Test Project',
                 hours: 8,
@@ -139,6 +150,7 @@ describe('DataStore Tests', () => {
         it('should throw InputError for invalid date (non-existent date)', async () => {
             const testDate = new Date(2024, 1, 30); // February 30th doesn't exist
             const formData = {
+                user: testUserId,
                 date: testDate,
                 project: 'Test Project',
                 hours: 8,
@@ -158,6 +170,7 @@ describe('DataStore Tests', () => {
         it('should throw InputError for invalid month', async () => {
             const testDate = new Date(2024, 12, 20); // Month 13 (0-based)
             const formData = {
+                user: testUserId,
                 date: testDate,
                 project: 'Test Project',
                 hours: 8,
@@ -177,6 +190,7 @@ describe('DataStore Tests', () => {
         it('should throw InputError for invalid day', async () => {
             const testDate = new Date(2024, 3, 31); // April 31st doesn't exist
             const formData = {
+                user: testUserId,
                 date: testDate,
                 project: 'Test Project',
                 hours: 8,
@@ -196,6 +210,7 @@ describe('DataStore Tests', () => {
         it('should handle multiple entries for the same date', async () => {
             const testDate = new Date(2024, 2, 20);
             const formData1 = {
+                user: testUserId,
                 date: testDate,
                 project: 'Project 1',
                 hours: 4,
@@ -204,6 +219,7 @@ describe('DataStore Tests', () => {
             };
 
             const formData2 = {
+                user: testUserId,
                 date: testDate,
                 project: 'Project 2',
                 hours: 4,
@@ -227,6 +243,7 @@ describe('DataStore Tests', () => {
             const testDate = new Date(2024, 2, 20);
             const entries = [
                 {
+                    user: testUserId,
                     date: testDate,
                     project: 'Project 1',
                     hours: 4,
@@ -234,6 +251,7 @@ describe('DataStore Tests', () => {
                     overtime: false
                 },
                 {
+                    user: testUserId,
                     date: testDate,
                     project: 'Project 2',
                     hours: 4,
@@ -248,7 +266,7 @@ describe('DataStore Tests', () => {
         });
 
         it('should return all entries for a specific date', async () => {
-            const result = await getWorkedHours(2024, 3, 20);
+            const result = await getWorkedHours(2024, 3, 20, testUserId);
             expect(result).to.be.an('array').with.lengthOf(2);
             expect(result[0]).to.have.property('project', 'Project 1');
             expect(result[1]).to.have.property('project', 'Project 2');
@@ -257,13 +275,13 @@ describe('DataStore Tests', () => {
         });
 
         it('should return empty array for date with no entries', async () => {
-            const result = await getWorkedHours(2024, 3, 21);
+            const result = await getWorkedHours(2024, 3, 21, testUserId);
             expect(result).to.be.an('array').that.is.empty;
         });
 
         it('should throw InputError for invalid date', async () => {
             try {
-                await getWorkedHours(2024, 13, 45);
+                await getWorkedHours(2024, 13, 45, testUserId);
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
@@ -278,6 +296,7 @@ describe('DataStore Tests', () => {
         beforeEach(async () => {
             const testDate = new Date(2024, 2, 20);
             const formData = {
+                user: testUserId,
                 date: testDate,
                 project: 'Original Project',
                 hours: 8,
@@ -291,6 +310,7 @@ describe('DataStore Tests', () => {
         it('should update an existing worked hours entry', async () => {
             const updatedDate = new Date(2024, 2, 20);
             const updateData = {
+                user: testUserId,
                 date: updatedDate,
                 project: 'Updated Project',
                 hours: 6,
@@ -305,6 +325,7 @@ describe('DataStore Tests', () => {
 
             expect(result).to.have.property('project', 'Updated Project');
             expect(result).to.have.property('hours', 6);
+            expect(result.user.toString()).to.equal(testUserId.toString());
             expect(result).to.have.property('description', 'Updated description');
             expect(result).to.have.property('overtime', true);
             expect(new Date(result.date).getTime()).to.equal(updatedDate.getTime());
@@ -314,6 +335,7 @@ describe('DataStore Tests', () => {
 
             const updated = await WorkedHoursModel.findById(existingEntryId);
             expect(updated?.project).to.equal('Updated Project');
+            expect(updated?.user.toString()).to.equal(testUserId.toString());
             expect(updated?.date.getTime()).to.equal(updatedDate.getTime());
             expect(updated?.createdAt?.getTime()).to.equal(new Date(result.createdAt!).getTime());
             expect(updated?.updatedAt?.getTime()).to.equal(new Date(result.updatedAt!).getTime());
@@ -322,6 +344,7 @@ describe('DataStore Tests', () => {
         it('should trim strings in update data', async () => {
             const updatedDate = new Date(2024, 2, 20);
             const updateData = {
+                user: testUserId,
                 date: updatedDate,
                 project: '  Updated Project  ',
                 hours: 6,
@@ -338,6 +361,7 @@ describe('DataStore Tests', () => {
         it('should throw InputError for empty project name', async () => {
             const updatedDate = new Date(2024, 2, 20);
             const updateData = {
+                user: testUserId,
                 date: updatedDate,
                 project: '   ',
                 hours: 6,
@@ -357,6 +381,7 @@ describe('DataStore Tests', () => {
         it('should throw InputError for non-positive hours', async () => {
             const updatedDate = new Date(2024, 2, 20);
             const updateData = {
+                user: testUserId,
                 date: updatedDate,
                 project: 'Updated Project',
                 hours: 0,
@@ -376,6 +401,7 @@ describe('DataStore Tests', () => {
         it('should throw InputError for invalid overtime type', async () => {
             const updatedDate = new Date(2024, 2, 20);
             const updateData = {
+                user: testUserId,
                 date: updatedDate,
                 project: 'Updated Project',
                 hours: 6,
@@ -395,6 +421,7 @@ describe('DataStore Tests', () => {
         it('should throw InputError for invalid date', async () => {
             const invalidDate = new Date('invalid');
             const updateData = {
+                user: testUserId,
                 date: invalidDate,
                 project: 'Updated Project',
                 hours: 6,
@@ -415,6 +442,7 @@ describe('DataStore Tests', () => {
             const nonExistentId = '65f1f8971fa0a647c0a7c001';
             const updatedDate = new Date(2024, 2, 20);
             const updateData = {
+                user: testUserId,
                 date: updatedDate,
                 project: 'Updated Project',
                 hours: 6,
@@ -427,7 +455,7 @@ describe('DataStore Tests', () => {
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('No record found with the given ID.');
+                expect((err as InputError).message).to.equal('No record found with the given ID for this user.');
             }
         });
 
@@ -435,6 +463,7 @@ describe('DataStore Tests', () => {
             const invalidId = 'invalid-id';
             const updatedDate = new Date(2024, 2, 20);
             const updateData = {
+                user: testUserId,
                 date: updatedDate,
                 project: 'Updated Project',
                 hours: 6,
@@ -458,6 +487,7 @@ describe('DataStore Tests', () => {
         beforeEach(async () => {
             const testDate = new Date(2024, 2, 20);
             const formData = {
+                user: testUserId,
                 date: testDate,
                 project: 'Test Project',
                 hours: 8,
@@ -469,7 +499,7 @@ describe('DataStore Tests', () => {
         });
 
         it('should delete an existing entry', async () => {
-            await deleteWorkedHours(existingEntryId);
+            await deleteWorkedHours(existingEntryId, testUserId);
             const deleted = await WorkedHoursModel.findById(existingEntryId);
             expect(deleted).to.be.null;
         });
@@ -477,17 +507,17 @@ describe('DataStore Tests', () => {
         it('should throw InputError for non-existent ID', async () => {
             const nonExistentId = '65f1f8971fa0a647c0a7c001';
             try {
-                await deleteWorkedHours(nonExistentId);
+                await deleteWorkedHours(nonExistentId, testUserId);
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('No record found with the given ID.');
+                expect((err as InputError).message).to.equal('No record found with the given ID for this user.');
             }
         });
 
         it('should throw InputError for invalid ID format', async () => {
             try {
-                await deleteWorkedHours('invalid-id');
+                await deleteWorkedHours('invalid-id', testUserId);
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
@@ -500,6 +530,7 @@ describe('DataStore Tests', () => {
         beforeEach(async () => {
             const entries = [
                 {
+                    user: testUserId,
                     date: new Date(2024, 2, 1),
                     project: 'Project 1',
                     hours: 4,
@@ -507,6 +538,7 @@ describe('DataStore Tests', () => {
                     overtime: false
                 },
                 {
+                    user: testUserId,
                     date: new Date(2024, 2, 15),
                     project: 'Project 2',
                     hours: 8,
@@ -514,6 +546,7 @@ describe('DataStore Tests', () => {
                     overtime: true
                 },
                 {
+                    user: testUserId,
                     date: new Date(2024, 3, 1),
                     project: 'Project 3',
                     hours: 6,
@@ -531,22 +564,23 @@ describe('DataStore Tests', () => {
         });
 
         it('should return all entries for a specific month', async () => {
-            const result = await getMonthWorkedHours(2024, 3);
+            const result = await getMonthWorkedHours(2024, 3, testUserId);
             expect(result).to.be.an('array').with.lengthOf(2);
             expect(result.map(r => r.project)).to.include.members(['Project 1', 'Project 2']);
             result.forEach(entry => {
                 expect(new Date(entry.date).getMonth()).to.equal(2); // March (0-based)
+                expect(entry.user.toString()).to.equal(testUserId.toString());
             });
         });
 
         it('should return empty array for month with no entries', async () => {
-            const result = await getMonthWorkedHours(2024, 5);
+            const result = await getMonthWorkedHours(2024, 5, testUserId);
             expect(result).to.be.an('array').that.is.empty;
         });
 
         it('should throw InputError for invalid year', async () => {
             try {
-                await getMonthWorkedHours(-10, 3);
+                await getMonthWorkedHours(-10, 3, testUserId);
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
@@ -556,7 +590,7 @@ describe('DataStore Tests', () => {
 
         it('should throw InputError for invalid month', async () => {
             try {
-                await getMonthWorkedHours(2024, 13);
+                await getMonthWorkedHours(2024, 13, testUserId);
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
