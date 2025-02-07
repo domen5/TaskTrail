@@ -73,6 +73,69 @@ describe('UserService Tests', () => {
                 expect(err).to.exist;
             }
         });
+
+        it('should set timestamps when creating a new user', async () => {
+            const user = {
+                username: 'timestampuser',
+                password: 'testpassword'
+            };
+            
+            const before = new Date();
+            const result = await registerUser(user);
+            const after = new Date();
+            
+            const savedUser = await UserModel.findOne({ username: 'timestampuser' });
+            expect(savedUser).to.exist;
+            
+            // Ensure savedUser exists before checking timestamps
+            if (!savedUser) {
+                throw new Error('User not found after creation');
+            }
+            
+            expect(savedUser.createdAt).to.exist;
+            expect(savedUser.updatedAt).to.exist;
+            
+            expect(savedUser.createdAt!.getTime()).to.be.at.least(before.getTime());
+            expect(savedUser.createdAt!.getTime()).to.be.at.most(after.getTime());
+            expect(savedUser.updatedAt!.getTime()).to.equal(savedUser.createdAt!.getTime());
+        });
+
+        it('should update the updatedAt timestamp when modifying a user', async () => {
+            const user = {
+                username: 'updateuser',
+                password: 'testpassword'
+            };
+            await registerUser(user);
+            
+            // Wait a small amount to ensure timestamp difference
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Update the user
+            const savedUser = await UserModel.findOne({ username: 'updateuser' });
+            if (!savedUser) {
+                throw new Error('User not found after creation');
+            }
+            
+            const originalUpdatedAt = savedUser.updatedAt;
+            if (!originalUpdatedAt) {
+                throw new Error('UpdatedAt timestamp not set');
+            }
+            
+            const before = new Date();
+            savedUser.password = 'newpassword';
+            await savedUser.save();
+            const after = new Date();
+            
+            const updatedUser = await UserModel.findOne({ username: 'updateuser' });
+            if (!updatedUser || !updatedUser.updatedAt || !updatedUser.createdAt) {
+                throw new Error('Updated user or timestamps not found');
+            }
+            
+            expect(updatedUser.updatedAt.getTime()).to.be.above(originalUpdatedAt.getTime());
+            expect(updatedUser.updatedAt.getTime()).to.be.at.least(before.getTime());
+            expect(updatedUser.updatedAt.getTime()).to.be.at.most(after.getTime());
+            expect(updatedUser.createdAt.getTime()).to.equal(savedUser.createdAt!.getTime());
+        });
     });
 
     describe('login', () => {
