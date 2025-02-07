@@ -9,12 +9,13 @@ function EditWorkedHoursForm({ workedHours, onClose }) {
         e.preventDefault();
         const newEntry = {
             ...workedHours,
+            date: workedHours.date instanceof Date ? workedHours.date : new Date(workedHours.date),
             project: e.target.project.value,
             hours: parseInt(e.target.workedHours.value),
             description: e.target.description.value,
             overtime: e.target.inlineRadioOptions.value === 'option1',
         }
-        updateWorkedHours(newEntry);
+        await updateWorkedHours(newEntry);
         onClose();
     }
 
