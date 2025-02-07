@@ -10,7 +10,7 @@ const routes = express.Router();
 routes.post('/worked-hours/:year/:month/:day', verifyToken, async (req, res) => {
     const { year, month, day } = req.params;
     const formData: WorkedHours = {
-        date: req.body.workedHours.date,
+        date: new Date(req.body.workedHours.date),
         project: req.body.workedHours.project,
         hours: req.body.workedHours.hours,
         description: req.body.workedHours.description,
@@ -48,7 +48,7 @@ routes.put('/worked-hours', verifyToken, async (req, res) => {
     const id = req.body.workedHours._id;
     try {
         const formData: WorkedHours = {
-            date: req.body.workedHours.date,
+            date: new Date(req.body.workedHours.date),
             project: req.body.workedHours.project,
             hours: req.body.workedHours.hours,
             description: req.body.workedHours.description,

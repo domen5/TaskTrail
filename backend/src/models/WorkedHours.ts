@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
 interface WorkedHours {
-    date: string,
+    date: Date,
     project: string,
     hours: number,
     description?: string,
@@ -11,7 +11,7 @@ interface WorkedHours {
 }
 
 const workedHoursSchema = new Schema<WorkedHours>({
-    date: { type: String, required: true },
+    date: { type: Date, required: true },
     project: { type: String, required: true },
     hours: { type: Number, required: true },
     description: { type: String, required: false },
