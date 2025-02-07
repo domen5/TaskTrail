@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { JWT_SECRET } from '../config';
 import { addToBlacklist, isTokenBlacklisted, getTokenVersion } from '../db/tokenStore';
+import { AuthRequest } from '../types/auth';
 
 interface JwtTokenArgs {
     _id: string;
@@ -24,7 +25,7 @@ const makeToken = async (args: JwtTokenArgs, secret: string): Promise<string> =>
     return token;
 };
 
-const verifyToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+const verifyToken = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const token = req.cookies.token;
 
     if (!token) {
@@ -45,7 +46,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction): Pro
             return;
         }
         console.log(`Decoded token version: ${decoded.version}, Current version: ${currentVersion}`);
-        (req as any).user = decoded;
+        req.user = decoded;
         next();
     } catch (err) {
         if (err.message.includes('Token version record not found')) {
@@ -55,6 +56,5 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction): Pro
         res.status(400).send({ message: 'Invalid Token' });
     }
 };
-
 
 export { JwtTokenArgs, makeToken, verifyToken };

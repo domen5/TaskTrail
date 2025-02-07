@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import WorkedHours, { WorkedHoursModel } from "../models/WorkedHours";
 import { MONGODB_URI } from "../config";
 import { InputError } from '../utils/errors';
+import { Types } from 'mongoose';
 
 export async function initializeDatabase(uri: string = MONGODB_URI) {
     try {
@@ -51,10 +52,14 @@ export const createWorkedHours = async (year: number, month: number, day: number
     if (typeof formData.overtime !== 'boolean') {
         throw new InputError('Overtime must be a boolean value.');
     }
+    if (!formData.user) {
+        throw new InputError('User ID is required.');
+    }
 
     const date = createDate(year, month, day);
 
     const model = new WorkedHoursModel({
+        user: formData.user,
         date: date,
         project: formData.project.trim(),
         hours: formData.hours,
@@ -71,13 +76,14 @@ export const createWorkedHours = async (year: number, month: number, day: number
     return model.toJSON();
 };
 
-export const getWorkedHours = async (year: number, month: number, day: number): Promise<WorkedHours[]> => {
+export const getWorkedHours = async (year: number, month: number, day: number, userId: Types.ObjectId): Promise<WorkedHours[]> => {
     try {
         const startDate = createDate(year, month, day);
         const endDate = new Date(startDate);
         endDate.setDate(endDate.getDate() + 1);
 
         const data = await WorkedHoursModel.find({
+            user: userId,
             date: {
                 $gte: startDate,
                 $lt: endDate
@@ -109,8 +115,12 @@ export const updateWorkedHours = async (id: string, workedHours: WorkedHours) =>
     if (!isValidDate(workedHours.date)) {
         throw new InputError('Invalid date format.');
     }
+    if (!workedHours.user) {
+        throw new InputError('User ID is required.');
+    }
 
     const sanitizedData = {
+        user: workedHours.user,
         date: workedHours.date,
         project: workedHours.project.trim(),
         hours: workedHours.hours,
@@ -119,14 +129,14 @@ export const updateWorkedHours = async (id: string, workedHours: WorkedHours) =>
     };
 
     try {
-        const result = await WorkedHoursModel.findByIdAndUpdate(
-            id,
+        const result = await WorkedHoursModel.findOneAndUpdate(
+            { _id: id, user: workedHours.user },
             sanitizedData,
             { new: true, runValidators: true }
         );
 
         if (!result) {
-            throw new InputError('No record found with the given ID.');
+            throw new InputError('No record found with the given ID for this user.');
         }
 
         return result.toJSON();
@@ -145,11 +155,15 @@ export const updateWorkedHours = async (id: string, workedHours: WorkedHours) =>
     }
 };
 
-export const deleteWorkedHours = async (id: string) => {
+export const deleteWorkedHours = async (id: string, userId: Types.ObjectId) => {
+    if (!userId) {
+        throw new InputError('User ID is required.');
+    }
+
     try {
-        const result = await WorkedHoursModel.findByIdAndDelete(id);
+        const result = await WorkedHoursModel.findOneAndDelete({ _id: id, user: userId });
         if (!result) {
-            throw new InputError('No record found with the given ID.');
+            throw new InputError('No record found with the given ID for this user.');
         }
     } catch (err) {
         if (err instanceof InputError) {
@@ -163,13 +177,14 @@ export const deleteWorkedHours = async (id: string) => {
     }
 };
 
-export const getMonthWorkedHours = async (year: number, month: number): Promise<WorkedHours[]> => {
+export const getMonthWorkedHours = async (year: number, month: number, userId: Types.ObjectId): Promise<WorkedHours[]> => {
     try {
         const startDate = createDate(year, month, 1);
         const endDate = new Date(startDate);
         endDate.setMonth(endDate.getMonth() + 1);
 
         const data = await WorkedHoursModel.find({
+            user: userId,
             date: {
                 $gte: startDate,
                 $lt: endDate
