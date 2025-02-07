@@ -6,12 +6,17 @@ const SALT_ROUNDS = 10;
 interface User {
     username: string;
     password: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
-const userSchema = new mongoose.Schema<User>({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-});
+const userSchema = new mongoose.Schema<User>(
+    {
+        username: { type: String, required: true, unique: true },
+        password: { type: String, required: true },
+    },
+    { timestamps: true }
+);
 
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();

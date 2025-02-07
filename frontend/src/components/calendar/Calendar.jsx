@@ -8,35 +8,48 @@ import DayDetail from "./DayDetail";
 import AddWorkedHoursForm from "./AddWorkedHoursForm";
 import EditWorkedHoursForm from "./EditWorkedHoursForm";
 
+
+const normalizeDate = (date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+};
+
+const createDate = (year, month, day) => {
+    const date = new Date(year, month, day);
+    return normalizeDate(date);
+};
+
 function Calendar() {
-    const [selectedDay, setSelectedDay] = useState(new Date());
+    const [selectedDay, setSelectedDay] = useState(() => normalizeDate(new Date()));
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
-    const [editWorkedHours, setEditWorkedHouts] = useState(null);
+    const [editWorkedHours, setEditWorkedHours] = useState(null);
     const { isDarkMode } = useTheme();
+    const { getMonthData } = useTimeSheet();
+
+    // Wrap setSelectedDay to ensure dates are always normalized
+    const handleSetSelectedDay = (date) => {
+        setSelectedDay(normalizeDate(date));
+    };
 
     // useEffect will trigger a the fetch of new data from the backend when the month of selectedDay changes 
     useEffect(() => {
         fetchMonthsData(selectedDay);
     }, [selectedDay.getMonth(), selectedDay.getFullYear()]);
 
-    const { getMonthData } = useTimeSheet();
-
-
     const handleClickAddForm = () => setShowAddForm(true);
     const handleCloseAddForm = () => setShowAddForm(false);
     const handleClickEditForm = (workedHours) => {
-        setEditWorkedHouts(workedHours);
+        setEditWorkedHours(workedHours);
         setShowEditForm(true);
     };
     const handleCloseEditForm = () => setShowEditForm(false);
 
-
-
     // Function to fetch data for a specific month, the previous and the next one
     const fetchMonthsData = async (date) => {
-        const prevMonth = new Date(date.getFullYear(), date.getMonth(), 0);
-        const nextMonth = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+        const prevMonth = createDate(date.getFullYear(), date.getMonth() - 1, 1);
+        const nextMonth = createDate(date.getFullYear(), date.getMonth() + 1, 1);
 
         const fetchPromises = [
             getMonthData(prevMonth.getFullYear(), prevMonth.getMonth()),
@@ -48,7 +61,6 @@ function Calendar() {
     };
 
     const daysInMonth = new Date(selectedDay.getFullYear(), selectedDay.getMonth() + 1, 0).getDate();
-
     const firstDayOfMonth = new Date(selectedDay.getFullYear(), selectedDay.getMonth(), 1).getDay();
     const prevMonthPadding = firstDayOfMonth;
     const lastDayOfMonth = new Date(selectedDay.getFullYear(), selectedDay.getMonth() + 1, 0).getDay();
@@ -60,7 +72,7 @@ function Calendar() {
     // Add previous month's padding days
     const daysInPrevMonth = new Date(selectedDay.getFullYear(), selectedDay.getMonth(), 0).getDate();
     for (let i = prevMonthPadding - 1; i >= 0; i--) {
-        const date = new Date(selectedDay.getFullYear(), selectedDay.getMonth() - 1, daysInPrevMonth - i);
+        const date = createDate(selectedDay.getFullYear(), selectedDay.getMonth() - 1, daysInPrevMonth - i);
         week.push(date);
     }
 
@@ -70,7 +82,7 @@ function Calendar() {
             weeks.push(week);
             week = [];
         }
-        const date = new Date(selectedDay.getFullYear(), selectedDay.getMonth(), i + 1);
+        const date = createDate(selectedDay.getFullYear(), selectedDay.getMonth(), i + 1);
         week.push(date);
     }
 
@@ -80,7 +92,7 @@ function Calendar() {
             weeks.push(week);
             week = [];
         }
-        const date = new Date(selectedDay.getFullYear(), selectedDay.getMonth() + 1, i + 1);
+        const date = createDate(selectedDay.getFullYear(), selectedDay.getMonth() + 1, i + 1);
         week.push(date);
     }
 
@@ -96,7 +108,7 @@ function Calendar() {
                         {selectedDay.toLocaleString('default', { month: 'long' }) + ' ' + selectedDay.getFullYear()}
                     </h2>
                     <div className="px-3 px-md-0">
-                        <CalendarToolbar setSelectedDay={setSelectedDay} selectedDay={selectedDay} />
+                        <CalendarToolbar setSelectedDay={handleSetSelectedDay} selectedDay={selectedDay} />
                     </div>
                 </div>
 
@@ -105,7 +117,7 @@ function Calendar() {
                         <DayDetail
                             handleClickAddForm={handleClickAddForm}
                             handleClickEditForm={handleClickEditForm}
-                            date={selectedDay} 
+                            date={selectedDay}
                         />
                     </div>
                 </div>
@@ -133,11 +145,11 @@ function Calendar() {
                                             const isPadded = isPrevMonth || isNextMonth;
 
                                             return (
-                                                <td key={dayIndex} className={`p-0 ${isDarkMode ? 'border-secondary' : ''}`} style={{width: '14.28%'}}>
-                                                    <Day 
-                                                        date={date} 
-                                                        isPadded={isPadded} 
-                                                        setSelectedDay={setSelectedDay} 
+                                                <td key={dayIndex} className={`p-0 ${isDarkMode ? 'border-secondary' : ''}`} style={{ width: '14.28%' }}>
+                                                    <Day
+                                                        date={date}
+                                                        isPadded={isPadded}
+                                                        setSelectedDay={handleSetSelectedDay}
                                                     />
                                                 </td>
                                             );
@@ -159,7 +171,7 @@ function Calendar() {
             {showEditForm && (
                 <EditWorkedHoursForm
                     workedHours={editWorkedHours}
-                    onClose={handleCloseEditForm} 
+                    onClose={handleCloseEditForm}
                 />
             )}
         </div>

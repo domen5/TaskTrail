@@ -3,14 +3,17 @@ import { createWorkedHours, getWorkedHours, getMonthWorkedHours, deleteWorkedHou
 import WorkedHours from '../models/WorkedHours';
 import { InputError } from '../utils/errors';
 import { verifyToken } from '../utils/auth';
+import { Types } from 'mongoose';
+import { AuthRequest } from '../types/auth';
 
 const routes = express.Router();
 
 // CREATE WorkedHours
-routes.post('/worked-hours/:year/:month/:day', verifyToken, async (req, res) => {
+routes.post('/worked-hours/:year/:month/:day', verifyToken, async (req: AuthRequest, res) => {
     const { year, month, day } = req.params;
     const formData: WorkedHours = {
-        date: req.body.workedHours.date,
+        user: new Types.ObjectId(req.user._id),
+        date: new Date(req.body.workedHours.date),
         project: req.body.workedHours.project,
         hours: req.body.workedHours.hours,
         description: req.body.workedHours.description,
@@ -29,10 +32,15 @@ routes.post('/worked-hours/:year/:month/:day', verifyToken, async (req, res) => 
 });
 
 // READ WorkedHours
-routes.get('/worked-hours/:year/:month/:day', verifyToken, async (req, res) => {
+routes.get('/worked-hours/:year/:month/:day', verifyToken, async (req: AuthRequest, res) => {
     const { year, month, day } = req.params;
     try {
-        const data = await getWorkedHours(parseInt(year), parseInt(month), parseInt(day));
+        const data = await getWorkedHours(
+            parseInt(year), 
+            parseInt(month), 
+            parseInt(day), 
+            new Types.ObjectId(req.user._id)
+        );
         res.status(200).json(data);
     } catch (err) {
         if (err instanceof InputError || err.name === 'ValidationError' || err.name === 'CastError') {
@@ -44,11 +52,12 @@ routes.get('/worked-hours/:year/:month/:day', verifyToken, async (req, res) => {
 });
 
 // UPDATE WorkedHours
-routes.put('/worked-hours', verifyToken, async (req, res) => {
+routes.put('/worked-hours', verifyToken, async (req: AuthRequest, res) => {
     const id = req.body.workedHours._id;
     try {
         const formData: WorkedHours = {
-            date: req.body.workedHours.date,
+            user: new Types.ObjectId(req.user._id),
+            date: new Date(req.body.workedHours.date),
             project: req.body.workedHours.project,
             hours: req.body.workedHours.hours,
             description: req.body.workedHours.description,
@@ -66,10 +75,10 @@ routes.put('/worked-hours', verifyToken, async (req, res) => {
 });
 
 // DELETE WorkedHours
-routes.delete('/worked-hours', verifyToken, async (req, res) => {
+routes.delete('/worked-hours', verifyToken, async (req: AuthRequest, res) => {
     try {
         const id = req.body.id;
-        await deleteWorkedHours(id);
+        await deleteWorkedHours(id, new Types.ObjectId(req.user._id));
         res.status(200).send({ message: 'Delete was successful' }); // 204
     } catch (err) {
         if (err instanceof InputError || err.name === 'ValidationError' || err.name === 'CastError') {
@@ -81,10 +90,14 @@ routes.delete('/worked-hours', verifyToken, async (req, res) => {
 });
 
 // READ Month WorkedHours
-routes.get('/worked-hours/:year/:month/', verifyToken, async (req, res) => {
+routes.get('/worked-hours/:year/:month/', verifyToken, async (req: AuthRequest, res) => {
     const { year, month } = req.params;
     try {
-        const data = await getMonthWorkedHours(parseInt(year), parseInt(month));
+        const data = await getMonthWorkedHours(
+            parseInt(year), 
+            parseInt(month), 
+            new Types.ObjectId(req.user._id)
+        );
         res.status(200).json(data);
     } catch (err) {
         if (err instanceof InputError || err.name === 'ValidationError' || err.name === 'CastError') {

@@ -129,27 +129,19 @@ describe('User API Tests', () => {
 
     describe('GET /user/verify', () => {
         it('should verify a valid token successfully', async () => {
-            console.log('Starting test for valid token verification');
-            // First, register and login a user to get a valid token
             await supertest(app)
                 .post('/api/user/register')
                 .send({ username: 'validuser', password: 'validpassword' });
 
-            console.log('User registered');
-
             const loginResponse = await supertest(app)
                 .post('/api/user/login')
                 .send({ username: 'validuser', password: 'validpassword' });
-
-            console.log('User logged in');
 
             const cookies = loginResponse.headers['set-cookie'][0];
 
             const response = await supertest(app)
                 .get('/api/user/verify')
                 .set('Cookie', cookies);
-
-            console.log('Verification response received');
 
             expect(response.status).to.equal(200);
             expect(response.body).to.have.property('message', 'Token is valid');
@@ -157,23 +149,17 @@ describe('User API Tests', () => {
         });
 
         it('should return an error for a missing token', async () => {
-            console.log('Starting test for missing token');
             const response = await supertest(app)
                 .get('/api/user/verify');
-
-            console.log('Response for missing token received');
 
             expect(response.status).to.equal(401);
             expect(response.body).to.have.property('message', 'Access Denied: No Token Provided!');
         });
 
         it('should return an error for an invalid token', async () => {
-            console.log('Starting test for invalid token');
             const response = await supertest(app)
                 .get('/api/user/verify')
                 .set('Cookie', 'token=invalidtoken');
-
-            console.log('Response for invalid token received');
 
             expect(response.status).to.equal(400);
             expect(response.body).to.have.property('message', 'Invalid Token');
@@ -181,8 +167,7 @@ describe('User API Tests', () => {
     });
 
     describe('POST /user/logout', () => {
-        it('should clear the token cookie and return a success message', async () => {
-            // First, register and login a user to set a token cookie
+        it('should clear the token cookie, blacklist the token and return a success message', async () => {
             await supertest(app)
                 .post('/api/user/register')
                 .send({ username: 'testuser', password: 'testpassword' });
@@ -193,7 +178,6 @@ describe('User API Tests', () => {
 
             const cookies = loginResponse.headers['set-cookie'][0];
 
-            // Now, logout the user
             const response = await supertest(app)
                 .post('/api/user/logout')
                 .set('Cookie', cookies);
@@ -201,6 +185,13 @@ describe('User API Tests', () => {
             expect(response.status).to.equal(200);
             expect(response.body).to.have.property('message', 'Logout successful');
             expect(response.headers['set-cookie'][0]).to.include('token=;');
+
+            const verifyResponse = await supertest(app)
+                .get('/api/user/verify')
+                .set('Cookie', cookies);
+
+            expect(verifyResponse.status).to.equal(401);
+            expect(verifyResponse.body).to.have.property('message', 'Access Denied: Token is blacklisted!');
         });
 
         it('should return a success message even if no token is present', async () => {
@@ -209,6 +200,87 @@ describe('User API Tests', () => {
 
             expect(response.status).to.equal(200);
             expect(response.body).to.have.property('message', 'Logout successful');
+        });
+    });
+
+    describe('POST /user/refresh-token', () => {
+        it('should refresh the token successfully and blacklist the old token', async () => {
+            await supertest(app)
+                .post('/api/user/register')
+                .send({ username: 'validuser', password: 'validpassword' });
+
+            const loginResponse = await supertest(app)
+                .post('/api/user/login')
+                .send({ username: 'validuser', password: 'validpassword' });
+
+            const oldCookie = loginResponse.headers['set-cookie'][0];
+
+            const refreshResponse = await supertest(app)
+                .post('/api/user/refresh-token')
+                .set('Cookie', oldCookie);
+
+            expect(refreshResponse.status).to.equal(200);
+            expect(refreshResponse.body).to.have.property('message', 'Token refreshed successfully');
+            expect(refreshResponse.headers['set-cookie'][0]).to.include('token=');
+
+            // Verify that the old token is blacklisted
+            const verifyOldTokenResponse = await supertest(app)
+                .get('/api/user/verify')
+                .set('Cookie', oldCookie);
+
+            expect(verifyOldTokenResponse.status).to.equal(401);
+            expect(verifyOldTokenResponse.body).to.have.property('message', 'Access Denied: Token is blacklisted!');
+
+            // Verify that the new token works
+            const newCookies = refreshResponse.headers['set-cookie'][0];
+            const verifyNewTokenResponse = await supertest(app)
+                .get('/api/user/verify')
+                .set('Cookie', newCookies);
+
+            expect(verifyNewTokenResponse.status).to.equal(200);
+            expect(verifyNewTokenResponse.body).to.have.property('message', 'Token is valid');
+        });
+
+        it('should return an error for a missing token', async () => {
+            const response = await supertest(app)
+                .post('/api/user/refresh-token');
+
+            expect(response.status).to.equal(401);
+            expect(response.body).to.have.property('message', 'Access Denied: No Token Provided!');
+        });
+
+        it('should return an error for an invalid token', async () => {
+            const response = await supertest(app)
+                .post('/api/user/refresh-token')
+                .set('Cookie', 'token=invalidtoken');
+
+            expect(response.status).to.equal(400);
+            expect(response.body).to.have.property('message', 'Invalid Token');
+        });
+
+        it('should not allow reuse of a blacklisted token', async () => {
+            await supertest(app)
+                .post('/api/user/register')
+                .send({ username: 'validuser', password: 'validpassword' });
+
+            const loginResponse = await supertest(app)
+                .post('/api/user/login')
+                .send({ username: 'validuser', password: 'validpassword' });
+
+            const cookies = loginResponse.headers['set-cookie'][0];
+
+            // First refresh should succeed
+            await supertest(app)
+                .post('/api/user/refresh-token')
+                .set('Cookie', cookies);
+
+            // Second refresh with same token should fail
+            const secondRefreshResponse = await supertest(app)
+                .post('/api/user/refresh-token')
+                .set('Cookie', cookies);
+
+            expect(secondRefreshResponse.status).to.equal(401);
+            expect(secondRefreshResponse.body).to.have.property('message', 'Access Denied: Token is blacklisted!');
         });
     });
 

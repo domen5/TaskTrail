@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import WorkedHours, { WorkedHoursModel } from "../models/WorkedHours";
 import { MONGODB_URI } from "../config";
 import { InputError } from '../utils/errors';
+import { Types } from 'mongoose';
 
 export async function initializeDatabase(uri: string = MONGODB_URI) {
     try {
@@ -13,33 +14,32 @@ export async function initializeDatabase(uri: string = MONGODB_URI) {
     }
 }
 
-const createKey = (year: number, month: number, day: number): string => {
-    const key = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
-    if (!isValidKey(key)) {
-        throw new InputError('Invalid date format. Date must be in YYYY-MM-DD format.');
+const createDate = (year: number, month: number, day: number): Date => {
+    const date = new Date(year, month - 1, day);
+    if (!isValidDate(date, year, month, day)) {
+        throw new InputError('Invalid date.');
     }
-    return key;
+    return date;
 };
 
-const isValidKey = (key: string): boolean => {
-    const regex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
-    if (!regex.test(key)) {
+const isValidDate = (date: Date, year?: number, month?: number, day?: number): boolean => {
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
         return false;
     }
 
-    const [yearStr, monthStr, dayStr] = key.split('-');
-    const year = parseInt(yearStr);
-    const month = parseInt(monthStr);
-    const day = parseInt(dayStr);
-
-    if (year < 1900 || year > 9999) {
+    const dateYear = date.getFullYear();
+    if (dateYear < 1900 || dateYear > 9999) {
         return false;
     }
 
-    const date = new Date(year, month - 1, day);
-    return date.getFullYear() === year &&
-        date.getMonth() === month - 1 &&
-        date.getDate() === day;
+    // If specific YMD were provided, verify the date wasn't normalized
+    if (year !== undefined && month !== undefined && day !== undefined) {
+        return date.getFullYear() === year &&
+            date.getMonth() === month - 1 && // Convert 1-based month to 0-based
+            date.getDate() === day;
+    }
+
+    return true;
 }
 
 export const createWorkedHours = async (year: number, month: number, day: number, formData: WorkedHours) => {
@@ -52,10 +52,14 @@ export const createWorkedHours = async (year: number, month: number, day: number
     if (typeof formData.overtime !== 'boolean') {
         throw new InputError('Overtime must be a boolean value.');
     }
+    if (!formData.user) {
+        throw new InputError('User ID is required.');
+    }
 
-    const date = createKey(year, month, day);
+    const date = createDate(year, month, day);
 
     const model = new WorkedHoursModel({
+        user: formData.user,
         date: date,
         project: formData.project.trim(),
         hours: formData.hours,
@@ -72,10 +76,19 @@ export const createWorkedHours = async (year: number, month: number, day: number
     return model.toJSON();
 };
 
-export const getWorkedHours = async (year: number, month: number, day: number): Promise<WorkedHours[]> => {
+export const getWorkedHours = async (year: number, month: number, day: number, userId: Types.ObjectId): Promise<WorkedHours[]> => {
     try {
-        const key = createKey(year, month, day);
-        const data = await WorkedHoursModel.find({ date: key });
+        const startDate = createDate(year, month, day);
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 1);
+
+        const data = await WorkedHoursModel.find({
+            user: userId,
+            date: {
+                $gte: startDate,
+                $lt: endDate
+            }
+        });
         return data || [];
     } catch (err) {
         if (err instanceof InputError) {
@@ -99,11 +112,15 @@ export const updateWorkedHours = async (id: string, workedHours: WorkedHours) =>
     if (!workedHours.date) {
         throw new InputError('Date is required.');
     }
-    if (!isValidKey(workedHours.date)) {
-        throw new InputError('Invalid date format. Date must be in YYYY-MM-DD format.');
+    if (!isValidDate(workedHours.date)) {
+        throw new InputError('Invalid date format.');
+    }
+    if (!workedHours.user) {
+        throw new InputError('User ID is required.');
     }
 
     const sanitizedData = {
+        user: workedHours.user,
         date: workedHours.date,
         project: workedHours.project.trim(),
         hours: workedHours.hours,
@@ -112,14 +129,14 @@ export const updateWorkedHours = async (id: string, workedHours: WorkedHours) =>
     };
 
     try {
-        const result = await WorkedHoursModel.findByIdAndUpdate(
-            id,
+        const result = await WorkedHoursModel.findOneAndUpdate(
+            { _id: id, user: workedHours.user },
             sanitizedData,
             { new: true, runValidators: true }
         );
 
         if (!result) {
-            throw new InputError('No record found with the given ID.');
+            throw new InputError('No record found with the given ID for this user.');
         }
 
         return result.toJSON();
@@ -138,11 +155,15 @@ export const updateWorkedHours = async (id: string, workedHours: WorkedHours) =>
     }
 };
 
-export const deleteWorkedHours = async (id: string) => {
+export const deleteWorkedHours = async (id: string, userId: Types.ObjectId) => {
+    if (!userId) {
+        throw new InputError('User ID is required.');
+    }
+
     try {
-        const result = await WorkedHoursModel.findByIdAndDelete(id);
+        const result = await WorkedHoursModel.findOneAndDelete({ _id: id, user: userId });
         if (!result) {
-            throw new InputError('No record found with the given ID.');
+            throw new InputError('No record found with the given ID for this user.');
         }
     } catch (err) {
         if (err instanceof InputError) {
@@ -156,11 +177,19 @@ export const deleteWorkedHours = async (id: string) => {
     }
 };
 
-export const getMonthWorkedHours = async (year: number, month: number): Promise<WorkedHours[]> => {
+export const getMonthWorkedHours = async (year: number, month: number, userId: Types.ObjectId): Promise<WorkedHours[]> => {
     try {
-        const key = createKey(year, month, 1);
-        const prefix = key.slice(0, 7); // Get YYYY-MM part
-        const data = await WorkedHoursModel.find({ date: { $regex: `^${prefix}` } });
+        const startDate = createDate(year, month, 1);
+        const endDate = new Date(startDate);
+        endDate.setMonth(endDate.getMonth() + 1);
+
+        const data = await WorkedHoursModel.find({
+            user: userId,
+            date: {
+                $gte: startDate,
+                $lt: endDate
+            }
+        });
         return data || [];
     } catch (err) {
         if (err instanceof InputError) {
@@ -170,54 +199,3 @@ export const getMonthWorkedHours = async (year: number, month: number): Promise<
         throw err;
     }
 };
-
-// // Mock data for developement and testing
-// addWorkedHours(2025, 1, 1, {
-//     date: "2025-01-01",
-//     project: "project1",
-//     hours: 1,
-//     description: "Test description for 2025-01-01",
-//     overtime: false,
-// })
-// addWorkedHours(2025, 1, 1, {
-//     date: "2025-01-01",
-//     project: "project1",
-//     hours: 2,
-//     description: "Test description for 2025-01-01",
-//     overtime: false,
-// })
-// addWorkedHours(2025, 1, 1, {
-//     date: "2025-01-01",
-//     project: "project1",
-//     hours: 2,
-//     description: "Test description for 2025-01-01",
-//     overtime: false,
-// })
-// addWorkedHours(2025, 1, 2, {
-//     date: "2025-01-02",
-//     project: "project1",
-//     hours: 4,
-//     description: "Test description for 2025-01-02",
-//     overtime: false,
-// })
-// addWorkedHours(2025, 1, 2, {
-//     date: "2025-01-02",
-//     project: "project1",
-//     hours: 4,
-//     description: "Test description for 2025-01-02",
-//     overtime: false,
-// })
-// addWorkedHours(2025, 1, 3, {
-//     date: "2025-01-03",
-//     project: "project1",
-//     hours: 4,
-//     description: "Test description for 2025-01-03",
-//     overtime: false,
-// })
-// addWorkedHours(2025, 2, 1, {
-//     date: "2025-02-01",
-//     project: "project1",
-//     hours: 4,
-//     description: "Test description for 2025-02-01",
-//     overtime: false,
-// })

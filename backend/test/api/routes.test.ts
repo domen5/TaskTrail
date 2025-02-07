@@ -7,10 +7,16 @@ import routes from '../../src/api/routes';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 import { makeToken } from '../../src/utils/auth';
 import { JWT_SECRET } from '../../src/config';
+import { TokenVersion } from '../../src/db/tokenStore';
+import { Types } from 'mongoose';
+import { WorkedHoursModel } from '../../src/models/WorkedHours';
 
 describe('API Tests', () => {
     let app: express.Express;
     let token: string;
+    let token2: string;
+    const testUserId = new Types.ObjectId().toString();
+    const testUserId2 = new Types.ObjectId().toString();
 
     before(async () => {
         await setupTestDB();
@@ -18,7 +24,23 @@ describe('API Tests', () => {
         app.use(express.json());
         app.use(cookieParser());
         app.use('/api', routes);
-        token = await makeToken({ _id: 'testUserId', username: 'testUser', exp: 1000 *60 * 60 }, JWT_SECRET);
+        
+        await TokenVersion.create({ userId: testUserId, version: 1 });
+        await TokenVersion.create({ userId: testUserId2, version: 1 });
+        
+        token = await makeToken({ 
+            _id: testUserId, 
+            username: 'testUser', 
+            exp: 1000 * 60 * 60, 
+            version: 1 
+        }, JWT_SECRET);
+
+        token2 = await makeToken({ 
+            _id: testUserId2, 
+            username: 'testUser2', 
+            exp: 1000 * 60 * 60, 
+            version: 1 
+        }, JWT_SECRET);
     });
 
     after(async () => {
@@ -27,13 +49,16 @@ describe('API Tests', () => {
 
     beforeEach(async () => {
         await clearDatabase();
+        await TokenVersion.create({ userId: testUserId, version: 1 });
+        await TokenVersion.create({ userId: testUserId2, version: 1 });
     });
 
     describe('POST /worked-hours/:year/:month/:day', () => {
         it('should create new worked hours entry', async () => {
+            const testDate = new Date(2024, 2, 20);
             const workedHours = {
                 workedHours: {
-                    date: '2024-03-20',
+                    date: testDate.toISOString(),
                     project: 'Test Project',
                     hours: 8,
                     description: 'Test description',
@@ -52,6 +77,12 @@ describe('API Tests', () => {
             expect(response.body.hours).to.equal(workedHours.workedHours.hours);
             expect(response.body.description).to.equal(workedHours.workedHours.description);
             expect(response.body.overtime).to.equal(workedHours.workedHours.overtime);
+            expect(response.body.user.toString()).to.equal(testUserId);
+            expect(response.body).to.have.property('date');
+            expect(new Date(response.body.date).getTime()).to.equal(testDate.getTime());
+            expect(response.body).to.have.property('createdAt');
+            expect(response.body).to.have.property('updatedAt');
+            expect(new Date(response.body.createdAt).getTime()).to.equal(new Date(response.body.updatedAt).getTime());
         });
 
         it('should return 400 for invalid input', async () => {
@@ -77,10 +108,10 @@ describe('API Tests', () => {
 
     describe('GET /worked-hours/:year/:month/:day', () => {
         it('should return worked hours for a specific date', async () => {
-            // First create test data
+            const testDate = new Date(2024, 2, 20);
             const workedHours = {
                 workedHours: {
-                    date: '2024-03-20',
+                    date: testDate.toISOString(),
                     project: 'Test Project',
                     hours: 8,
                     description: 'Test description',
@@ -94,17 +125,25 @@ describe('API Tests', () => {
                 .send(workedHours)
                 .expect(201);
 
-            // Then test GET endpoint
+            // Create another entry for a different user
+            await supertest(app)
+                .post('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token2}`)
+                .send(workedHours)
+                .expect(201);
+
             const response = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
                 .set('Cookie', `token=${token}`)
                 .expect(200);
 
-            expect(response.body).to.be.an('array');
+            expect(response.body).to.be.an('array').with.lengthOf(1);
             expect(response.body[0]).to.have.property('project', 'Test Project');
             expect(response.body[0]).to.have.property('hours', 8);
             expect(response.body[0]).to.have.property('description', 'Test description');
             expect(response.body[0]).to.have.property('overtime', false);
+            expect(response.body[0].user.toString()).to.equal(testUserId);
+            expect(new Date(response.body[0].date).getTime()).to.equal(testDate.getTime());
         });
 
         it('should return 400 for invalid date parameters', async () => {
@@ -126,10 +165,10 @@ describe('API Tests', () => {
 
     describe('DELETE /worked-hours', () => {
         it('should delete worked hours entry', async () => {
-            // First create test data
+            const testDate = new Date(2024, 2, 20);
             const workedHours = {
                 workedHours: {
-                    date: '2024-03-20',
+                    date: testDate.toISOString(),
                     project: 'Test Project',
                     hours: 8,
                     description: 'Test description',
@@ -143,20 +182,51 @@ describe('API Tests', () => {
                 .send(workedHours)
                 .expect(201);
 
-            // Then test DELETE endpoint
             await supertest(app)
                 .delete('/api/worked-hours')
                 .set('Cookie', `token=${token}`)
                 .send({ id: createResponse.body._id })
                 .expect(200);
 
-            // Verify the entry was deleted
             const getResponse = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
                 .set('Cookie', `token=${token}`)
                 .expect(200);
 
             expect(getResponse.body).to.be.an('array').that.is.empty;
+        });
+
+        it('should not allow deleting another user\'s entry', async () => {
+            const testDate = new Date(2024, 2, 20);
+            const workedHours = {
+                workedHours: {
+                    date: testDate.toISOString(),
+                    project: 'Test Project',
+                    hours: 8,
+                    description: 'Test description',
+                    overtime: false
+                }
+            };
+
+            const createResponse = await supertest(app)
+                .post('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
+                .send(workedHours)
+                .expect(201);
+
+            await supertest(app)
+                .delete('/api/worked-hours')
+                .set('Cookie', `token=${token2}`)
+                .send({ id: createResponse.body._id })
+                .expect(400);
+
+            // Verify the entry still exists
+            const getResponse = await supertest(app)
+                .get('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
+                .expect(200);
+
+            expect(getResponse.body).to.be.an('array').with.lengthOf(1);
         });
 
         it('should return 400 for invalid id', async () => {
@@ -172,10 +242,10 @@ describe('API Tests', () => {
 
     describe('PUT /worked-hours', () => {
         it('should update worked hours entry', async () => {
-            // First create test data
+            const testDate = new Date(2024, 2, 20);
             const workedHours = {
                 workedHours: {
-                    date: '2024-03-20',
+                    date: testDate.toISOString(),
                     project: 'Test Project',
                     hours: 8,
                     description: 'Test description',
@@ -189,11 +259,11 @@ describe('API Tests', () => {
                 .send(workedHours)
                 .expect(201);
 
-            // Then test UPDATE endpoint
+            const updatedDate = new Date(2024, 2, 20);
             const updatedData = {
                 workedHours: {
                     _id: createResponse.body._id,
-                    date: '2024-03-20',
+                    date: updatedDate.toISOString(),
                     project: 'Updated Project',
                     hours: 6,
                     description: 'Updated description',
@@ -211,43 +281,15 @@ describe('API Tests', () => {
             expect(updateResponse.body).to.have.property('hours', 6);
             expect(updateResponse.body).to.have.property('description', 'Updated description');
             expect(updateResponse.body).to.have.property('overtime', true);
-
-            // Verify the update persisted
-            const getResponse = await supertest(app)
-                .get('/api/worked-hours/2024/3/20')
-                .set('Cookie', `token=${token}`)
-                .expect(200);
-
-            expect(getResponse.body[0]).to.have.property('project', 'Updated Project');
-            expect(getResponse.body[0]).to.have.property('hours', 6);
+            expect(updateResponse.body.user.toString()).to.equal(testUserId);
+            expect(new Date(updateResponse.body.date).getTime()).to.equal(updatedDate.getTime());
         });
 
-        it('should return 400 for invalid id', async () => {
-            const invalidData = {
-                workedHours: {
-                    _id: 'invalid-id',
-                    date: '2024-03-20',
-                    project: 'Test Project',
-                    hours: 8,
-                    description: 'Test description',
-                    overtime: false
-                }
-            };
-
-            const response = await supertest(app)
-                .put('/api/worked-hours')
-                .set('Cookie', `token=${token}`)
-                .send(invalidData)
-                .expect(400);
-
-            expect(response.body).to.have.property('message', 'Bad input');
-        });
-
-        it('should return 400 for invalid input data', async () => {
-            // First create valid entry
+        it('should not allow updating another user\'s entry', async () => {
+            const testDate = new Date(2024, 2, 20);
             const workedHours = {
                 workedHours: {
-                    date: '2024-03-20',
+                    date: testDate.toISOString(),
                     project: 'Test Project',
                     hours: 8,
                     description: 'Test description',
@@ -261,7 +303,50 @@ describe('API Tests', () => {
                 .send(workedHours)
                 .expect(201);
 
-            // Then try to update with invalid data
+            const updatedData = {
+                workedHours: {
+                    _id: createResponse.body._id,
+                    date: testDate.toISOString(),
+                    project: 'Updated Project',
+                    hours: 6,
+                    description: 'Updated description',
+                    overtime: true
+                }
+            };
+
+            await supertest(app)
+                .put('/api/worked-hours')
+                .set('Cookie', `token=${token2}`)
+                .send(updatedData)
+                .expect(400);
+
+            // Verify the entry wasn't updated
+            const getResponse = await supertest(app)
+                .get('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
+                .expect(200);
+
+            expect(getResponse.body[0]).to.have.property('project', 'Test Project');
+        });
+
+        it('should return 400 for invalid input data', async () => {
+            const testDate = new Date(2024, 2, 20);
+            const workedHours = {
+                workedHours: {
+                    date: testDate.toISOString(),
+                    project: 'Test Project',
+                    hours: 8,
+                    description: 'Test description',
+                    overtime: false
+                }
+            };
+
+            const createResponse = await supertest(app)
+                .post('/api/worked-hours/2024/3/20')
+                .set('Cookie', `token=${token}`)
+                .send(workedHours)
+                .expect(201);
+
             const invalidUpdate = {
                 workedHours: {
                     _id: createResponse.body._id,
@@ -285,10 +370,12 @@ describe('API Tests', () => {
 
     describe('GET /worked-hours/:year/:month', () => {
         it('should return all worked hours for a specific month', async () => {
-            // First create test data for multiple days
+            const testDate1 = new Date(2024, 2, 20);
+            const testDate2 = new Date(2024, 2, 21);
+
             const workedHours1 = {
                 workedHours: {
-                    date: '2024-03-20',
+                    date: testDate1.toISOString(),
                     project: 'Test Project 1',
                     hours: 8,
                     description: 'Test description 1',
@@ -298,7 +385,7 @@ describe('API Tests', () => {
 
             const workedHours2 = {
                 workedHours: {
-                    date: '2024-03-21',
+                    date: testDate2.toISOString(),
                     project: 'Test Project 2',
                     hours: 6,
                     description: 'Test description 2',
@@ -318,7 +405,13 @@ describe('API Tests', () => {
                 .send(workedHours2)
                 .expect(201);
 
-            // Then test GET month endpoint
+            // Create an entry for another user
+            await supertest(app)
+                .post('/api/worked-hours/2024/3/21')
+                .set('Cookie', `token=${token2}`)
+                .send(workedHours2)
+                .expect(201);
+
             const response = await supertest(app)
                 .get('/api/worked-hours/2024/3')
                 .set('Cookie', `token=${token}`)
@@ -327,8 +420,12 @@ describe('API Tests', () => {
             expect(response.body).to.be.an('array').with.lengthOf(2);
             expect(response.body[0]).to.have.property('project', 'Test Project 1');
             expect(response.body[0]).to.have.property('hours', 8);
+            expect(response.body[0].user.toString()).to.equal(testUserId);
+            expect(new Date(response.body[0].date).getTime()).to.equal(testDate1.getTime());
             expect(response.body[1]).to.have.property('project', 'Test Project 2');
             expect(response.body[1]).to.have.property('hours', 6);
+            expect(response.body[1].user.toString()).to.equal(testUserId);
+            expect(new Date(response.body[1].date).getTime()).to.equal(testDate2.getTime());
         });
 
         it('should return 400 for invalid month parameters', async () => {

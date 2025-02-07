@@ -5,46 +5,75 @@ import {
     updateWorkedHoursApiCall,
     deleteWorkedHoursApiCall
 } from '../api/api';
-import { createKey } from '../utils/utils';
 
 const TimeSheetContext = createContext(undefined);
+
+// Helper to get start of day timestamp (removes time part)
+const getDateKey = (date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+};
+
+// Helper to get start of month timestamp
+const getMonthKey = (year, month) => {
+    const d = new Date(year, month, 1);
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+};
 
 export function TimeSheetProvider({ children }) {
     const [timeSheetData, setTimeSheetData] = useState({});
 
     const getDayData = (date) => {
-        const key = createKey(date);
+        const key = getDateKey(date);
         return timeSheetData[key] || [];
     };
 
-    // Assumes 0-based months; Triggers update od timeSheetData;
+    // Assumes 0-based months; Triggers update of timeSheetData;
     const getMonthData = async (year, month) => {
         const newMonthData = await getMonthWorkedHoursApiCall(year, month);
-        const prefix = createKey(new Date(year, month, 1)).slice(0, 7); // "yyyy-MM"
-        // console.log(`Retrieving new data for ${year}/${month+1}`);
+        const monthStart = getMonthKey(year, month);
+
+        // Convert the API response to use timestamp keys
+        const processedData = Object.values(newMonthData).flat().reduce((acc, entry) => {
+            const key = getDateKey(entry.date);
+            if (!acc[key]) {
+                acc[key] = [];
+            }
+            acc[key].push(entry);
+            return acc;
+        }, {});
+
         setTimeSheetData(prev => {
-            const cleanedData = Object.fromEntries(
-                Object.entries(prev).filter(([key]) => !key.startsWith(prefix))
-            );
+            // Remove old entries for this month
+            const cleanedData = Object.entries(prev).reduce((acc, [key, value]) => {
+                const entryDate = new Date(parseInt(key));
+                if (entryDate.getFullYear() !== year || entryDate.getMonth() !== month) {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {});
 
             return {
                 ...cleanedData,
-                ...newMonthData
+                ...processedData
             };
         });
 
-        return newMonthData;
+        return processedData;
     };
 
-    // TODO: change name
-    const updateDayData = async (date, formData) => {
-        const key = createKey(date);
+    const updateDayData = async (formData) => {
+        if (!formData.date || !(formData.date instanceof Date)) {
+            throw new Error('Invalid date in formData');
+        }
 
-        // TODO: Check form data
+        const key = getDateKey(formData.date);
 
         try {
-            const response = await createWorkedHoursApiCall(date, formData);
-            const updatedFormData = { ...formData, _id: response._id };
+            const response = await createWorkedHoursApiCall(formData);
+            const updatedFormData = response;
 
             setTimeSheetData(prev => ({
                 ...prev,
@@ -64,6 +93,7 @@ export function TimeSheetProvider({ children }) {
 
                 return updatedData;
             });
+            throw error;
         }
     };
 
@@ -92,24 +122,41 @@ export function TimeSheetProvider({ children }) {
     };
 
     const updateWorkedHours = async (workedHours) => {
-        // TODO: check form data
+        // Ensure we're working with a Date object
+        const date = workedHours.date instanceof Date ? workedHours.date : new Date(workedHours.date);
+        const key = getDateKey(date);
 
         // Optimistically update the state
         let previousState;
         setTimeSheetData(prev => {
             previousState = { ...prev };
             const updatedData = { ...prev };
-            const dateKey = workedHours.date;
-            if (updatedData[dateKey]) {
-                updatedData[dateKey] = updatedData[dateKey].map(entry =>
-                    entry._id === workedHours._id ? workedHours : entry
+            if (updatedData[key]) {
+                updatedData[key] = updatedData[key].map(entry =>
+                    entry._id === workedHours._id ? {
+                        ...workedHours,
+                        date
+                    } : entry
                 );
             }
             return updatedData;
         });
 
         try {
-            await updateWorkedHoursApiCall(workedHours);
+            const response = await updateWorkedHoursApiCall({
+                ...workedHours,
+                date
+            });
+            // Update with the response from the server
+            setTimeSheetData(prev => {
+                const updatedData = { ...prev };
+                if (updatedData[key]) {
+                    updatedData[key] = updatedData[key].map(entry =>
+                        entry._id === response._id ? response : entry
+                    );
+                }
+                return updatedData;
+            });
         } catch (error) {
             console.error('Error updating worked hours:', error);
             // Revert to previous state in case of an error

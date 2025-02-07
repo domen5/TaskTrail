@@ -40,10 +40,14 @@ const getMonthWorkedHoursApiCall = async (year, month) => {
     }
 };
 
-const createWorkedHoursApiCall = async (date, formData) => {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
+const createWorkedHoursApiCall = async (formData) => {
+    if (!formData.date || !(formData.date instanceof Date)) {
+        throw new Error('Invalid date in formData');
+    }
+
+    const year = formData.date.getFullYear();
+    const month = formData.date.getMonth() + 1;
+    const day = formData.date.getDate();
 
     const url = `${BACKEND_URL}/api/worked-hours/${year}/${month}/${day}`;
     const response = await fetch(url, {
@@ -62,7 +66,6 @@ const createWorkedHoursApiCall = async (date, formData) => {
     }
     const data = await response.json();
     return data;
-
 };
 
 const deleteWorkedHoursApiCall = async (id) => {
@@ -92,8 +95,7 @@ const updateWorkedHoursApiCall = async (workedHours) => {
         console.error('Error: ID is invalid in updateWorkedHoursApiCall');
         throw new Error('Failed updating workedHours with id: ' + workedHours._id);
     }
-    if (!workedHours.date || typeof workedHours.date !== 'string' || workedHours.date.length === 0) {
-        //todo check if valid key
+    if (!workedHours.date || !(workedHours.date instanceof Date)) {
         console.error('Error: Date is invalid in updateWorkedHoursApiCall');
         throw new Error('Failed updating workedHours with id: ' + workedHours._id);
     }

@@ -1,6 +1,5 @@
 import { useTimeSheet } from "../../context/TimeSheetContext";
 import Modal from '../Modal';
-import { createKey } from "../../utils/utils";
 import WorkedHoursForm from "./WorkedHoursForm";
 
 function AddWorkedHoursForm({ date, onClose }) {
@@ -9,13 +8,13 @@ function AddWorkedHoursForm({ date, onClose }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = {
-            date: createKey(date),
+            date: date instanceof Date ? date : new Date(date),
             project: e.target.project.value,
             hours: parseInt(e.target.workedHours.value),
             description: e.target.description.value,
             overtime: e.target.inlineRadioOptions.value === 'option1',
         };
-        await updateDayData(date, formData);
+        await updateDayData(formData);
         onClose();
     };
 
