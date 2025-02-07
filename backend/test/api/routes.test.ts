@@ -62,6 +62,9 @@ describe('API Tests', () => {
             expect(response.body.hours).to.equal(workedHours.workedHours.hours);
             expect(response.body.description).to.equal(workedHours.workedHours.description);
             expect(response.body.overtime).to.equal(workedHours.workedHours.overtime);
+            expect(response.body).to.have.property('createdAt');
+            expect(response.body).to.have.property('updatedAt');
+            expect(new Date(response.body.createdAt).getTime()).to.equal(new Date(response.body.updatedAt).getTime());
         });
 
         it('should return 400 for invalid input', async () => {
@@ -221,6 +224,10 @@ describe('API Tests', () => {
             expect(updateResponse.body).to.have.property('hours', 6);
             expect(updateResponse.body).to.have.property('description', 'Updated description');
             expect(updateResponse.body).to.have.property('overtime', true);
+            // Verify timestamps after update
+            expect(updateResponse.body).to.have.property('createdAt');
+            expect(updateResponse.body).to.have.property('updatedAt');
+            expect(new Date(updateResponse.body.updatedAt).getTime()).to.be.above(new Date(updateResponse.body.createdAt).getTime());
 
             // Verify the update persisted
             const getResponse = await supertest(app)

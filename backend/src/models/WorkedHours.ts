@@ -6,6 +6,8 @@ interface WorkedHours {
     hours: number,
     description?: string,
     overtime: boolean,
+    createdAt?: Date,
+    updatedAt?: Date,
 }
 
 const workedHoursSchema = new Schema<WorkedHours>({
@@ -14,7 +16,9 @@ const workedHoursSchema = new Schema<WorkedHours>({
     hours: { type: Number, required: true },
     description: { type: String, required: false },
     overtime: { type: Boolean, required: true },
-});
+  },
+  { timestamps: true }
+);
 
 const WorkedHoursModel = model<WorkedHours>('WorkedHour', workedHoursSchema);
 

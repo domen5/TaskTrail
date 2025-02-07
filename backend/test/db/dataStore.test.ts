@@ -32,10 +32,15 @@ describe('DataStore Tests', () => {
 
             expect(result).to.have.property('project', 'Test Project');
             expect(result).to.have.property('description', 'Test description');
+            expect(result).to.have.property('createdAt');
+            expect(result).to.have.property('updatedAt');
+            expect(new Date(result.createdAt!).getTime()).to.equal(new Date(result.updatedAt!).getTime());
 
             const savedData = await WorkedHoursModel.findById(result._id);
             expect(savedData?.project).to.equal('Test Project');
             expect(savedData?.description).to.equal('Test description');
+            expect(savedData?.createdAt?.getTime()).to.equal(new Date(result.createdAt!).getTime());
+            expect(savedData?.updatedAt?.getTime()).to.equal(new Date(result.updatedAt!).getTime());
         });
 
         it('should handle empty description', async () => {
@@ -276,15 +281,23 @@ describe('DataStore Tests', () => {
                 overtime: true
             };
 
+            // Add delay to ensure timestamps are different
+            await new Promise(resolve => setTimeout(resolve, 100));
+
             const result = await updateWorkedHours(existingEntryId, updateData);
 
             expect(result).to.have.property('project', 'Updated Project');
             expect(result).to.have.property('hours', 6);
             expect(result).to.have.property('description', 'Updated description');
             expect(result).to.have.property('overtime', true);
+            expect(result).to.have.property('createdAt');
+            expect(result).to.have.property('updatedAt');
+            expect(new Date(result.updatedAt!).getTime()).to.be.above(new Date(result.createdAt!).getTime());
 
             const updated = await WorkedHoursModel.findById(existingEntryId);
             expect(updated?.project).to.equal('Updated Project');
+            expect(updated?.createdAt?.getTime()).to.equal(new Date(result.createdAt!).getTime());
+            expect(updated?.updatedAt?.getTime()).to.equal(new Date(result.updatedAt!).getTime());
         });
 
         it('should trim strings in update data', async () => {
