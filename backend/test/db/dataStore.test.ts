@@ -20,8 +20,9 @@ describe('DataStore Tests', () => {
 
     describe('createWorkedHours', () => {
         it('should create a new worked hours entry with trimmed strings', async () => {
+            const testDate = new Date(2024, 2, 20); // March 20, 2024
             const formData = {
-                date: '2024-03-20',
+                date: testDate,
                 project: '  Test Project  ',
                 hours: 8,
                 description: '  Test description  ',
@@ -32,6 +33,7 @@ describe('DataStore Tests', () => {
 
             expect(result).to.have.property('project', 'Test Project');
             expect(result).to.have.property('description', 'Test description');
+            expect(new Date(result.date).getTime()).to.equal(testDate.getTime());
             expect(result).to.have.property('createdAt');
             expect(result).to.have.property('updatedAt');
             expect(new Date(result.createdAt!).getTime()).to.equal(new Date(result.updatedAt!).getTime());
@@ -39,13 +41,15 @@ describe('DataStore Tests', () => {
             const savedData = await WorkedHoursModel.findById(result._id);
             expect(savedData?.project).to.equal('Test Project');
             expect(savedData?.description).to.equal('Test description');
+            expect(savedData?.date.getTime()).to.equal(testDate.getTime());
             expect(savedData?.createdAt?.getTime()).to.equal(new Date(result.createdAt!).getTime());
             expect(savedData?.updatedAt?.getTime()).to.equal(new Date(result.updatedAt!).getTime());
         });
 
         it('should handle empty description', async () => {
+            const testDate = new Date(2024, 2, 20);
             const formData = {
-                date: '2024-03-20',
+                date: testDate,
                 project: 'Test Project',
                 hours: 8,
                 description: '',
@@ -57,8 +61,9 @@ describe('DataStore Tests', () => {
         });
 
         it('should throw InputError for empty project name', async () => {
+            const testDate = new Date(2024, 2, 20);
             const formData = {
-                date: '2024-03-20',
+                date: testDate,
                 project: '   ',
                 hours: 8,
                 description: 'Test description',
@@ -75,8 +80,9 @@ describe('DataStore Tests', () => {
         });
 
         it('should throw InputError for non-positive hours', async () => {
+            const testDate = new Date(2024, 2, 20);
             const formData = {
-                date: '2024-03-20',
+                date: testDate,
                 project: 'Test Project',
                 hours: 0,
                 description: 'Test description',
@@ -93,8 +99,9 @@ describe('DataStore Tests', () => {
         });
 
         it('should throw InputError for invalid overtime type', async () => {
+            const testDate = new Date(2024, 2, 20);
             const formData = {
-                date: '2024-03-20',
+                date: testDate,
                 project: 'Test Project',
                 hours: 8,
                 description: 'Test description',
@@ -111,8 +118,9 @@ describe('DataStore Tests', () => {
         });
 
         it('should throw InputError for invalid year', async () => {
+            const testDate = new Date(-10, 2, 20);
             const formData = {
-                date: '2024-03-20',
+                date: testDate,
                 project: 'Test Project',
                 hours: 8,
                 description: 'Test description',
@@ -124,13 +132,14 @@ describe('DataStore Tests', () => {
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
+                expect((err as InputError).message).to.equal('Invalid date.');
             }
         });
 
         it('should throw InputError for invalid date (non-existent date)', async () => {
+            const testDate = new Date(2024, 1, 30); // February 30th doesn't exist
             const formData = {
-                date: '2024-02-30', // February 30th doesn't exist
+                date: testDate,
                 project: 'Test Project',
                 hours: 8,
                 description: 'Test description',
@@ -142,13 +151,14 @@ describe('DataStore Tests', () => {
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
+                expect((err as InputError).message).to.equal('Invalid date.');
             }
         });
 
         it('should throw InputError for invalid month', async () => {
+            const testDate = new Date(2024, 12, 20); // Month 13 (0-based)
             const formData = {
-                date: '2024-13-20',
+                date: testDate,
                 project: 'Test Project',
                 hours: 8,
                 description: 'Test description',
@@ -160,13 +170,14 @@ describe('DataStore Tests', () => {
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
+                expect((err as InputError).message).to.equal('Invalid date.');
             }
         });
 
         it('should throw InputError for invalid day', async () => {
+            const testDate = new Date(2024, 3, 31); // April 31st doesn't exist
             const formData = {
-                date: '2024-04-31', // April has 30 days
+                date: testDate,
                 project: 'Test Project',
                 hours: 8,
                 description: 'Test description',
@@ -178,13 +189,14 @@ describe('DataStore Tests', () => {
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
+                expect((err as InputError).message).to.equal('Invalid date.');
             }
         });
 
         it('should handle multiple entries for the same date', async () => {
+            const testDate = new Date(2024, 2, 20);
             const formData1 = {
-                date: '2024-03-20',
+                date: testDate,
                 project: 'Project 1',
                 hours: 4,
                 description: 'Morning work',
@@ -192,7 +204,7 @@ describe('DataStore Tests', () => {
             };
 
             const formData2 = {
-                date: '2024-03-20',
+                date: testDate,
                 project: 'Project 2',
                 hours: 4,
                 description: 'Afternoon work',
@@ -204,7 +216,7 @@ describe('DataStore Tests', () => {
 
             expect(result1._id).to.not.equal(result2._id);
 
-            const entries = await WorkedHoursModel.find({ date: '2024-03-20' });
+            const entries = await WorkedHoursModel.find({ date: testDate });
             expect(entries).to.have.lengthOf(2);
             expect(entries.map(e => e.project)).to.include.members(['Project 1', 'Project 2']);
         });
@@ -212,16 +224,17 @@ describe('DataStore Tests', () => {
 
     describe('getWorkedHours', () => {
         beforeEach(async () => {
+            const testDate = new Date(2024, 2, 20);
             const entries = [
                 {
-                    date: '2024-03-20',
+                    date: testDate,
                     project: 'Project 1',
                     hours: 4,
                     description: 'Morning work',
                     overtime: false
                 },
                 {
-                    date: '2024-03-20',
+                    date: testDate,
                     project: 'Project 2',
                     hours: 4,
                     description: 'Afternoon work',
@@ -239,6 +252,8 @@ describe('DataStore Tests', () => {
             expect(result).to.be.an('array').with.lengthOf(2);
             expect(result[0]).to.have.property('project', 'Project 1');
             expect(result[1]).to.have.property('project', 'Project 2');
+            expect(new Date(result[0].date).getMonth()).to.equal(2); // March (0-based)
+            expect(new Date(result[1].date).getMonth()).to.equal(2);
         });
 
         it('should return empty array for date with no entries', async () => {
@@ -252,7 +267,7 @@ describe('DataStore Tests', () => {
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
+                expect((err as InputError).message).to.equal('Invalid date.');
             }
         });
     });
@@ -261,8 +276,9 @@ describe('DataStore Tests', () => {
         let existingEntryId: string;
 
         beforeEach(async () => {
+            const testDate = new Date(2024, 2, 20);
             const formData = {
-                date: '2024-03-20',
+                date: testDate,
                 project: 'Original Project',
                 hours: 8,
                 description: 'Original description',
@@ -273,8 +289,9 @@ describe('DataStore Tests', () => {
         });
 
         it('should update an existing worked hours entry', async () => {
+            const updatedDate = new Date(2024, 2, 20);
             const updateData = {
-                date: '2024-03-20',
+                date: updatedDate,
                 project: 'Updated Project',
                 hours: 6,
                 description: 'Updated description',
@@ -290,19 +307,22 @@ describe('DataStore Tests', () => {
             expect(result).to.have.property('hours', 6);
             expect(result).to.have.property('description', 'Updated description');
             expect(result).to.have.property('overtime', true);
+            expect(new Date(result.date).getTime()).to.equal(updatedDate.getTime());
             expect(result).to.have.property('createdAt');
             expect(result).to.have.property('updatedAt');
             expect(new Date(result.updatedAt!).getTime()).to.be.above(new Date(result.createdAt!).getTime());
 
             const updated = await WorkedHoursModel.findById(existingEntryId);
             expect(updated?.project).to.equal('Updated Project');
+            expect(updated?.date.getTime()).to.equal(updatedDate.getTime());
             expect(updated?.createdAt?.getTime()).to.equal(new Date(result.createdAt!).getTime());
             expect(updated?.updatedAt?.getTime()).to.equal(new Date(result.updatedAt!).getTime());
         });
 
         it('should trim strings in update data', async () => {
+            const updatedDate = new Date(2024, 2, 20);
             const updateData = {
-                date: '2024-03-20',
+                date: updatedDate,
                 project: '  Updated Project  ',
                 hours: 6,
                 description: '  Updated description  ',
@@ -316,8 +336,9 @@ describe('DataStore Tests', () => {
         });
 
         it('should throw InputError for empty project name', async () => {
+            const updatedDate = new Date(2024, 2, 20);
             const updateData = {
-                date: '2024-03-20',
+                date: updatedDate,
                 project: '   ',
                 hours: 6,
                 description: 'Updated description',
@@ -334,8 +355,9 @@ describe('DataStore Tests', () => {
         });
 
         it('should throw InputError for non-positive hours', async () => {
+            const updatedDate = new Date(2024, 2, 20);
             const updateData = {
-                date: '2024-03-20',
+                date: updatedDate,
                 project: 'Updated Project',
                 hours: 0,
                 description: 'Updated description',
@@ -352,8 +374,9 @@ describe('DataStore Tests', () => {
         });
 
         it('should throw InputError for invalid overtime type', async () => {
+            const updatedDate = new Date(2024, 2, 20);
             const updateData = {
-                date: '2024-03-20',
+                date: updatedDate,
                 project: 'Updated Project',
                 hours: 6,
                 description: 'Updated description',
@@ -369,9 +392,10 @@ describe('DataStore Tests', () => {
             }
         });
 
-        it('should throw InputError for invalid date format', async () => {
+        it('should throw InputError for invalid date', async () => {
+            const invalidDate = new Date('invalid');
             const updateData = {
-                date: '2024-13-45',
+                date: invalidDate,
                 project: 'Updated Project',
                 hours: 6,
                 description: 'Updated description',
@@ -383,14 +407,15 @@ describe('DataStore Tests', () => {
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
+                expect((err as InputError).message).to.equal('Invalid date format.');
             }
         });
 
         it('should throw InputError for non-existent ID', async () => {
-            const nonExistentId = '65f1f8971fa0a647c0a7c001'; // Valid MongoDB ID that doesn't exist
+            const nonExistentId = '65f1f8971fa0a647c0a7c001';
+            const updatedDate = new Date(2024, 2, 20);
             const updateData = {
-                date: '2024-03-20',
+                date: updatedDate,
                 project: 'Updated Project',
                 hours: 6,
                 description: 'Updated description',
@@ -408,8 +433,9 @@ describe('DataStore Tests', () => {
 
         it('should throw InputError for invalid ID format', async () => {
             const invalidId = 'invalid-id';
+            const updatedDate = new Date(2024, 2, 20);
             const updateData = {
-                date: '2024-03-20',
+                date: updatedDate,
                 project: 'Updated Project',
                 hours: 6,
                 description: 'Updated description',
@@ -430,8 +456,9 @@ describe('DataStore Tests', () => {
         let existingEntryId: string;
 
         beforeEach(async () => {
+            const testDate = new Date(2024, 2, 20);
             const formData = {
-                date: '2024-03-20',
+                date: testDate,
                 project: 'Test Project',
                 hours: 8,
                 description: 'Test description',
@@ -473,21 +500,21 @@ describe('DataStore Tests', () => {
         beforeEach(async () => {
             const entries = [
                 {
-                    date: '2024-03-01',
+                    date: new Date(2024, 2, 1),
                     project: 'Project 1',
                     hours: 4,
                     description: 'Day 1 work',
                     overtime: false
                 },
                 {
-                    date: '2024-03-15',
+                    date: new Date(2024, 2, 15),
                     project: 'Project 2',
                     hours: 8,
                     description: 'Day 15 work',
                     overtime: true
                 },
                 {
-                    date: '2024-04-01',
+                    date: new Date(2024, 3, 1),
                     project: 'Project 3',
                     hours: 6,
                     description: 'Next month work',
@@ -496,7 +523,9 @@ describe('DataStore Tests', () => {
             ];
 
             for (const entry of entries) {
-                const [year, month, day] = entry.date.split('-').map(Number);
+                const year = entry.date.getFullYear();
+                const month = entry.date.getMonth() + 1;
+                const day = entry.date.getDate();
                 await createWorkedHours(year, month, day, entry);
             }
         });
@@ -505,7 +534,9 @@ describe('DataStore Tests', () => {
             const result = await getMonthWorkedHours(2024, 3);
             expect(result).to.be.an('array').with.lengthOf(2);
             expect(result.map(r => r.project)).to.include.members(['Project 1', 'Project 2']);
-            expect(result.map(r => r.date)).to.not.include('2024-04-01');
+            result.forEach(entry => {
+                expect(new Date(entry.date).getMonth()).to.equal(2); // March (0-based)
+            });
         });
 
         it('should return empty array for month with no entries', async () => {
@@ -519,7 +550,7 @@ describe('DataStore Tests', () => {
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
+                expect((err as InputError).message).to.equal('Invalid date.');
             }
         });
 
@@ -529,7 +560,7 @@ describe('DataStore Tests', () => {
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect((err as InputError).message).to.equal('Invalid date format. Date must be in YYYY-MM-DD format.');
+                expect((err as InputError).message).to.equal('Invalid date.');
             }
         });
     });

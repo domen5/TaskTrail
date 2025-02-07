@@ -41,9 +41,10 @@ describe('API Tests', () => {
 
     describe('POST /worked-hours/:year/:month/:day', () => {
         it('should create new worked hours entry', async () => {
+            const testDate = new Date(2024, 2, 20);
             const workedHours = {
                 workedHours: {
-                    date: '2024-03-20',
+                    date: testDate.toISOString(),
                     project: 'Test Project',
                     hours: 8,
                     description: 'Test description',
@@ -62,6 +63,8 @@ describe('API Tests', () => {
             expect(response.body.hours).to.equal(workedHours.workedHours.hours);
             expect(response.body.description).to.equal(workedHours.workedHours.description);
             expect(response.body.overtime).to.equal(workedHours.workedHours.overtime);
+            expect(response.body).to.have.property('date');
+            expect(new Date(response.body.date).getTime()).to.equal(testDate.getTime());
             expect(response.body).to.have.property('createdAt');
             expect(response.body).to.have.property('updatedAt');
             expect(new Date(response.body.createdAt).getTime()).to.equal(new Date(response.body.updatedAt).getTime());
@@ -90,10 +93,10 @@ describe('API Tests', () => {
 
     describe('GET /worked-hours/:year/:month/:day', () => {
         it('should return worked hours for a specific date', async () => {
-            // First create test data
+            const testDate = new Date(2024, 2, 20);
             const workedHours = {
                 workedHours: {
-                    date: '2024-03-20',
+                    date: testDate.toISOString(),
                     project: 'Test Project',
                     hours: 8,
                     description: 'Test description',
@@ -107,7 +110,6 @@ describe('API Tests', () => {
                 .send(workedHours)
                 .expect(201);
 
-            // Then test GET endpoint
             const response = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
                 .set('Cookie', `token=${token}`)
@@ -118,6 +120,7 @@ describe('API Tests', () => {
             expect(response.body[0]).to.have.property('hours', 8);
             expect(response.body[0]).to.have.property('description', 'Test description');
             expect(response.body[0]).to.have.property('overtime', false);
+            expect(new Date(response.body[0].date).getTime()).to.equal(testDate.getTime());
         });
 
         it('should return 400 for invalid date parameters', async () => {
@@ -139,10 +142,10 @@ describe('API Tests', () => {
 
     describe('DELETE /worked-hours', () => {
         it('should delete worked hours entry', async () => {
-            // First create test data
+            const testDate = new Date(2024, 2, 20);
             const workedHours = {
                 workedHours: {
-                    date: '2024-03-20',
+                    date: testDate.toISOString(),
                     project: 'Test Project',
                     hours: 8,
                     description: 'Test description',
@@ -156,14 +159,12 @@ describe('API Tests', () => {
                 .send(workedHours)
                 .expect(201);
 
-            // Then test DELETE endpoint
             await supertest(app)
                 .delete('/api/worked-hours')
                 .set('Cookie', `token=${token}`)
                 .send({ id: createResponse.body._id })
                 .expect(200);
 
-            // Verify the entry was deleted
             const getResponse = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
                 .set('Cookie', `token=${token}`)
@@ -185,10 +186,10 @@ describe('API Tests', () => {
 
     describe('PUT /worked-hours', () => {
         it('should update worked hours entry', async () => {
-            // First create test data
+            const testDate = new Date(2024, 2, 20);
             const workedHours = {
                 workedHours: {
-                    date: '2024-03-20',
+                    date: testDate.toISOString(),
                     project: 'Test Project',
                     hours: 8,
                     description: 'Test description',
@@ -202,11 +203,11 @@ describe('API Tests', () => {
                 .send(workedHours)
                 .expect(201);
 
-            // Then test UPDATE endpoint
+            const updatedDate = new Date(2024, 2, 20);
             const updatedData = {
                 workedHours: {
                     _id: createResponse.body._id,
-                    date: '2024-03-20',
+                    date: updatedDate.toISOString(),
                     project: 'Updated Project',
                     hours: 6,
                     description: 'Updated description',
@@ -224,12 +225,11 @@ describe('API Tests', () => {
             expect(updateResponse.body).to.have.property('hours', 6);
             expect(updateResponse.body).to.have.property('description', 'Updated description');
             expect(updateResponse.body).to.have.property('overtime', true);
-            // Verify timestamps after update
+            expect(new Date(updateResponse.body.date).getTime()).to.equal(updatedDate.getTime());
             expect(updateResponse.body).to.have.property('createdAt');
             expect(updateResponse.body).to.have.property('updatedAt');
             expect(new Date(updateResponse.body.updatedAt).getTime()).to.be.above(new Date(updateResponse.body.createdAt).getTime());
 
-            // Verify the update persisted
             const getResponse = await supertest(app)
                 .get('/api/worked-hours/2024/3/20')
                 .set('Cookie', `token=${token}`)
@@ -237,13 +237,15 @@ describe('API Tests', () => {
 
             expect(getResponse.body[0]).to.have.property('project', 'Updated Project');
             expect(getResponse.body[0]).to.have.property('hours', 6);
+            expect(new Date(getResponse.body[0].date).getTime()).to.equal(updatedDate.getTime());
         });
 
         it('should return 400 for invalid id', async () => {
+            const testDate = new Date(2024, 2, 20);
             const invalidData = {
                 workedHours: {
                     _id: 'invalid-id',
-                    date: '2024-03-20',
+                    date: testDate.toISOString(),
                     project: 'Test Project',
                     hours: 8,
                     description: 'Test description',
@@ -261,10 +263,10 @@ describe('API Tests', () => {
         });
 
         it('should return 400 for invalid input data', async () => {
-            // First create valid entry
+            const testDate = new Date(2024, 2, 20);
             const workedHours = {
                 workedHours: {
-                    date: '2024-03-20',
+                    date: testDate.toISOString(),
                     project: 'Test Project',
                     hours: 8,
                     description: 'Test description',
@@ -278,7 +280,6 @@ describe('API Tests', () => {
                 .send(workedHours)
                 .expect(201);
 
-            // Then try to update with invalid data
             const invalidUpdate = {
                 workedHours: {
                     _id: createResponse.body._id,
@@ -302,10 +303,12 @@ describe('API Tests', () => {
 
     describe('GET /worked-hours/:year/:month', () => {
         it('should return all worked hours for a specific month', async () => {
-            // First create test data for multiple days
+            const testDate1 = new Date(2024, 2, 20);
+            const testDate2 = new Date(2024, 2, 21);
+
             const workedHours1 = {
                 workedHours: {
-                    date: '2024-03-20',
+                    date: testDate1.toISOString(),
                     project: 'Test Project 1',
                     hours: 8,
                     description: 'Test description 1',
@@ -315,7 +318,7 @@ describe('API Tests', () => {
 
             const workedHours2 = {
                 workedHours: {
-                    date: '2024-03-21',
+                    date: testDate2.toISOString(),
                     project: 'Test Project 2',
                     hours: 6,
                     description: 'Test description 2',
@@ -335,7 +338,6 @@ describe('API Tests', () => {
                 .send(workedHours2)
                 .expect(201);
 
-            // Then test GET month endpoint
             const response = await supertest(app)
                 .get('/api/worked-hours/2024/3')
                 .set('Cookie', `token=${token}`)
@@ -344,8 +346,10 @@ describe('API Tests', () => {
             expect(response.body).to.be.an('array').with.lengthOf(2);
             expect(response.body[0]).to.have.property('project', 'Test Project 1');
             expect(response.body[0]).to.have.property('hours', 8);
+            expect(new Date(response.body[0].date).getTime()).to.equal(testDate1.getTime());
             expect(response.body[1]).to.have.property('project', 'Test Project 2');
             expect(response.body[1]).to.have.property('hours', 6);
+            expect(new Date(response.body[1].date).getTime()).to.equal(testDate2.getTime());
         });
 
         it('should return 400 for invalid month parameters', async () => {

@@ -15,20 +15,27 @@ export async function initializeDatabase(uri: string = MONGODB_URI) {
 
 const createDate = (year: number, month: number, day: number): Date => {
     const date = new Date(year, month - 1, day);
-    if (!isValidDate(date)) {
+    if (!isValidDate(date, year, month, day)) {
         throw new InputError('Invalid date.');
     }
     return date;
 };
 
-const isValidDate = (date: Date): boolean => {
+const isValidDate = (date: Date, year?: number, month?: number, day?: number): boolean => {
     if (!(date instanceof Date) || isNaN(date.getTime())) {
         return false;
     }
 
-    const year = date.getFullYear();
-    if (year < 1900 || year > 9999) {
+    const dateYear = date.getFullYear();
+    if (dateYear < 1900 || dateYear > 9999) {
         return false;
+    }
+
+    // If specific YMD were provided, verify the date wasn't normalized
+    if (year !== undefined && month !== undefined && day !== undefined) {
+        return date.getFullYear() === year &&
+            date.getMonth() === month - 1 && // Convert 1-based month to 0-based
+            date.getDate() === day;
     }
 
     return true;
