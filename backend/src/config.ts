@@ -12,4 +12,5 @@ dotenv.config({ path: envPath });
 const PORT: number = Number(process.env.PORT) || 3000;
 const MONGODB_URI: string = process.env.MONGODB_URI || 'mongodb://root:pass12345@mongodb:27017/tasktrail'
 const JWT_SECRET: string = process.env.JWT_SECRET || 'VerySecretKey';
-export { PORT, MONGODB_URI, JWT_SECRET };
+const FRONTEND_URLS: string = process.env.FRONTEND_URLS || 'http://localhost:5173 http://localhost:8080';
+export { PORT, MONGODB_URI, JWT_SECRET, FRONTEND_URLS };
