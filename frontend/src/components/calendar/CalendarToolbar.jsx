@@ -54,7 +54,7 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
         link.setAttribute('download', filename);
         link.style.display = 'none'; // Hide the link
         document.body.appendChild(link);
-        // link.click(); // disabled for development
+        link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
     };
