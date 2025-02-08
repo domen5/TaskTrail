@@ -20,7 +20,10 @@ COPY --from=builder /app/package*.json ./
 
 RUN npm ci --only=production
 
-# TODO: manage PORT var with an env variable
-EXPOSE 3000
+# Create SSL directory
+RUN mkdir -p /app/ssl
+
+# Expose both HTTP and HTTPS ports
+EXPOSE 3000 3443
 
 CMD ["node", "./dist/app.js"]

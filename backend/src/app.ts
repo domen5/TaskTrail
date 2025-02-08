@@ -5,6 +5,10 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { PORT, FRONTEND_URLS } from "./config"
+import * as fs from 'fs';
+import * as https from 'https';
+import * as http from 'http';
+import * as path from 'path';
 
 async function startServer() {
     await initializeDatabase();
@@ -33,9 +37,28 @@ async function startServer() {
         res.send('Hello, World!');
     });
 
-    app.listen(PORT, () => {
-        console.log(`Server is running on http://localhost:${PORT}`);
+    // Create HTTP server
+    http.createServer(app).listen(PORT, () => {
+        console.log(`HTTP Server is running on http://localhost:${PORT}`);
     });
+
+    // Create HTTPS server if SSL certificates exist
+    const sslPath = '/app/ssl';
+    const certPath = path.join(sslPath, 'nginx.crt');
+    const keyPath = path.join(sslPath, 'nginx.key');
+
+    if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+        const httpsOptions = {
+            key: fs.readFileSync(keyPath),
+            cert: fs.readFileSync(certPath)
+        };
+
+        https.createServer(httpsOptions, app).listen(3443, () => {
+            console.log(`HTTPS Server is running on https://localhost:3443`);
+        });
+    } else {
+        console.log('SSL certificates not found. HTTPS server not started.');
+    }
 
     return app;
 }
