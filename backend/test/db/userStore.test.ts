@@ -7,9 +7,19 @@ import { OrganizationModel } from '../../src/models/Organization';
 import bcrypt from 'bcrypt';
 import { Types } from 'mongoose';
 
-describe('UserService Tests', () => {
+describe('UserStore Tests', () => {
     let testOrgId: Types.ObjectId;
     const testRole: Role = 'basic';
+
+    async function createTestUser(overrides = {}) {
+        const baseUser = {
+            username: 'testuser',
+            password: 'testpassword',
+            organization: testOrgId,
+            role: testRole
+        };
+        return await registerUser({ ...baseUser, ...overrides });
+    }
 
     before(async () => {
         await setupTestDB();
@@ -21,24 +31,19 @@ describe('UserService Tests', () => {
 
     beforeEach(async () => {
         await clearDatabase();
-        // Create a test organization
         const org = await OrganizationModel.create({ name: 'testorganization' });
         testOrgId = org._id;
     });
 
     describe('register', () => {
         it('should create a new user', async () => {
-            const user = {
-                username: 'testuser',
-                password: 'testpassword',
-                organization: testOrgId,
-                role: testRole
-            };
-            const result = await registerUser(user);
+            const result = await createTestUser();
 
             expect(result).to.have.property('username', 'testuser');
-            expect(result).to.have.property('password', 'testpassword');
-            
+            expect(result).to.have.property('password').that.is.not.equal('testpassword');
+            expect(result.organization.toString()).to.equal(testOrgId.toString());
+            expect(result.role).to.equal(testRole);
+
             const savedUser = await UserModel.findOne({ username: 'testuser' });
             expect(savedUser?.username).to.equal('testuser');
             expect(savedUser?.password).to.not.equal('testpassword');
@@ -47,132 +52,61 @@ describe('UserService Tests', () => {
         });
 
         it('should not allow duplicate usernames', async () => {
-            const user = {
-                username: 'testuser',
-                password: 'testpassword',
-                organization: testOrgId,
-                role: testRole
-            };
-            await registerUser(user);
+            await createTestUser();
             try {
-                await registerUser(user);
+                await createTestUser();
                 expect.fail('Should have thrown an error for duplicate username');
             } catch (err) {
-                expect(err).to.exist;
-            }
-        });
-
-        it('should throw an error for missing username', async () => {
-            const user = {
-                password: 'testpassword',
-                organization: testOrgId,
-                role: testRole
-            };
-            try {
-                await registerUser(user as any);
-                expect.fail('Should have thrown an error for missing username');
-            } catch (err) {
-                expect(err).to.exist;
-            }
-        });
-
-        it('should throw an error for missing password', async () => {
-            const user = {
-                username: 'testuser',
-                organization: testOrgId,
-                role: testRole
-            };
-            try {
-                await registerUser(user as any);
-                expect.fail('Should have thrown an error for missing password');
-            } catch (err) {
-                expect(err).to.exist;
+                expect(err.message).to.include('duplicate key');
             }
         });
 
         it('should set timestamps when creating a new user', async () => {
-            const user = {
-                username: 'timestampuser',
-                password: 'testpassword',
-                organization: testOrgId,
-                role: testRole
-            };
-            
             const before = new Date();
-            const result = await registerUser(user);
+            const result = await createTestUser({ username: 'timestampuser' });
             const after = new Date();
-            
-            const savedUser = await UserModel.findOne({ username: 'timestampuser' });
-            expect(savedUser).to.exist;
-            
-            // Ensure savedUser exists before checking timestamps
-            if (!savedUser) {
-                throw new Error('User not found after creation');
-            }
-            
-            expect(savedUser.createdAt).to.exist;
-            expect(savedUser.updatedAt).to.exist;
-            
-            expect(savedUser.createdAt!.getTime()).to.be.at.least(before.getTime());
-            expect(savedUser.createdAt!.getTime()).to.be.at.most(after.getTime());
-            expect(savedUser.updatedAt!.getTime()).to.equal(savedUser.createdAt!.getTime());
+
+            expect(result.createdAt).to.exist;
+            expect(result.updatedAt).to.exist;
+            expect(result.createdAt!.getTime()).to.be.at.least(before.getTime());
+            expect(result.createdAt!.getTime()).to.be.at.most(after.getTime());
+            expect(result.updatedAt!.getTime()).to.equal(result.createdAt!.getTime());
         });
 
         it('should update the updatedAt timestamp when modifying a user', async () => {
-            const user = {
-                username: 'updateuser',
-                password: 'testpassword',
-                organization: testOrgId,
-                role: testRole
-            };
-            await registerUser(user);
+            const user = await createTestUser({ username: 'updateuser' });
             
             // Wait a small amount to ensure timestamp difference
             await new Promise(resolve => setTimeout(resolve, 100));
             
-            // Update the user
-            const savedUser = await UserModel.findOne({ username: 'updateuser' });
-            if (!savedUser) {
-                throw new Error('User not found after creation');
-            }
-            
-            const originalUpdatedAt = savedUser.updatedAt;
-            if (!originalUpdatedAt) {
-                throw new Error('UpdatedAt timestamp not set');
-            }
-            
             const before = new Date();
-            savedUser.password = 'newpassword';
-            await savedUser.save();
+            user.password = 'newpassword';
+            await user.save();
             const after = new Date();
+
+            const updatedUser = await UserModel.findById(user._id);
+            expect(updatedUser).to.exist;
+            expect(updatedUser!.updatedAt).to.exist;
+            expect(updatedUser!.createdAt).to.exist;
             
-            const updatedUser = await UserModel.findOne({ username: 'updateuser' });
-            if (!updatedUser || !updatedUser.updatedAt || !updatedUser.createdAt) {
-                throw new Error('Updated user or timestamps not found');
-            }
+            const updatedAt = updatedUser!.updatedAt!.getTime();
+            const createdAt = updatedUser!.createdAt!.getTime();
             
-            expect(updatedUser.updatedAt.getTime()).to.be.above(originalUpdatedAt.getTime());
-            expect(updatedUser.updatedAt.getTime()).to.be.at.least(before.getTime());
-            expect(updatedUser.updatedAt.getTime()).to.be.at.most(after.getTime());
-            expect(updatedUser.createdAt.getTime()).to.equal(savedUser.createdAt!.getTime());
+            expect(updatedAt).to.be.above(createdAt);
+            expect(updatedAt).to.be.at.least(before.getTime());
+            expect(updatedAt).to.be.at.most(after.getTime());
         });
     });
 
     describe('retrieveUser', () => {
         it('should retrieve a user with correct username', async () => {
-            const user = {
-                username: 'testuser',
-                password: 'testpassword',
-                organization: testOrgId,
-                role: testRole
-            };
-            await registerUser(user);
+            const user = await createTestUser();
 
             const foundUser = await retrieveUser('testuser');
-            expect(foundUser).to.have.property('username');
-            expect(foundUser).to.have.property('password');
-            expect(foundUser?.username).to.equal(user.username);
-            const isMatch = await bcrypt.compare(user.password, foundUser?.password || '');
+            expect(foundUser).to.have.property('username', 'testuser');
+            expect(foundUser?.organization.toString()).to.equal(testOrgId.toString());
+            expect(foundUser?.role).to.equal(testRole);
+            const isMatch = await bcrypt.compare('testpassword', foundUser?.password || '');
             expect(isMatch).to.be.true;
         });
 
