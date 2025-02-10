@@ -6,9 +6,6 @@ import { makeToken, verifyToken } from "../utils/auth";
 import { incrementTokenVersion, addToBlacklist, getTokenVersion } from '../db/tokenStore';
 import { TokenVersion } from '../db/tokenStore';
 
-// TODO: Implement CustomRequest to avoid typecasting
-// TODO: add expirty date to the httpOnly cookie
-
 const routes = express.Router();
 const TOKEN_EXPIRY = 30 * 60 * 1000; // 30 minutes
 routes.post('/register', async (req: Request, res: Response) => {
