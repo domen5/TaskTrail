@@ -2,10 +2,15 @@ import 'mocha';
 import { expect } from 'chai';
 import { registerUser, retrieveUser } from '../../src/db/userStore';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
-import { UserModel } from '../../src/models/User';
+import { UserModel, Role } from '../../src/models/User';
+import { OrganizationModel } from '../../src/models/Organization';
 import bcrypt from 'bcrypt';
+import { Types } from 'mongoose';
 
 describe('UserService Tests', () => {
+    let testOrgId: Types.ObjectId;
+    const testRole: Role = 'basic';
+
     before(async () => {
         await setupTestDB();
     });
@@ -16,13 +21,18 @@ describe('UserService Tests', () => {
 
     beforeEach(async () => {
         await clearDatabase();
+        // Create a test organization
+        const org = await OrganizationModel.create({ name: 'testorganization' });
+        testOrgId = org._id;
     });
 
     describe('register', () => {
         it('should create a new user', async () => {
             const user = {
                 username: 'testuser',
-                password: 'testpassword'
+                password: 'testpassword',
+                organization: testOrgId,
+                role: testRole
             };
             const result = await registerUser(user);
 
@@ -39,7 +49,9 @@ describe('UserService Tests', () => {
         it('should not allow duplicate usernames', async () => {
             const user = {
                 username: 'testuser',
-                password: 'testpassword'
+                password: 'testpassword',
+                organization: testOrgId,
+                role: testRole
             };
             await registerUser(user);
             try {
@@ -52,7 +64,9 @@ describe('UserService Tests', () => {
 
         it('should throw an error for missing username', async () => {
             const user = {
-                password: 'testpassword'
+                password: 'testpassword',
+                organization: testOrgId,
+                role: testRole
             };
             try {
                 await registerUser(user as any);
@@ -64,7 +78,9 @@ describe('UserService Tests', () => {
 
         it('should throw an error for missing password', async () => {
             const user = {
-                username: 'testuser'
+                username: 'testuser',
+                organization: testOrgId,
+                role: testRole
             };
             try {
                 await registerUser(user as any);
@@ -77,7 +93,9 @@ describe('UserService Tests', () => {
         it('should set timestamps when creating a new user', async () => {
             const user = {
                 username: 'timestampuser',
-                password: 'testpassword'
+                password: 'testpassword',
+                organization: testOrgId,
+                role: testRole
             };
             
             const before = new Date();
@@ -103,7 +121,9 @@ describe('UserService Tests', () => {
         it('should update the updatedAt timestamp when modifying a user', async () => {
             const user = {
                 username: 'updateuser',
-                password: 'testpassword'
+                password: 'testpassword',
+                organization: testOrgId,
+                role: testRole
             };
             await registerUser(user);
             
@@ -138,15 +158,17 @@ describe('UserService Tests', () => {
         });
     });
 
-    describe('login', () => {
-        it('should login a user with correct credentials', async () => {
+    describe('retrieveUser', () => {
+        it('should retrieve a user with correct username', async () => {
             const user = {
                 username: 'testuser',
-                password: 'testpassword'
+                password: 'testpassword',
+                organization: testOrgId,
+                role: testRole
             };
             await registerUser(user);
 
-            const foundUser = await retrieveUser(user);
+            const foundUser = await retrieveUser('testuser');
             expect(foundUser).to.have.property('username');
             expect(foundUser).to.have.property('password');
             expect(foundUser?.username).to.equal(user.username);
@@ -154,34 +176,8 @@ describe('UserService Tests', () => {
             expect(isMatch).to.be.true;
         });
 
-        it('should not login a user with incorrect credentials', async () => {
-            const user = {
-                username: 'testuser',
-                password: 'testpassword'
-            };
-            await registerUser(user);
-
-            const wrongUser = {
-                username: 'testuser',
-                password: 'wrongpassword'
-            };
-
-            const foundUser = await retrieveUser(wrongUser);
-            if (foundUser) {
-                const isMatch = await bcrypt.compare(wrongUser.password, foundUser.password);
-                expect(isMatch).to.be.false;
-            } else {
-                expect(foundUser).to.be.null;
-            }
-        });
-
-        it('should throw an error for non-existent user', async () => {
-            const user = {
-                username: 'nonexistent',
-                password: 'nopassword'
-            };
-
-            const foundUser = await retrieveUser(user);
+        it('should return null for non-existent user', async () => {
+            const foundUser = await retrieveUser('nonexistent');
             expect(foundUser).to.be.null;
         });
     });
