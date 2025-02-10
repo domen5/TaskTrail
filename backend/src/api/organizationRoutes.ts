@@ -8,6 +8,10 @@ const routes = express.Router();
 routes.post('/', async (req: Request, res: Response) => {
     try {
         const { name } = req.body;
+        if (!name) {
+            res.status(400).json({ message: 'Name is required' });
+            return;
+        }
         const organization = await createOrganization({ name });
         res.status(201).json(organization);
     } catch (err) {

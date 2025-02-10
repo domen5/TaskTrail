@@ -42,13 +42,13 @@ describe('Organization API Routes', () => {
             expect(org?.name).to.equal(orgData.name);
         });
 
-        it('should return 500 when organization creation fails', async () => {
+        it('should return 400 if name is missing', async () => {
             const response = await request(app)
                 .post('/api/organization')
                 .send({});
 
-            expect(response.status).to.equal(500);
-            expect(response.body).to.have.property('message', 'Something went wrong');
+            expect(response.status).to.equal(400);
+            expect(response.body).to.have.property('message', 'Name is required');
         });
     });
 
