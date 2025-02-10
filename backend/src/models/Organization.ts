@@ -8,7 +8,7 @@ interface Organization {
 
 const organizationSchema = new mongoose.Schema<Organization>(
     {
-        name: { type: String, required: true },
+        name: { type: String, required: true, unique: true },
     },
     { timestamps: true }
 );
