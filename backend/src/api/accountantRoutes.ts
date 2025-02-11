@@ -49,10 +49,10 @@ routes.post('/:year/:month/:userId/lock', verifyToken, async (req: AuthRequest, 
         }
 
         await lockMonth(
-            accountant.organization,
+            user._id,
             yearNum,
             monthNum,
-            new Types.ObjectId(accountant._id)
+            accountant._id
         );
 
         res.status(200).json({ message: 'Month locked successfully' });

@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { LockedMonthModel } from "../models/LockedMonth";
 import { InputError } from "../utils/errors";
 
-const lockMonth = async (organizationId: Types.ObjectId, year: number, month: number, userId: Types.ObjectId) => {
+const lockMonth = async (userId: Types.ObjectId, year: number, month: number, lockedBy: Types.ObjectId) => {
     if (month < 1 || month > 12) {
         throw new InputError('Month must be between 1 and 12');
     }
@@ -15,10 +15,6 @@ const lockMonth = async (organizationId: Types.ObjectId, year: number, month: nu
         throw new InputError('User ID is required');
     }
 
-    if(!organizationId) {
-        throw new InputError('Organization ID is required');
-    }
-
     const currentDate = new Date();
     const targetDate = new Date(year, month - 1);
 
@@ -28,10 +24,10 @@ const lockMonth = async (organizationId: Types.ObjectId, year: number, month: nu
 
     try {
         const lockedMonth = await LockedMonthModel.create({
-            organization: organizationId,
+            userId: userId,
             year,
             month,
-            lockedBy: userId
+            lockedBy
         });
         return lockedMonth;
     } catch (err) {
@@ -42,9 +38,9 @@ const lockMonth = async (organizationId: Types.ObjectId, year: number, month: nu
     }
 };
 
-const isMonthLocked = async (organizationId: Types.ObjectId, year: number, month: number): Promise<boolean> => {
+const isMonthLocked = async (userId: Types.ObjectId, year: number, month: number): Promise<boolean> => {
     const lockedMonth = await LockedMonthModel.findOne({
-        organization: organizationId,
+        userId,
         year,
         month
     });
