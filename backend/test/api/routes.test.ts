@@ -65,7 +65,7 @@ describe('API Tests', () => {
             _id: testUserId,
             username: 'testUser',
             organization: testOrgId,
-            role: 'basic',
+            role: 'regular',
             password: 'hashedPassword'
         });
     });

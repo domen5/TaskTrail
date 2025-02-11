@@ -1,7 +1,7 @@
 import mongoose, { Types } from "mongoose";
 import bcrypt from "bcrypt";
 
-type Role = 'basic' | 'accountant';	
+type Role = 'regular' | 'accountant';	
 const SALT_ROUNDS = 10;
 
 interface User {
@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema<User>(
         username: { type: String, required: true, unique: true },
         password: { type: String, required: true },
         organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
-        role: { type: String, required: true, enum: ['basic', 'accountant'] }
+        role: { type: String, required: true, enum: ['regular', 'accountant'] }
     },
     { timestamps: true }
 );

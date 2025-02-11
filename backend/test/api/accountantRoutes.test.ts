@@ -66,7 +66,7 @@ describe('Accountant Routes Tests', () => {
         await UserModel.create({
             _id: regularUserId,
             username: 'regular',
-            role: 'basic',
+            role: 'regular',
             organization: orgId,
             password: 'hashedPassword'
         });
@@ -135,7 +135,7 @@ describe('Accountant Routes Tests', () => {
             await UserModel.create({
                 _id: differentOrgUserId,
                 username: 'different-org-user',
-                role: 'basic',
+                role: 'regular',
                 organization: differentOrgId,
                 password: 'hashedPassword'
             });

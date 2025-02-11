@@ -11,7 +11,7 @@ import userRoutes from '../../src/api/userRoutes';
 describe('User API Routes', () => {
     let testOrgId: Types.ObjectId;
     let app: express.Express;
-    const testRole: Role = 'basic';
+    const testRole: Role = 'regular';
 
     before(async () => {
         await setupTestDB();
@@ -35,7 +35,7 @@ describe('User API Routes', () => {
             username: 'testuser',
             password: 'testpassword',
             organizationId: '',  // Will be set in beforeEach
-            role: 'basic' as Role
+            role: 'regular' as Role
         };
 
         beforeEach(() => {
@@ -53,7 +53,7 @@ describe('User API Routes', () => {
             const user = await UserModel.findOne({ username: 'testuser' });
             expect(user).to.exist;
             expect(user?.organization.toString()).to.equal(testOrgId.toString());
-            expect(user?.role).to.equal('basic');
+            expect(user?.role).to.equal('regular');
         });
 
         it('should return 400 for missing required fields', async () => {

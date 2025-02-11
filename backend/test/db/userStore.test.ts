@@ -9,7 +9,7 @@ import { Types } from 'mongoose';
 
 describe('UserStore Tests', () => {
     let testOrgId: Types.ObjectId;
-    const testRole: Role = 'basic';
+    const testRole: Role = 'regular';
 
     async function createTestUser(overrides = {}) {
         const baseUser = {
