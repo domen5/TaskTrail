@@ -2,13 +2,21 @@ import { Types } from "mongoose";
 import { LockedMonthModel } from "../models/LockedMonth";
 import { InputError } from "../utils/errors";
 
-export const lockMonth = async (organizationId: Types.ObjectId, year: number, month: number, accountantId: Types.ObjectId) => {
+const lockMonth = async (organizationId: Types.ObjectId, year: number, month: number, userId: Types.ObjectId) => {
     if (month < 1 || month > 12) {
         throw new InputError('Month must be between 1 and 12');
     }
 
     if (year < 1900 || year > 9999) {
         throw new InputError('Invalid year');
+    }
+
+    if(!userId) {
+        throw new InputError('User ID is required');
+    }
+
+    if(!organizationId) {
+        throw new InputError('Organization ID is required');
     }
 
     const currentDate = new Date();
@@ -23,7 +31,7 @@ export const lockMonth = async (organizationId: Types.ObjectId, year: number, mo
             organization: organizationId,
             year,
             month,
-            lockedBy: accountantId
+            lockedBy: userId
         });
         return lockedMonth;
     } catch (err) {
@@ -34,7 +42,7 @@ export const lockMonth = async (organizationId: Types.ObjectId, year: number, mo
     }
 };
 
-export const isMonthLocked = async (organizationId: Types.ObjectId, year: number, month: number): Promise<boolean> => {
+const isMonthLocked = async (organizationId: Types.ObjectId, year: number, month: number): Promise<boolean> => {
     const lockedMonth = await LockedMonthModel.findOne({
         organization: organizationId,
         year,
@@ -42,3 +50,5 @@ export const isMonthLocked = async (organizationId: Types.ObjectId, year: number
     });
     return !!lockedMonth;
 }; 
+
+export { lockMonth, isMonthLocked };

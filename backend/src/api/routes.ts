@@ -5,6 +5,8 @@ import { InputError } from '../utils/errors';
 import { verifyToken } from '../utils/auth';
 import { Types } from 'mongoose';
 import { AuthRequest } from '../types/auth';
+import { lockMonth } from '../db/lockedMonthStore';
+import { UserModel } from '../models/User';
 
 const routes = express.Router();
 
@@ -105,6 +107,48 @@ routes.get('/worked-hours/:year/:month/', verifyToken, async (req: AuthRequest, 
             return;
         }
         res.status(500).send({ message: 'Something went wrong' });
+    }
+});
+
+// LOCK Month 
+routes.post('/lock/:year/:month', verifyToken, async (req: AuthRequest, res) => {
+    try {
+        const { year, month } = req.params;
+
+        if (!year || !month) {
+            res.status(400).json({ message: 'Missing required parameters' });
+            return;
+        }
+
+        const yearNum = parseInt(year);
+        const monthNum = parseInt(month);
+
+        if (isNaN(yearNum) || isNaN(monthNum)) {
+            res.status(400).json({ message: 'Year and month must be valid numbers' });
+            return;
+        }
+
+        const user = await UserModel.findById(req.user._id);
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+            return;
+        }
+
+        await lockMonth(
+            user.organization,
+            yearNum,
+            monthNum,
+            user._id
+        );
+
+        res.status(200).json({ message: 'Month locked successfully' });
+    } catch (err) {
+        if (err instanceof InputError) {
+            res.status(400).json({ message: err.message });
+            return;
+        }
+        console.error('Error locking month:', err);
+        res.status(500).json({ message: 'Something went wrong' });
     }
 });
 

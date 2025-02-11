@@ -6,6 +6,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { PORT, FRONTEND_URLS } from "./config"
 import organizationRoutes from './api/organizationRoutes';
+
 async function startServer() {
     await initializeDatabase();
 
