@@ -115,9 +115,21 @@ const updateWorkedHoursApiCall = async (workedHours) => {
     return await response.json();
 }
 
+const lockMonthApiCall = async (year, month) => {
+    const url = `${BACKEND_URL}/api/lock/${year}/${month}`;
+    const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'include'
+    });
+    if (!response.ok) {
+        throw new Error('Failed locking month');
+    }
+    return await response.json();
+}
 export {
     getMonthWorkedHoursApiCall,
     createWorkedHoursApiCall,
     deleteWorkedHoursApiCall,
-    updateWorkedHoursApiCall
+    updateWorkedHoursApiCall,
+    lockMonthApiCall
 };

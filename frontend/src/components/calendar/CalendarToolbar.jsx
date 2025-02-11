@@ -38,7 +38,6 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
             return;
         }
 
-        // Convert monthData to a flat array
         const flatMonthData = Object.values(monthData).flat();
         
         const csvConvertedData = convertToCsv(flatMonthData, separator);
