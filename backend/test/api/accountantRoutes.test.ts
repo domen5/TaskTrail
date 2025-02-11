@@ -57,14 +57,15 @@ describe('Accountant Routes Tests', () => {
 
         await UserModel.create({
             _id: accountantId,
+            userId: accountantId,
             username: 'accountant',
             role: 'accountant',
             organization: orgId,
             password: 'hashedPassword'
         });
-
         await UserModel.create({
             _id: regularUserId,
+            userId: regularUserId,
             username: 'regular',
             role: 'regular',
             organization: orgId,
@@ -82,7 +83,7 @@ describe('Accountant Routes Tests', () => {
             expect(response.body).to.have.property('message', 'Month locked successfully');
 
             const lock = await LockedMonthModel.findOne({
-                organization: orgId,
+                userId: regularUserId,
                 year: 2024,
                 month: 3
             });
