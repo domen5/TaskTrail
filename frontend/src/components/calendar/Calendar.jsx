@@ -26,7 +26,7 @@ function Calendar() {
     const [showEditForm, setShowEditForm] = useState(false);
     const [editWorkedHours, setEditWorkedHours] = useState(null);
     const { isDarkMode } = useTheme();
-    const { getMonthData } = useTimeSheet();
+    const { getMonthData, isMonthLocked, checkAndSetLockedMonth } = useTimeSheet();
 
     // Wrap setSelectedDay to ensure dates are always normalized
     const handleSetSelectedDay = (date) => {
@@ -37,6 +37,8 @@ function Calendar() {
     useEffect(() => {
         fetchMonthsData(selectedDay);
     }, [selectedDay.getMonth(), selectedDay.getFullYear()]);
+
+    const isMonthLockedStatus = isMonthLocked(selectedDay.getFullYear(), selectedDay.getMonth());
 
     const handleClickAddForm = () => setShowAddForm(true);
     const handleCloseAddForm = () => setShowAddForm(false);
@@ -53,8 +55,11 @@ function Calendar() {
 
         const fetchPromises = [
             getMonthData(prevMonth.getFullYear(), prevMonth.getMonth()),
+            checkAndSetLockedMonth(prevMonth.getFullYear(), prevMonth.getMonth()),
             getMonthData(date.getFullYear(), date.getMonth()),
-            getMonthData(nextMonth.getFullYear(), nextMonth.getMonth())
+            checkAndSetLockedMonth(date.getFullYear(), date.getMonth()),
+            getMonthData(nextMonth.getFullYear(), nextMonth.getMonth()),
+            checkAndSetLockedMonth(nextMonth.getFullYear(), nextMonth.getMonth())
         ];
 
         await Promise.all(fetchPromises);
@@ -108,7 +113,11 @@ function Calendar() {
                         {selectedDay.toLocaleString('default', { month: 'long' }) + ' ' + selectedDay.getFullYear()}
                     </h2>
                     <div className="px-3 px-md-0">
-                        <CalendarToolbar setSelectedDay={handleSetSelectedDay} selectedDay={selectedDay} />
+                        <CalendarToolbar 
+                            setSelectedDay={handleSetSelectedDay} 
+                            selectedDay={selectedDay} 
+                            isMonthLocked={isMonthLockedStatus}
+                        />
                     </div>
                 </div>
 

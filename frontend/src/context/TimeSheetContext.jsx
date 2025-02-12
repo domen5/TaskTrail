@@ -3,19 +3,19 @@ import {
     getMonthWorkedHoursApiCall,
     createWorkedHoursApiCall,
     updateWorkedHoursApiCall,
-    deleteWorkedHoursApiCall
+    deleteWorkedHoursApiCall,
+    lockMonthApiCall,
+    verifyLockedMonthApiCall
 } from '../api/api';
 
 const TimeSheetContext = createContext(undefined);
 
-// Helper to get start of day timestamp (removes time part)
 const getDateKey = (date) => {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
     return d.getTime();
 };
 
-// Helper to get start of month timestamp
 const getMonthKey = (year, month) => {
     const d = new Date(year, month, 1);
     d.setHours(0, 0, 0, 0);
@@ -24,6 +24,7 @@ const getMonthKey = (year, month) => {
 
 export function TimeSheetProvider({ children }) {
     const [timeSheetData, setTimeSheetData] = useState({});
+    const [lockedMonths, setLockedMonths] = useState({});
 
     const getDayData = (date) => {
         const key = getDateKey(date);
@@ -162,14 +163,50 @@ export function TimeSheetProvider({ children }) {
             // Revert to previous state in case of an error
             setTimeSheetData(previousState);
         }
-    }
+    };
+
+    const lockMonth = async (year, month) => {
+        // Optimistically update the state
+        const previousState = { ...lockedMonths };
+        setLockedMonths(prev => ({ ...prev, [`${year}-${month}`]: true }));
+
+        try {
+            const response = await lockMonthApiCall(year, month);
+            return response;
+        } catch (error) {
+            console.error('Error locking month:', error);
+            // Revert to previous state in case of an error
+            setLockedMonths(previousState);
+            throw error;
+        }
+    };
+
+    const isMonthLocked = (year, month) => {
+        return lockedMonths[`${year}-${month}`] || false;
+    };
+
+    // Triggers an API call
+    const checkAndSetLockedMonth = async (year, month) => {
+        const previousState = { ...lockedMonths };
+        try {
+            const isLocked = await verifyLockedMonthApiCall(year, month);
+            setLockedMonths(prev => ({ ...prev, [`${year}-${month}`]: isLocked }));
+        } catch (error) {
+            console.error('Error checking locked month:', error);
+            // Revert to previous state in case of an error
+            setLockedMonths(previousState);
+        }
+    };
 
     const value = {
         getDayData,
         getMonthData,
         updateDayData,
         updateWorkedHours,
-        deleteWorkedHours
+        deleteWorkedHours,
+        lockMonth,
+        checkAndSetLockedMonth,
+        isMonthLocked
     };
 
     return (

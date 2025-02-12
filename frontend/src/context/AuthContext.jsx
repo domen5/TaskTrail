@@ -48,7 +48,6 @@ export const AuthProvider = ({ children }) => {
   const setupRefreshTimer = useCallback(async (expiresIn) => {
     clearRefreshTimer();
     const timeout = (expiresIn * 0.8);
-    console.log('Setting up refresh timer for', timeout / 1000, 'seconds');
 
     refreshTimerRef.current = setTimeout(async () => {
       await refreshToken();

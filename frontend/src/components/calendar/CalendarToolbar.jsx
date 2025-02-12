@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTimeSheet } from '../../context/TimeSheetContext';
 
-function CalendarToolbar({ setSelectedDay, selectedDay }) {
-    const { getMonthData } = useTimeSheet();
+function CalendarToolbar({ setSelectedDay, selectedDay, isMonthLocked }) {
+    const { getMonthData, lockMonth } = useTimeSheet();
     // TODO: add the possibility to choose a different delimiter
     const separator = ';';
 
@@ -31,6 +31,15 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
         return [headers.join(separator), ...rows].join('\n');
     }
 
+    const handleLockMonth = async () => {
+        try {
+            await lockMonth(selectedDay.getFullYear(), selectedDay.getMonth());
+            alert('Month locked successfully!');
+        } catch (error) {
+            alert('Failed to lock the month.');
+        }
+    };
+
     const handleExport = async () => {
         let monthData = await getMonthData(selectedDay.getFullYear(), selectedDay.getMonth());
         if (Object.keys(monthData).length === 0) {
@@ -39,7 +48,7 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
         }
 
         const flatMonthData = Object.values(monthData).flat();
-        
+
         const csvConvertedData = convertToCsv(flatMonthData, separator);
         const blob = new Blob([csvConvertedData], { type: 'text/csv;charset=utf-8,' });
 
@@ -60,7 +69,7 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
 
     return (
         <div>
-            <div className="button-group" style={{ justifyContent: 'start', marginLeft: '1ex' }}>
+            <div className="button-group" style={{ justifyContent: 'start' }}>
                 <button
                     className="btn btn-success"
                     onClick={handlePrevMonth}
@@ -72,6 +81,13 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
                     onClick={handleNextMonth}
                 >
                     Next Month {'>'}
+                </button>
+                <button
+                    className="btn btn-success"
+                    onClick={handleLockMonth}
+                    disabled={isMonthLocked}
+                >
+                    {isMonthLocked ? 'Month Locked' : 'Lock Month'}
                 </button>
                 <button
                     className="btn btn-success"
