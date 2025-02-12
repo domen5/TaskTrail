@@ -39,10 +39,22 @@ const lockMonth = async (userId: Types.ObjectId, year: number, month: number, lo
 };
 
 const isMonthLocked = async (userId: Types.ObjectId, year: number, month: number): Promise<boolean> => {
+    if (month < 1 || month > 12) {
+        throw new InputError('Month must be between 1 and 12');
+    }
+
+    if (year < 1900 || year > 9999) {
+        throw new InputError('Invalid year');
+    }
+
+    if(!userId) {
+        throw new InputError('User ID is required');
+    }
+
     const lockedMonth = await LockedMonthModel.findOne({
-        userId,
-        year,
-        month
+        userId: userId,
+        year: year,
+        month: month
     });
     return !!lockedMonth;
 }; 
