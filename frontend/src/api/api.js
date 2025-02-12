@@ -156,7 +156,6 @@ const verifyLockedMonthApiCall = async (year, month) => {
         throw new Error('Failed verifying locked month');
     }
     const data = (await response.json()).isLocked;
-    console.log(`${year}/${month}: locked = `, data)
     return data;
 }
 

@@ -27,16 +27,21 @@ function Calendar() {
     const [editWorkedHours, setEditWorkedHours] = useState(null);
     const { isDarkMode } = useTheme();
     const { getMonthData, isMonthLocked, checkAndSetLockedMonth } = useTimeSheet();
+    const [selectedMonth, setSelectedMonth] = useState(selectedDay.getMonth());
+    const [selectedYear, setSelectedYear] = useState(selectedDay.getFullYear());
 
-    // Wrap setSelectedDay to ensure dates are always normalized
     const handleSetSelectedDay = (date) => {
         setSelectedDay(normalizeDate(date));
     };
 
-    // useEffect will trigger a the fetch of new data from the backend when the month of selectedDay changes 
+    useEffect(() => {
+        setSelectedMonth(selectedDay.getMonth());
+        setSelectedYear(selectedDay.getFullYear());
+    }, [selectedDay]);
+
     useEffect(() => {
         fetchMonthsData(selectedDay);
-    }, [selectedDay.getMonth(), selectedDay.getFullYear()]);
+    }, [selectedMonth, selectedYear]);
 
     const isMonthLockedStatus = isMonthLocked(selectedDay.getFullYear(), selectedDay.getMonth());
 
