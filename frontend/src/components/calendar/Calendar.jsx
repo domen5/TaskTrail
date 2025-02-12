@@ -132,6 +132,7 @@ function Calendar() {
                             handleClickAddForm={handleClickAddForm}
                             handleClickEditForm={handleClickEditForm}
                             date={selectedDay}
+                            isMonthLocked={isMonthLockedStatus}
                         />
                     </div>
                 </div>
@@ -164,6 +165,7 @@ function Calendar() {
                                                         date={date}
                                                         isPadded={isPadded}
                                                         setSelectedDay={handleSetSelectedDay}
+                                                        isMonthLocked={isMonthLockedStatus}
                                                     />
                                                 </td>
                                             );

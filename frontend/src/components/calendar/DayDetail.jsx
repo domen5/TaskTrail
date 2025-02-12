@@ -1,7 +1,7 @@
 import { useTimeSheet } from "../../context/TimeSheetContext";
 import { useTheme } from "../../context/ThemeContext";
 
-export default function DayDetail({ date, handleClickEditForm, handleClickAddForm }) {
+export default function DayDetail({ date, handleClickEditForm, handleClickAddForm, isMonthLocked }) {
     const { getDayData, deleteWorkedHours } = useTimeSheet();
     const { isDarkMode } = useTheme();
 
@@ -17,7 +17,7 @@ export default function DayDetail({ date, handleClickEditForm, handleClickAddFor
             <div className="card-body p-3">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                     <h5 className="card-title mb-0">{date.toLocaleDateString()}</h5>
-                    <button className="btn btn-success btn-sm" onClick={handleClickAddForm}>
+                    <button className="btn btn-success btn-sm" onClick={handleClickAddForm} disabled={isMonthLocked}>
                         <i className="fa fa-plus" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -42,12 +42,14 @@ export default function DayDetail({ date, handleClickEditForm, handleClickAddFor
                                         <button 
                                             className="btn btn-success btn-sm" 
                                             onClick={() => handleClickEditForm(entry)}
+                                            disabled={isMonthLocked}
                                         >
                                             <i className="fas fa-edit" aria-hidden="true"></i>
                                         </button>
                                         <button 
                                             className="btn btn-danger btn-sm" 
                                             onClick={() => deleteFunc(entry._id)}
+                                            disabled={isMonthLocked}
                                         >
                                             <i className="fa-solid fa-x" aria-hidden="true"></i>
                                         </button>

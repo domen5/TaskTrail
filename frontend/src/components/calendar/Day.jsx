@@ -2,7 +2,7 @@ import "./Day.css";
 import { useTimeSheet } from "../../context/TimeSheetContext";
 import { useTheme } from "../../context/ThemeContext";
 
-function Day({ date, isPadded, setSelectedDay }) {
+function Day({ date, isPadded, setSelectedDay, isMonthLocked }) {
     const { getDayData } = useTimeSheet();
     const { isDarkMode } = useTheme();
 
@@ -28,6 +28,9 @@ function Day({ date, isPadded, setSelectedDay }) {
                     <span className="badge bg-success">
                         {totalHours}h
                     </span>
+                )}
+                {isMonthLocked && (
+                    <i className="fas fa-lock text-secondary"></i>
                 )}
             </div>
             {dayEntries.length > 0 && (
