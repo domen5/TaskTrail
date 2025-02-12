@@ -34,9 +34,9 @@ function CalendarToolbar({ setSelectedDay, selectedDay, isMonthLocked }) {
     const handleLockMonth = async () => {
         try {
             await lockMonth(selectedDay.getFullYear(), selectedDay.getMonth());
-            alert('Month locked successfully!');
         } catch (error) {
             alert('Failed to lock the month.');
+            console.error(error);
         }
     };
 
@@ -87,7 +87,7 @@ function CalendarToolbar({ setSelectedDay, selectedDay, isMonthLocked }) {
                     onClick={handleLockMonth}
                     disabled={isMonthLocked}
                 >
-                    {isMonthLocked ? 'Month Locked' : 'Lock Month'}
+                    {isMonthLocked ? <i className="fas fa-lock"></i> : <i className="fas fa-lock-open"></i>} {isMonthLocked ? 'Month Locked' : 'Lock Month'}
                 </button>
                 <button
                     className="btn btn-success"

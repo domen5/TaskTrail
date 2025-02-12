@@ -116,38 +116,41 @@ const updateWorkedHoursApiCall = async (workedHours) => {
 }
 
 const lockMonthApiCall = async (year, month) => {
-    if (!year || !month) {
+    const newMonth = month + 1;
+    if (!year || !newMonth) {
         throw new Error('Missing required parameters');
     }
     if (year < 2000 || year > 2500) {
         throw new Error('Invalid year');
     }
-    if (month < 1 || month > 12) {
+    if (newMonth < 1 || newMonth > 12) {
         throw new Error('Invalid month');
     }
-    const url = `${BACKEND_URL}/api/lock/${year}/${month}`;
+    const url = `${BACKEND_URL}/api/lock/${year}/${newMonth}`;
     const response = await fetch(url, {
         method: 'POST',
         credentials: 'include'
     });
+    const data = await response.json();
     if (!response.ok) {
-        throw new Error('Failed locking month');
+        throw new Error('Failed locking month, response: ' + response.status + ' data: ' + JSON.stringify(data));
     }
-    return await response.json();
+    return data;
 }
 
 const verifyLockedMonthApiCall = async (year, month) => {
-    if (!year || month === undefined || month === null) {
+    const newMonth = month + 1;
+    if (!year || !newMonth) {
         throw new Error('Missing required parameters');
     }
     if (year < 2000 || year > 2500) {
         throw new Error('Invalid year');
     }
-    if (month < 0 || month > 12) {
+    if (newMonth < 1 || newMonth > 12) {
         throw new Error('Invalid month');
     }
 
-    const url = `${BACKEND_URL}/api/lock/${year}/${month}`;
+    const url = `${BACKEND_URL}/api/lock/${year}/${newMonth}`;
     const response = await fetch(url, {
         method: 'GET',
         credentials: 'include'
@@ -155,8 +158,7 @@ const verifyLockedMonthApiCall = async (year, month) => {
     if (!response.ok) {
         throw new Error('Failed verifying locked month');
     }
-    const data = (await response.json()).isLocked;
-    return data;
+    return (await response.json()).isLocked;
 }
 
 export {
