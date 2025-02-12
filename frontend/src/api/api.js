@@ -116,6 +116,15 @@ const updateWorkedHoursApiCall = async (workedHours) => {
 }
 
 const lockMonthApiCall = async (year, month) => {
+    if (!year || !month) {
+        throw new Error('Missing required parameters');
+    }
+    if (year < 2000 || year > 2500) {
+        throw new Error('Invalid year');
+    }
+    if (month < 1 || month > 12) {
+        throw new Error('Invalid month');
+    }
     const url = `${BACKEND_URL}/api/lock/${year}/${month}`;
     const response = await fetch(url, {
         method: 'POST',
@@ -126,10 +135,36 @@ const lockMonthApiCall = async (year, month) => {
     }
     return await response.json();
 }
+
+const verifyLockedMonthApiCall = async (year, month) => {
+    if (!year || month === undefined || month === null) {
+        throw new Error('Missing required parameters');
+    }
+    if (year < 2000 || year > 2500) {
+        throw new Error('Invalid year');
+    }
+    if (month < 0 || month > 12) {
+        throw new Error('Invalid month');
+    }
+
+    const url = `${BACKEND_URL}/api/lock/${year}/${month}`;
+    const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include'
+    });
+    if (!response.ok) {
+        throw new Error('Failed verifying locked month');
+    }
+    const data = (await response.json()).isLocked;
+    console.log(`${year}/${month}: locked = `, data)
+    return data;
+}
+
 export {
     getMonthWorkedHoursApiCall,
     createWorkedHoursApiCall,
     deleteWorkedHoursApiCall,
     updateWorkedHoursApiCall,
-    lockMonthApiCall
+    lockMonthApiCall,
+    verifyLockedMonthApiCall
 };
