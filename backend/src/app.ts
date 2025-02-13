@@ -4,11 +4,15 @@ import userRoutes from './api/userRoutes';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { PORT, FRONTEND_URLS } from "./config"
+import { PORT, FRONTEND_URLS, PRIVATE_KEY_PATH, CERTIFICATE_PATH } from "./config"
 import organizationRoutes from './api/organizationRoutes';
-
+import fs from 'fs';
+import https from 'https';
 async function startServer() {
     await initializeDatabase();
+    const privateKey = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8');
+    const certificate = fs.readFileSync(CERTIFICATE_PATH, 'utf8');
+    const credentials = { key: privateKey, cert: certificate };
 
     const app = express();
     app.use(express.json());
@@ -35,8 +39,9 @@ async function startServer() {
         res.send('Hello, World!');
     });
 
-    app.listen(PORT, () => {
-        console.log(`Server is running on http://localhost:${PORT}`);
+    const httpsServer = https.createServer(credentials, app);
+    httpsServer.listen(3000, () => {
+        console.log(`Server is running on port ${PORT}`);
     });
 
     return app;

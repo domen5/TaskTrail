@@ -35,6 +35,9 @@ services:
       - react-express
       - express-mongodb
     restart: always
+    volumes:
+      - /etc/letsencrypt/live/tasktrail.it/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - /etc/letsencrypt/live/tasktrail.it/privkey.pem:/etc/ssl/private/privkey.pem:ro
     depends_on:
       - mongodb
 
