@@ -171,10 +171,26 @@ export function TimeSheetProvider({ children }) {
         setLockedMonths(prev => ({ ...prev, [`${year}-${month}`]: true }));
 
         try {
-            const response = await lockMonthApiCall(year, month);
+            const response = await lockMonthApiCall(year, month, true);
             return response;
         } catch (error) {
             console.error('Error locking month:', error);
+            // Revert to previous state in case of an error
+            setLockedMonths(previousState);
+            throw error;
+        }
+    };
+
+    const unlockMonth = async (year, month) => {
+        // Optimistically update the state
+        const previousState = { ...lockedMonths };
+        setLockedMonths(prev => ({ ...prev, [`${year}-${month}`]: false }));
+
+        try {
+            const response = await lockMonthApiCall(year, month, false);
+            return response;
+        } catch (error) {
+            console.error('Error unlocking month:', error);
             // Revert to previous state in case of an error
             setLockedMonths(previousState);
             throw error;
@@ -205,6 +221,7 @@ export function TimeSheetProvider({ children }) {
         updateWorkedHours,
         deleteWorkedHours,
         lockMonth,
+        unlockMonth,
         checkAndSetLockedMonth,
         isMonthLocked
     };

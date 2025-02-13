@@ -115,7 +115,7 @@ const updateWorkedHoursApiCall = async (workedHours) => {
     return await response.json();
 }
 
-const lockMonthApiCall = async (year, month) => {
+const lockMonthApiCall = async (year, month, isLocked) => {
     const newMonth = month + 1;
     if (!year || !newMonth) {
         throw new Error('Missing required parameters');
@@ -126,9 +126,19 @@ const lockMonthApiCall = async (year, month) => {
     if (newMonth < 1 || newMonth > 12) {
         throw new Error('Invalid month');
     }
-    const url = `${BACKEND_URL}/api/lock/${year}/${newMonth}`;
+    // const url = `${BACKEND_URL}/api/lock/${year}/${newMonth}`;
+    const url = `${BACKEND_URL}/api/month`;
     const response = await fetch(url, {
         method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            year: year,
+            month: newMonth,
+            isLocked: isLocked
+        }),
         credentials: 'include'
     });
     const data = await response.json();
