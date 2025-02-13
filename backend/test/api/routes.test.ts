@@ -532,7 +532,7 @@ describe('API Tests', () => {
             const response = await supertest(app)
                 .post('/api/month')
                 .set('Cookie', `token=${token}`)
-                .send({ year: 2024, month: 3, isLocked: 'true' })
+                .send({ year: 2024, month: 3, isLocked: true })
                 .expect(200);
 
             expect(response.body).to.have.property('message', 'Month locked successfully');
@@ -552,14 +552,14 @@ describe('API Tests', () => {
             await supertest(app)
                 .post('/api/month')
                 .set('Cookie', `token=${token}`)
-                .send({ year: 2024, month: 3, isLocked: 'true' })
+                .send({ year: 2024, month: 3, isLocked: true })
                 .expect(200);
 
             // Then unlock the month
             const response = await supertest(app)
                 .post('/api/month')
                 .set('Cookie', `token=${token}`)
-                .send({ year: 2024, month: 3, isLocked: 'false' })
+                .send({ year: 2024, month: 3, isLocked: false })
                 .expect(200);
 
             expect(response.body).to.have.property('message', 'Month unlocked successfully');

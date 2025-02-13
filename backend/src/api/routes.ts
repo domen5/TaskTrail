@@ -179,17 +179,20 @@ routes.post('/month', verifyToken, async (req: AuthRequest, res) => {
             return;
         }
 
-        const isLockedBool = isLocked === 'true';
+        if (typeof isLocked !== 'boolean') {
+            res.status(400).json({ message: 'isLocked must be a boolean' });
+            return;
+        }
 
         await setLockedMonth(
             new Types.ObjectId(req.user._id),
             yearNum,
             monthNum,
             new Types.ObjectId(req.user._id),
-            isLockedBool
+            isLocked
         );
 
-        if (isLockedBool) {
+        if (isLocked) {
             res.status(200).json({ message: 'Month locked successfully' });
         } else {
             res.status(200).json({ message: 'Month unlocked successfully' });
