@@ -1,8 +1,7 @@
-import React from 'react';
 import { useTimeSheet } from '../../context/TimeSheetContext';
 
-function CalendarToolbar({ setSelectedDay, selectedDay }) {
-    const { getMonthData } = useTimeSheet();
+function CalendarToolbar({ setSelectedDay, selectedDay, isMonthLocked }) {
+    const { getMonthData, lockMonth, unlockMonth, isMonthLocked: contextIsMonthLocked } = useTimeSheet();
     // TODO: add the possibility to choose a different delimiter
     const separator = ';';
 
@@ -31,6 +30,19 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
         return [headers.join(separator), ...rows].join('\n');
     }
 
+    const handleToggleLockMonth = async () => {
+        try {
+            if (contextIsMonthLocked(selectedDay.getFullYear(), selectedDay.getMonth())) {
+                await unlockMonth(selectedDay.getFullYear(), selectedDay.getMonth());
+            } else {
+                await lockMonth(selectedDay.getFullYear(), selectedDay.getMonth());
+            }
+        } catch (error) {
+            console.error('Failed to toggle month lock:', error);
+            alert('Failed to toggle month lock.');
+        }
+    };
+
     const handleExport = async () => {
         let monthData = await getMonthData(selectedDay.getFullYear(), selectedDay.getMonth());
         if (Object.keys(monthData).length === 0) {
@@ -38,9 +50,8 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
             return;
         }
 
-        // Convert monthData to a flat array
         const flatMonthData = Object.values(monthData).flat();
-        
+
         const csvConvertedData = convertToCsv(flatMonthData, separator);
         const blob = new Blob([csvConvertedData], { type: 'text/csv;charset=utf-8,' });
 
@@ -54,14 +65,14 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
         link.setAttribute('download', filename);
         link.style.display = 'none'; // Hide the link
         document.body.appendChild(link);
-        // link.click(); // disabled for development
+        link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
     };
 
     return (
         <div>
-            <div className="button-group" style={{ justifyContent: 'start', marginLeft: '1ex' }}>
+            <div className="button-group" style={{ justifyContent: 'start' }}>
                 <button
                     className="btn btn-success"
                     onClick={handlePrevMonth}
@@ -73,6 +84,12 @@ function CalendarToolbar({ setSelectedDay, selectedDay }) {
                     onClick={handleNextMonth}
                 >
                     Next Month {'>'}
+                </button>
+                <button
+                    className="btn btn-success"
+                    onClick={handleToggleLockMonth}
+                >
+                    {contextIsMonthLocked(selectedDay.getFullYear(), selectedDay.getMonth()) ? <i className="fas fa-lock-open" /> : <i className="fas fa-lock" />} {contextIsMonthLocked(selectedDay.getFullYear(), selectedDay.getMonth()) ? 'Unlock Month' : 'Lock Month'}
                 </button>
                 <button
                     className="btn btn-success"

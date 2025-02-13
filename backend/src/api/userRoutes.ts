@@ -1,23 +1,59 @@
 import express, { Request, Response } from "express";
-import { registerUser, retrieveUser } from "../db/userStore";
+import { registerUser, retrieveOrganization, retrieveUser } from "../db/userStore";
 import bcrypt from 'bcrypt';
 import { JWT_SECRET } from "../config";
 import { makeToken, verifyToken } from "../utils/auth";
 import { incrementTokenVersion, addToBlacklist, getTokenVersion } from '../db/tokenStore';
 import { TokenVersion } from '../db/tokenStore';
-
-// TODO: Implement CustomRequest to avoid typecasting
-// TODO: add expirty date to the httpOnly cookie
+import { Types } from "mongoose";
 
 const routes = express.Router();
 const TOKEN_EXPIRY = 30 * 60 * 1000; // 30 minutes
+
 routes.post('/register', async (req: Request, res: Response) => {
     try {
-        const { username, password } = req.body;
-        await registerUser({ username, password });
-        res.status(201).send({ message: 'User registered successfully' });
+        const { username, password, organizationId, role } = req.body;
+        
+        if (!username || !password || !organizationId || !role) {
+            res.status(400).json({ 
+                message: 'Missing required fields',
+                details: {
+                    username: !username ? 'Username is required' : null,
+                    password: !password ? 'Password is required' : null,
+                    organizationId: !organizationId ? 'Organization ID is required' : null,
+                    role: !role ? 'Role is required' : null
+                }
+            });
+            return;
+        }
+
+        let orgId;
+        try {
+            orgId = Types.ObjectId.createFromHexString(organizationId);
+        } catch (err) {
+            res.status(400).json({ message: 'Invalid organization ID format' });
+            return;
+        }
+
+        const organization = await retrieveOrganization(orgId);
+        if (!organization) {
+            res.status(404).json({ message: 'Organization not found' });
+            return;
+        }
+
+        try {
+            await registerUser({ username, password, organization: organization._id, role });
+            res.status(201).json({ message: 'User registered successfully' });
+        } catch (err: any) {
+            if (err.code === 11000 || err.name === 'ValidationError') {
+                res.status(400).json({ message: 'Invalid registration data' });
+            } else {
+                throw err;
+            }
+        }
     } catch (err) {
-        res.status(500).send({ message: 'Something went wrong' });
+        console.error('Error registering user:', err);
+        res.status(500).json({ message: 'Something went wrong' });
     }
 });
 
@@ -29,7 +65,7 @@ routes.post('/login', async (req: Request, res: Response) => {
         }
         const { username, password } = req.body;
 
-        const foundUser = await retrieveUser({ username, password });
+        const foundUser = await retrieveUser(username);
         if (!foundUser) {
             res.status(401).send({ message: 'Invalid username or password' });
             return;

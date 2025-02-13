@@ -19,7 +19,6 @@ const loginApiCall = async (username, password) => {
     }
 
     const data = await response.json();
-    console.log('Login response:', data);
     return data;
 };
 

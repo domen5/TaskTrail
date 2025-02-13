@@ -115,9 +115,67 @@ const updateWorkedHoursApiCall = async (workedHours) => {
     return await response.json();
 }
 
+const lockMonthApiCall = async (year, month, isLocked) => {
+    const newMonth = month + 1;
+    if (!year || !newMonth) {
+        throw new Error('Missing required parameters');
+    }
+    if (year < 2000 || year > 2500) {
+        throw new Error('Invalid year');
+    }
+    if (newMonth < 1 || newMonth > 12) {
+        throw new Error('Invalid month');
+    }
+    // const url = `${BACKEND_URL}/api/lock/${year}/${newMonth}`;
+    const url = `${BACKEND_URL}/api/month`;
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            year: year,
+            month: newMonth,
+            isLocked: isLocked
+        }),
+        credentials: 'include'
+    });
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error('Failed locking month, response: ' + response.status + ' data: ' + JSON.stringify(data));
+    }
+    return data;
+}
+
+const verifyLockedMonthApiCall = async (year, month) => {
+    const newMonth = month + 1;
+    if (!year || !newMonth) {
+        throw new Error('Missing required parameters');
+    }
+    if (year < 2000 || year > 2500) {
+        throw new Error('Invalid year');
+    }
+    if (newMonth < 1 || newMonth > 12) {
+        throw new Error('Invalid month');
+    }
+
+    const url = `${BACKEND_URL}/api/lock/${year}/${newMonth}`;
+    const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include'
+    });
+    if (!response.ok) {
+        throw new Error('Failed verifying locked month');
+    }
+    return (await response.json()).isLocked;
+}
+
 export {
     getMonthWorkedHoursApiCall,
     createWorkedHoursApiCall,
     deleteWorkedHoursApiCall,
-    updateWorkedHoursApiCall
+    updateWorkedHoursApiCall,
+    lockMonthApiCall,
+    verifyLockedMonthApiCall
 };

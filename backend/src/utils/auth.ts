@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Response, NextFunction } from 'express';
 import { JWT_SECRET } from '../config';
-import { addToBlacklist, isTokenBlacklisted, getTokenVersion } from '../db/tokenStore';
+import { isTokenBlacklisted, getTokenVersion } from '../db/tokenStore';
 import { AuthRequest } from '../types/auth';
 
 interface JwtTokenArgs {

@@ -2,7 +2,7 @@ import "./Day.css";
 import { useTimeSheet } from "../../context/TimeSheetContext";
 import { useTheme } from "../../context/ThemeContext";
 
-function Day({ date, isPadded, setSelectedDay }) {
+function Day({ date, isPadded, setSelectedDay, isMonthLocked }) {
     const { getDayData } = useTimeSheet();
     const { isDarkMode } = useTheme();
 
@@ -29,12 +29,19 @@ function Day({ date, isPadded, setSelectedDay }) {
                         {totalHours}h
                     </span>
                 )}
+                {isMonthLocked && (
+                    <i className="fas fa-lock text-secondary"></i>
+                )}
             </div>
             {dayEntries.length > 0 && (
                 <div className="calendar-day-entries flex-grow-1 px-2 overflow-auto" style={{height: "100px"}}>
                     {dayEntries.map((entry, index) => (
                         <div key={index} 
-                            className={`p-2 mb-2 rounded border-start border-3 ${isDarkMode ? 'bg-dark-subtle border-success text-light' : 'bg-light border-success'}`}
+                            className={`p-2 mb-2 rounded border-start border-3 ${
+                                isDarkMode 
+                                    ? entry.overtime ? 'bg-danger-subtle text-light border-danger' : 'bg-dark-subtle text-light border-success'
+                                    : entry.overtime ? 'bg-danger-subtle border-danger' : 'bg-light border-success'
+                            }`}
                         >
                             <div className="d-flex justify-content-between align-items-center">
                                 <div className="text-truncate me-2 fw-bold" title={entry.project}>

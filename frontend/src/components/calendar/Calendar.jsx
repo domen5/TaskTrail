@@ -26,17 +26,24 @@ function Calendar() {
     const [showEditForm, setShowEditForm] = useState(false);
     const [editWorkedHours, setEditWorkedHours] = useState(null);
     const { isDarkMode } = useTheme();
-    const { getMonthData } = useTimeSheet();
+    const { getMonthData, isMonthLocked, checkAndSetLockedMonth } = useTimeSheet();
+    const [selectedMonth, setSelectedMonth] = useState(selectedDay.getMonth());
+    const [selectedYear, setSelectedYear] = useState(selectedDay.getFullYear());
 
-    // Wrap setSelectedDay to ensure dates are always normalized
     const handleSetSelectedDay = (date) => {
         setSelectedDay(normalizeDate(date));
     };
 
-    // useEffect will trigger a the fetch of new data from the backend when the month of selectedDay changes 
+    useEffect(() => {
+        setSelectedMonth(selectedDay.getMonth());
+        setSelectedYear(selectedDay.getFullYear());
+    }, [selectedDay]);
+
     useEffect(() => {
         fetchMonthsData(selectedDay);
-    }, [selectedDay.getMonth(), selectedDay.getFullYear()]);
+    }, [selectedMonth, selectedYear]);
+
+    const isMonthLockedStatus = isMonthLocked(selectedDay.getFullYear(), selectedDay.getMonth());
 
     const handleClickAddForm = () => setShowAddForm(true);
     const handleCloseAddForm = () => setShowAddForm(false);
@@ -53,8 +60,11 @@ function Calendar() {
 
         const fetchPromises = [
             getMonthData(prevMonth.getFullYear(), prevMonth.getMonth()),
+            checkAndSetLockedMonth(prevMonth.getFullYear(), prevMonth.getMonth()),
             getMonthData(date.getFullYear(), date.getMonth()),
-            getMonthData(nextMonth.getFullYear(), nextMonth.getMonth())
+            checkAndSetLockedMonth(date.getFullYear(), date.getMonth()),
+            getMonthData(nextMonth.getFullYear(), nextMonth.getMonth()),
+            checkAndSetLockedMonth(nextMonth.getFullYear(), nextMonth.getMonth())
         ];
 
         await Promise.all(fetchPromises);
@@ -106,9 +116,14 @@ function Calendar() {
                 <div className="col-12">
                     <h2 className="display-6 text-capitalize mb-3 px-3 px-md-0">
                         {selectedDay.toLocaleString('default', { month: 'long' }) + ' ' + selectedDay.getFullYear()}
+                        {isMonthLockedStatus && <i className="fas fa-lock" style={{ marginLeft: '10px' }}></i>}
                     </h2>
                     <div className="px-3 px-md-0">
-                        <CalendarToolbar setSelectedDay={handleSetSelectedDay} selectedDay={selectedDay} />
+                        <CalendarToolbar 
+                            setSelectedDay={handleSetSelectedDay} 
+                            selectedDay={selectedDay} 
+                            isMonthLocked={isMonthLockedStatus}
+                        />
                     </div>
                 </div>
 
@@ -118,6 +133,7 @@ function Calendar() {
                             handleClickAddForm={handleClickAddForm}
                             handleClickEditForm={handleClickEditForm}
                             date={selectedDay}
+                            isMonthLocked={isMonthLockedStatus}
                         />
                     </div>
                 </div>
@@ -150,6 +166,7 @@ function Calendar() {
                                                         date={date}
                                                         isPadded={isPadded}
                                                         setSelectedDay={handleSetSelectedDay}
+                                                        isMonthLocked={isMonthLockedStatus}
                                                     />
                                                 </td>
                                             );
