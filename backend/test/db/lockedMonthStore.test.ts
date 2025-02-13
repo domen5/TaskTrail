@@ -1,7 +1,7 @@
 import 'mocha';
 import { expect } from 'chai';
 import { Types } from 'mongoose';
-import { lockMonth, isMonthLocked } from '../../src/db/lockedMonthStore';
+import { setLockedMonth, isMonthLocked } from '../../src/db/lockedMonthStore';
 import { LockedMonthModel } from '../../src/models/LockedMonth';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 import { InputError } from '../../src/utils/errors';
@@ -38,39 +38,46 @@ describe('LockedMonthStore Tests', () => {
         });
     });
 
-    describe('lockMonth', () => {
+    describe('setLockedMonth', () => {
         it('should successfully lock a month', async () => {
             const year = 2024;
             const month = 3;
 
-            const result = await lockMonth(userId, year, month, accountantId);
+            await setLockedMonth(userId, year, month, accountantId, true);
+
+            const result = await LockedMonthModel.findOne({ userId, year, month });
 
             expect(result).to.have.property('userId').that.deep.equals(userId);
             expect(result).to.have.property('year', year);
             expect(result).to.have.property('month', month);
             expect(result).to.have.property('lockedBy').that.deep.equals(accountantId);
-            expect(result).to.have.property('createdAt');
-            expect(result).to.have.property('updatedAt');
         });
 
-        it('should throw error when trying to lock the same month twice', async () => {
+        it('should not throw error when trying to lock the same month twice', async () => {
             const year = 2024;
             const month = 3;
 
-            await lockMonth(userId, year, month, accountantId);
+            await setLockedMonth(userId, year, month, accountantId, true);
+            await setLockedMonth(userId, year, month, accountantId, true);
 
-            try {
-                await lockMonth(userId, year, month, accountantId);
-                expect.fail('Should have thrown an error');
-            } catch (err) {
-                expect(err).to.be.instanceOf(InputError);
-                expect(err.message).to.equal('This month is already locked');
-            }
+            const result = await LockedMonthModel.findOne({ userId, year, month });
+            expect(result).to.not.be.null;
+        });
+
+        it('should unlock a locked month', async () => {
+            const year = 2024;
+            const month = 3;
+
+            await setLockedMonth(userId, year, month, accountantId, true);
+            await setLockedMonth(userId, year, month, accountantId, false);
+
+            const result = await LockedMonthModel.findOne({ userId, year, month });
+            expect(result).to.be.null;
         });
 
         it('should throw error for invalid month', async () => {
             try {
-                await lockMonth(userId, 2024, 13, accountantId);
+                await setLockedMonth(userId, 2024, 13, accountantId, true);
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
@@ -80,7 +87,7 @@ describe('LockedMonthStore Tests', () => {
 
         it('should throw error for invalid year', async () => {
             try {
-                await lockMonth(userId, 800, 3, accountantId);
+                await setLockedMonth(userId, 800, 3, accountantId, true);
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
@@ -93,11 +100,11 @@ describe('LockedMonthStore Tests', () => {
             const futureYear = currentDate.getFullYear() + 1;
 
             try {
-                await lockMonth(userId, futureYear, 1, accountantId);
+                await setLockedMonth(userId, futureYear, 1, accountantId, true);
                 expect.fail('Should have thrown an error');
             } catch (err) {
                 expect(err).to.be.instanceOf(InputError);
-                expect(err.message).to.equal('Cannot lock future months');
+                expect(err.message).to.equal('Cannot lock or unlock future months');
             }
         });
     });
@@ -107,7 +114,7 @@ describe('LockedMonthStore Tests', () => {
             const year = 2024;
             const month = 3;
 
-            await lockMonth(userId, year, month, accountantId);
+            await setLockedMonth(userId, year, month, accountantId, true);
 
             const result = await isMonthLocked(userId, year, month);
             expect(result).to.be.true;
@@ -123,7 +130,7 @@ describe('LockedMonthStore Tests', () => {
             const month = 3;
             const differentUserId = new Types.ObjectId();
 
-            await lockMonth(userId, year, month, accountantId);
+            await setLockedMonth(userId, year, month, accountantId, true);
 
             const result = await isMonthLocked(differentUserId, year, month);
             expect(result).to.be.false;

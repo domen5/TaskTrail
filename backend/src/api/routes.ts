@@ -5,8 +5,7 @@ import { InputError } from '../utils/errors';
 import { verifyToken } from '../utils/auth';
 import { Types } from 'mongoose';
 import { AuthRequest } from '../types/auth';
-import { isMonthLocked, lockMonth } from '../db/lockedMonthStore';
-import { UserModel } from '../models/User';
+import { isMonthLocked, setLockedMonth } from '../db/lockedMonthStore';
 
 const routes = express.Router();
 
@@ -134,13 +133,13 @@ routes.post('/lock/:year/:month', verifyToken, async (req: AuthRequest, res) => 
         //     return;
         // }
 
-        await lockMonth(
+        await setLockedMonth(
             new Types.ObjectId(req.user._id),
             yearNum,
             monthNum,
-            new Types.ObjectId(req.user._id)
+            new Types.ObjectId(req.user._id),
+            true
         );
-
         res.status(200).json({ message: 'Month locked successfully' });
     } catch (err) {
         if (err instanceof InputError) {

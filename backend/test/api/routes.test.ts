@@ -513,23 +513,6 @@ describe('API Tests', () => {
             expect(response.body).to.have.property('message', 'Access Denied: No Token Provided!');
         });
 
-        it('should return 400 when trying to lock the same month twice', async function() {
-            this.timeout(10000); // Set timeout to 10 seconds
-            // First lock
-            await supertest(app)
-                .post('/api/lock/2024/3')
-                .set('Cookie', `token=${token}`)
-                .expect(200);
-
-            // Try to lock again
-            const response = await supertest(app)
-                .post('/api/lock/2024/3')
-                .set('Cookie', `token=${token}`)
-                .expect(400);
-
-            expect(response.body).to.have.property('message', 'This month is already locked');
-        });
-
         it('should return 400 when trying to lock a future month', async function() {
             this.timeout(10000); // Set timeout to 10 seconds
             const currentDate = new Date();
@@ -540,7 +523,7 @@ describe('API Tests', () => {
                 .set('Cookie', `token=${token}`)
                 .expect(400);
 
-            expect(response.body).to.have.property('message', 'Cannot lock future months');
+            expect(response.body).to.have.property('message', 'Cannot lock or unlock future months');
         });
     });
 });
