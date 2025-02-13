@@ -40,6 +40,9 @@ const setLockedMonth = async (userId: Types.ObjectId, year: number, month: numbe
                 month,
                 lockedBy
             });
+        } else {
+            existingLockedMonth.lockedBy = lockedBy;
+            await existingLockedMonth.save();
         }
     } else {
         if (existingLockedMonth) {

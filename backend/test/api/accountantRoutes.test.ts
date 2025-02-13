@@ -92,6 +92,20 @@ describe('Accountant Routes Tests', () => {
             expect(lock?.lockedBy.toString()).to.equal(accountantId);
         });
 
+        it('should not throw error when locking the same month twice', async () => {
+            await supertest(app)
+                .post(`/api/accountant/2024/3/${regularUserId}/lock`)
+                .set('Cookie', [`token=${accountantToken}`])
+                .expect(200);
+
+            const response = await supertest(app)
+                .post(`/api/accountant/2024/3/${regularUserId}/lock`)
+                .set('Cookie', [`token=${accountantToken}`])
+                .expect(200);
+
+            expect(response.body).to.have.property('message', 'Month locked successfully');
+        });
+
         it('should return 400 for invalid year/month', async () => {
             const response = await supertest(app)
                 .post(`/api/accountant/2024/13/${regularUserId}/lock`)
@@ -149,20 +163,6 @@ describe('Accountant Routes Tests', () => {
             expect(response.body).to.have.property('message', 'Access Denied: You are not authorized to perform this action');
         });
 
-        it('should return 400 when trying to lock the same month twice', async () => {
-            await supertest(app)
-                .post(`/api/accountant/2024/3/${regularUserId}/lock`)
-                .set('Cookie', [`token=${accountantToken}`])
-                .expect(200);
-
-            const response = await supertest(app)
-                .post(`/api/accountant/2024/3/${regularUserId}/lock`)
-                .set('Cookie', [`token=${accountantToken}`])
-                .expect(400);
-
-            expect(response.body).to.have.property('message', 'This month is already locked');
-        });
-
         it('should return 400 when trying to lock a future month', async () => {
             const currentDate = new Date();
             const futureYear = currentDate.getFullYear() + 1;
@@ -172,7 +172,7 @@ describe('Accountant Routes Tests', () => {
                 .set('Cookie', [`token=${accountantToken}`])
                 .expect(400);
 
-            expect(response.body).to.have.property('message', 'Cannot lock future months');
+            expect(response.body).to.have.property('message', 'Cannot lock or unlock future months');
         });
     });
 });

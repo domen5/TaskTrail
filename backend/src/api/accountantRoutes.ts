@@ -3,7 +3,7 @@ import { verifyToken } from '../utils/auth';
 import { AuthRequest } from '../types/auth';
 import { Types } from 'mongoose';
 import { UserModel } from '../models/User';
-import { lockMonth } from '../db/lockedMonthStore';
+import { setLockedMonth } from '../db/lockedMonthStore';
 import { InputError } from '../utils/errors';
 
 const routes = express.Router();
@@ -48,11 +48,12 @@ routes.post('/:year/:month/:userId/lock', verifyToken, async (req: AuthRequest, 
             return;
         }
 
-        await lockMonth(
+        await setLockedMonth(
             user._id,
             yearNum,
             monthNum,
-            accountant._id
+            accountant._id,
+            true
         );
 
         res.status(200).json({ message: 'Month locked successfully' });
