@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
 import { useTimeSheet } from '../../context/TimeSheetContext';
 
 function CalendarToolbar({ setSelectedDay, selectedDay, isMonthLocked }) {
-    const { getMonthData, lockMonth } = useTimeSheet();
+    const { getMonthData, lockMonth, unlockMonth, isMonthLocked: contextIsMonthLocked } = useTimeSheet();
     // TODO: add the possibility to choose a different delimiter
     const separator = ';';
 
@@ -31,12 +30,16 @@ function CalendarToolbar({ setSelectedDay, selectedDay, isMonthLocked }) {
         return [headers.join(separator), ...rows].join('\n');
     }
 
-    const handleLockMonth = async () => {
+    const handleToggleLockMonth = async () => {
         try {
-            await lockMonth(selectedDay.getFullYear(), selectedDay.getMonth());
+            if (contextIsMonthLocked(selectedDay.getFullYear(), selectedDay.getMonth())) {
+                await unlockMonth(selectedDay.getFullYear(), selectedDay.getMonth());
+            } else {
+                await lockMonth(selectedDay.getFullYear(), selectedDay.getMonth());
+            }
         } catch (error) {
-            alert('Failed to lock the month.');
-            console.error(error);
+            console.error('Failed to toggle month lock:', error);
+            alert('Failed to toggle month lock.');
         }
     };
 
@@ -84,10 +87,9 @@ function CalendarToolbar({ setSelectedDay, selectedDay, isMonthLocked }) {
                 </button>
                 <button
                     className="btn btn-success"
-                    onClick={handleLockMonth}
-                    disabled={isMonthLocked}
+                    onClick={handleToggleLockMonth}
                 >
-                    {isMonthLocked ? <i className="fas fa-lock"></i> : <i className="fas fa-lock-open"></i>} {isMonthLocked ? 'Month Locked' : 'Lock Month'}
+                    {contextIsMonthLocked(selectedDay.getFullYear(), selectedDay.getMonth()) ? <i className="fas fa-lock-open" /> : <i className="fas fa-lock" />} {contextIsMonthLocked(selectedDay.getFullYear(), selectedDay.getMonth()) ? 'Unlock Month' : 'Lock Month'}
                 </button>
                 <button
                     className="btn btn-success"
