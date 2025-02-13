@@ -37,9 +37,9 @@ routes.get('/worked-hours/:year/:month/:day', verifyToken, async (req: AuthReque
     const { year, month, day } = req.params;
     try {
         const data = await getWorkedHours(
-            parseInt(year), 
-            parseInt(month), 
-            parseInt(day), 
+            parseInt(year),
+            parseInt(month),
+            parseInt(day),
             new Types.ObjectId(req.user._id)
         );
         res.status(200).json(data);
@@ -95,8 +95,8 @@ routes.get('/worked-hours/:year/:month/', verifyToken, async (req: AuthRequest, 
     const { year, month } = req.params;
     try {
         const data = await getMonthWorkedHours(
-            parseInt(year), 
-            parseInt(month), 
+            parseInt(year),
+            parseInt(month),
             new Types.ObjectId(req.user._id)
         );
         res.status(200).json(data);
@@ -141,6 +141,59 @@ routes.post('/lock/:year/:month', verifyToken, async (req: AuthRequest, res) => 
             true
         );
         res.status(200).json({ message: 'Month locked successfully' });
+    } catch (err) {
+        if (err instanceof InputError) {
+            res.status(400).json({ message: err.message });
+            return;
+        }
+        console.error('Error locking month:', err);
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+});
+
+// WRITE LockedMonth
+routes.post('/month', verifyToken, async (req: AuthRequest, res) => {
+    try {
+        const { year, month, isLocked } = req.body;
+
+        if (!year || !month || isLocked === undefined) {
+            res.status(400).json({ message: 'Missing required parameters: year, month, and isLocked are required' });
+            return;
+        }
+
+        const yearNum = parseInt(year);
+        const monthNum = parseInt(month);
+
+        if (isNaN(yearNum) || isNaN(monthNum)) {
+            res.status(400).json({ message: 'Year and month must be valid numbers' });
+            return;
+        }
+
+        if (monthNum < 1 || monthNum > 12) {
+            res.status(400).json({ message: 'Month must be between 1 and 12' });
+            return;
+        }
+
+        if (yearNum < 1900 || yearNum > 9999) {
+            res.status(400).json({ message: 'Year must be between 1900 and 9999' });
+            return;
+        }
+
+        const isLockedBool = isLocked === 'true';
+
+        await setLockedMonth(
+            new Types.ObjectId(req.user._id),
+            yearNum,
+            monthNum,
+            new Types.ObjectId(req.user._id),
+            isLockedBool
+        );
+
+        if (isLockedBool) {
+            res.status(200).json({ message: 'Month locked successfully' });
+        } else {
+            res.status(200).json({ message: 'Month unlocked successfully' });
+        }
     } catch (err) {
         if (err instanceof InputError) {
             res.status(400).json({ message: err.message });

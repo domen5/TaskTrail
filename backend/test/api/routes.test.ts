@@ -526,4 +526,81 @@ describe('API Tests', () => {
             expect(response.body).to.have.property('message', 'Cannot lock or unlock future months');
         });
     });
+
+    describe('POST /month', () => {
+        it('should lock a month successfully', async () => {
+            const response = await supertest(app)
+                .post('/api/month')
+                .set('Cookie', `token=${token}`)
+                .send({ year: 2024, month: 3, isLocked: 'true' })
+                .expect(200);
+
+            expect(response.body).to.have.property('message', 'Month locked successfully');
+
+            const lock = await LockedMonthModel.findOne({
+                userId: testUserId,
+                year: 2024,
+                month: 3
+            });
+
+            expect(lock).to.exist;
+            expect(lock?.lockedBy.toString()).to.equal(testUserId);
+        });
+
+        it('should unlock a month successfully', async () => {
+            // First lock the month
+            await supertest(app)
+                .post('/api/month')
+                .set('Cookie', `token=${token}`)
+                .send({ year: 2024, month: 3, isLocked: 'true' })
+                .expect(200);
+
+            // Then unlock the month
+            const response = await supertest(app)
+                .post('/api/month')
+                .set('Cookie', `token=${token}`)
+                .send({ year: 2024, month: 3, isLocked: 'false' })
+                .expect(200);
+
+            expect(response.body).to.have.property('message', 'Month unlocked successfully');
+
+            const lock = await LockedMonthModel.findOne({
+                userId: testUserId,
+                year: 2024,
+                month: 3
+            });
+
+            expect(lock).to.be.null;
+        });
+
+        it('should return 400 for missing parameters', async () => {
+            const response = await supertest(app)
+                .post('/api/month')
+                .set('Cookie', `token=${token}`)
+                .send({})
+                .expect(400);
+
+            expect(response.body).to.have.property('message', 'Missing required parameters: year, month, and isLocked are required');
+        });
+
+        it('should return 400 for invalid year/month', async () => {
+            const response = await supertest(app)
+                .post('/api/month')
+                .set('Cookie', `token=${token}`)
+                .send({ year: 2024, month: 13, isLocked: 'true' })
+                .expect(400);
+
+            expect(response.body).to.have.property('message', 'Month must be between 1 and 12');
+        });
+
+        it('should return 400 for invalid year range', async () => {
+            const response = await supertest(app)
+                .post('/api/month')
+                .set('Cookie', `token=${token}`)
+                .send({ year: 1800, month: 3, isLocked: 'true' })
+                .expect(400);
+
+            expect(response.body).to.have.property('message', 'Year must be between 1900 and 9999');
+        });
+    });
 });
