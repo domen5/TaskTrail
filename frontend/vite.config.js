@@ -1,6 +1,5 @@
 import { defineConfig as viteDefineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig as vitestDefineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default viteDefineConfig({
@@ -9,5 +8,8 @@ export default viteDefineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './test/setup.js',
+    coverage: {
+      provider: 'v8'
+    },
   },
 })
