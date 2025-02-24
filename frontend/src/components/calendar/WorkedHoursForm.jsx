@@ -73,32 +73,35 @@ function WorkedHoursForm({
             </div>
 
             <div className="mb-3">
-                <label className="form-label d-block">Overtime:</label>
-                <div className="d-flex gap-3">
-                    <div className="form-check">
-                        <input
-                            className="form-check-input"
-                            type="radio"
-                            name="inlineRadioOptions"
-                            id="inlineRadio1"
-                            value="option1"
-                            defaultChecked={defaultOvertime}
-                        />
-                        <label className="form-check-label" htmlFor="inlineRadio1">Yes</label>
+                <fieldset className="border-0 p-0">
+                    <legend className="form-label mb-2">Overtime:</legend>
+                    <div className="d-flex gap-3">
+                        <div className="form-check">
+                            <input
+                                className="form-check-input"
+                                type="radio"
+                                name="overtime"
+                                id="overtimeYes"
+                                value="yes"
+                                defaultChecked={defaultOvertime}
+                            />
+                            <label className="form-check-label" htmlFor="overtimeYes">Yes</label>
+                        </div>
+                        <div className="form-check">
+                            <input
+                                className="form-check-input"
+                                type="radio"
+                                name="overtime"
+                                id="overtimeNo"
+                                value="no"
+                                defaultChecked={!defaultOvertime}
+                            />
+                            <label className="form-check-label" htmlFor="overtimeNo">No</label>
+                        </div>
                     </div>
-                    <div className="form-check">
-                        <input
-                            className="form-check-input"
-                            type="radio"
-                            name="inlineRadioOptions"
-                            id="inlineRadio2"
-                            value="option2"
-                            defaultChecked={!defaultOvertime}
-                        />
-                        <label className="form-check-label" htmlFor="inlineRadio2">No</label>
-                    </div>
-                </div>
+                </fieldset>
             </div>
+
 
             <div className="button-group">
                 <button type="button" className="btn btn-danger" onClick={onClose}>Cancel</button>
