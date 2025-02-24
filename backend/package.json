@@ -42,7 +42,7 @@
     "mongodb-memory-server": "^9.1.6",
     "sinon": "^19.0.2",
     "supertest": "^6.3.4",
-    "tsx": "^4.19.2",
+    "tsx": "^4.19.3",
     "typescript": "^5.7.3"
   }
 }
