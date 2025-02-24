@@ -5,10 +5,8 @@ import { loginApiCall } from "../api/auth";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from "../context/AuthContext";
 
-function Login({ onClose }) {
+function Login({ onClose, defaultRedirect = '/home' }) {
     const { login } = useContext(AuthContext);
-    // Temporarily disable email validation
-    // const [isEmailValid, setIsEmailValid] = useState(false);
     const [isPasswordNotEmpty, setIsPasswordNotEmpty] = useState(false);
     const [isUsernameNotEmpty, setIsUsernameNotEmpty] = useState(false);
     const navigate = useNavigate();
@@ -16,7 +14,6 @@ function Login({ onClose }) {
 
     const title = 'Login';
     const [formData, setFormData] = useState({
-        // emailAddress: '',
         username: '',
         inputPassword: ''
     });
@@ -28,10 +25,6 @@ function Login({ onClose }) {
             [id]: value
         }));
 
-        // TODO: Add email validation
-        // if (id === 'emailAddress') {
-        //     setIsEmailValid(validateEmail(value));
-        // }
         if (id === 'inputPassword') {
             // TODO: Add password validation with at least 8 characters and two of the following: uppercase letters, lowercase letters, numbers, and symbols
             setIsPasswordNotEmpty(value.trim() !== '');
@@ -45,9 +38,9 @@ function Login({ onClose }) {
         e.preventDefault();
         try {
             await login(formData.username, formData.inputPassword);
-            // Redirect to the intended route or default to home
-            const from = location.state?.from?.pathname || '/';
-            navigate(from);
+            // Use the intended route from location state or fall back to defaultRedirect
+            const redirectTo = location.state?.from?.pathname ?? defaultRedirect;
+            navigate(redirectTo);
         } catch (error) {
             console.error('Login failed:', error);
         }
@@ -57,15 +50,6 @@ function Login({ onClose }) {
         <Modal title={title} onClose={onClose}>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    {/* <label htmlFor="emailAddress" className="form-label">Email address</label>
-                    <input
-                        type="email"
-                        className="form-control"
-                        id="emailAddress"
-                        placeholder="name@example.com"
-                        value={formData.emailAddress}
-                        onChange={handleChange}
-                    /> */}
                     <label htmlFor="username" className="form-label">Username</label>
                     <input
                         type="text"

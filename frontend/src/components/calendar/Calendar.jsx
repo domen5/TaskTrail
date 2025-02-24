@@ -116,7 +116,7 @@ function Calendar() {
                 <div className="col-12">
                     <h2 className="display-6 text-capitalize mb-3 px-3 px-md-0">
                         {selectedDay.toLocaleString('default', { month: 'long' }) + ' ' + selectedDay.getFullYear()}
-                        {isMonthLockedStatus && <i className="fas fa-lock" style={{ marginLeft: '10px' }}></i>}
+                        {isMonthLockedStatus && <i id="month-lock-icon" className="fas fa-lock" style={{ marginLeft: '10px' }}></i>}
                     </h2>
                     <div className="px-3 px-md-0">
                         <CalendarToolbar 
