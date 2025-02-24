@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import WorkedHoursForm from '../../../src/components/calendar/WorkedHoursForm';
@@ -75,7 +75,9 @@ describe('WorkedHoursForm Component', () => {
             render(<WorkedHoursForm {...defaultProps} />);
             const select = screen.getByLabelText(/project:/i);
 
-            await userEvent.selectOptions(select, 'project2');
+            await act(async () => {
+                await userEvent.selectOptions(select, 'project2');
+            });
             expect(select).toHaveValue('project2');
         });
 

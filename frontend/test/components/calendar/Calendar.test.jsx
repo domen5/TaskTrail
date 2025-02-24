@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TimeSheetProvider } from '../../../src/context/TimeSheetContext';
@@ -96,7 +96,9 @@ describe('Calendar Component', () => {
             renderWithProviders(<Calendar />);
             const prevButton = screen.getByRole('button', { name: /previous month/i });
             
-            await userEvent.click(prevButton);
+            await act(async () => {
+                await userEvent.click(prevButton);
+            });
             
             await waitFor(() => {
                 expect(api.getMonthWorkedHoursApiCall).toHaveBeenCalledTimes(6); // 3 initial + 3 after navigation
@@ -107,7 +109,9 @@ describe('Calendar Component', () => {
             renderWithProviders(<Calendar />);
             const nextButton = screen.getByRole('button', { name: /next month/i });
             
-            await userEvent.click(nextButton);
+            await act(async () => {
+                await userEvent.click(nextButton);
+            });
             
             await waitFor(() => {
                 expect(api.getMonthWorkedHoursApiCall).toHaveBeenCalledTimes(6); // 3 initial + 3 after navigation
