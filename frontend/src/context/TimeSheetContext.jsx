@@ -11,7 +11,7 @@ import {
 const TimeSheetContext = createContext(undefined);
 
 const getDateKey = (date) => {
-    const d = new Date(date);
+    const d = (date instanceof Date) ? date : new Date(date);
     d.setHours(0, 0, 0, 0);
     return d.getTime();
 };
