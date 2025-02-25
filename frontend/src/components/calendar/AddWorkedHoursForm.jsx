@@ -12,7 +12,7 @@ function AddWorkedHoursForm({ date, onClose }) {
             project: e.target.project.value,
             hours: parseInt(e.target.workedHours.value),
             description: e.target.description.value,
-            overtime: e.target.inlineRadioOptions.value === 'option1',
+            overtime: e.target.overtime.value === 'yes',
         };
         await updateDayData(formData);
         onClose();

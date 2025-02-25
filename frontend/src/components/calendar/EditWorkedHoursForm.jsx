@@ -13,7 +13,7 @@ function EditWorkedHoursForm({ workedHours, onClose }) {
             project: e.target.project.value,
             hours: parseInt(e.target.workedHours.value),
             description: e.target.description.value,
-            overtime: e.target.inlineRadioOptions.value === 'option1',
+            overtime: e.target.overtime.value === 'yes',
         }
         await updateWorkedHours(newEntry);
         onClose();
