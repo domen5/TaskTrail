@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend, ReferenceLine } from "recharts";
 import { useTheme } from "../../context/ThemeContext";
 import { useTimeSheet } from "../../context/TimeSheetContext";
@@ -7,32 +7,22 @@ const MonthlyChart = ({ selectedMonth = new Date() }) => {
     const { isDarkMode } = useTheme();
     const { getDayData, getMonthData } = useTimeSheet();
     const [isLoading, setIsLoading] = useState(false);
+    const isMounted = useRef(true);
 
     const year = selectedMonth.getFullYear();
     const month = selectedMonth.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // Fetch data for the selected month when component mounts or selectedMonth changes
-    useEffect(() => {
-        const fetchMonthData = async () => {
-            setIsLoading(true);
-            try {
-                await getMonthData(year, month);
-            } catch (error) {
-                console.error('Error fetching month data:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchMonthData();
-    }, [getMonthData, year, month]);
-
     const chartData = [];
+    let hasExistingData = false;
 
     for (let day = 1; day <= daysInMonth; day++) {
         const currentDate = new Date(year, month, day);
         const entries = getDayData(currentDate);
+
+        if (entries.length > 0) {
+            hasExistingData = true;
+        }
 
         // Only include days that are not weekends, unless they have hours recorded
         if (entries.length > 0 || currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
@@ -58,6 +48,37 @@ const MonthlyChart = ({ selectedMonth = new Date() }) => {
             });
         }
     }
+
+    // Fetch data for the selected month when component mounts or selectedMonth changes
+    useEffect(() => {
+        // Set up cleanup function to prevent state updates after unmount
+        isMounted.current = true;
+        
+        const fetchMonthData = async () => {
+            // Only fetch if we don't already have data for this month
+            if (!hasExistingData) {
+                setIsLoading(true);
+                try {
+                    await getMonthData(year, month);
+                } catch (error) {
+                    if (isMounted.current) {
+                        console.error('Error fetching month data:', error);
+                    }
+                } finally {
+                    if (isMounted.current) {
+                        setIsLoading(false);
+                    }
+                }
+            }
+        };
+
+        fetchMonthData();
+
+        // Cleanup function to prevent state updates after unmount
+        return () => {
+            isMounted.current = false;
+        };
+    }, [year, month, getMonthData, hasExistingData]);
 
     chartData.sort((a, b) => a.day - b.day);
 
