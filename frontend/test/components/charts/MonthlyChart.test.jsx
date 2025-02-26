@@ -17,6 +17,7 @@ vi.mock('recharts', () => {
         CartesianGrid: () => <div data-testid="cartesian-grid"></div>,
         Tooltip: () => <div data-testid="tooltip"></div>,
         Legend: () => <div data-testid="legend"></div>,
+        ReferenceLine: ({ y, label }) => <div data-testid="reference-line" data-y={y} data-label={label}></div>,
     };
 });
 
@@ -78,7 +79,9 @@ describe('MonthlyChart Component', () => {
             renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
 
             expect(screen.getByText(/Monthly Worked Hours/i)).toBeInTheDocument();
-            expect(screen.getByText(/Look at your work hours for the month of February 2025/i)).toBeInTheDocument();
+            expect(screen.getByText(/Look at your work hours for the month of/i)).toBeInTheDocument();
+            expect(screen.getByText(/February/i)).toBeInTheDocument();
+            expect(screen.getByText(/2025/i)).toBeInTheDocument();
         });
 
         it('displays "No data available" message when no hours are recorded', () => {
