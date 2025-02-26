@@ -20,13 +20,11 @@ vi.mock('recharts', () => {
     };
 });
 
-// Mock the TimeSheetContext
 vi.mock('../../../src/context/TimeSheetContext', () => ({
     TimeSheetProvider: ({ children }) => children,
     useTimeSheet: vi.fn(),
 }));
 
-// Mock the ThemeContext
 vi.mock('../../../src/context/ThemeContext', () => ({
     ThemeProvider: ({ children }) => children,
     useTheme: vi.fn().mockReturnValue({ isDarkMode: false }),
@@ -59,10 +57,8 @@ const renderWithProviders = (ui) => {
 
 describe('MonthlyChart Component', () => {
     beforeEach(() => {
-        // Reset all mocks before each test
         vi.clearAllMocks();
 
-        // Default mock for useTimeSheet
         useTimeSheet.mockReturnValue({
             getDayData: vi.fn().mockReturnValue([]),
         });
@@ -70,57 +66,39 @@ describe('MonthlyChart Component', () => {
 
     describe('Initial Rendering', () => {
         it('renders the chart title and subtitle', () => {
-            const testDate = new Date(2023, 5, 15); // June 15, 2023
+            const testDate = new Date(2025, 1, 26);
+            
+            // Mock data with hours so the chart renders instead of "No data available"
+            useTimeSheet.mockReturnValue({
+                getDayData: vi.fn().mockImplementation(() => {
+                    return [{ hours: 8, overtime: false }];
+                }),
+            });
+            
             renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
 
             expect(screen.getByText(/Monthly Worked Hours/i)).toBeInTheDocument();
-            expect(screen.getByText(/Look at your work hours for the month of June 2023/i)).toBeInTheDocument();
+            expect(screen.getByText(/Look at your work hours for the month of February 2025/i)).toBeInTheDocument();
         });
 
-        it('renders chart with zero hours when no data is available', () => {
-            const testDate = new Date(2023, 5, 15); // June 15, 2023
-            useTimeSheet.mockReturnValue({
-                getDayData: vi.fn().mockReturnValue([]),
-            });
-
-            renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
-
-            // Instead of checking for "No data available" message, check that chart components are rendered
-            expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
-            expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
-            expect(screen.getByTestId('bar-regularHours')).toBeInTheDocument();
-            expect(screen.getByTestId('bar-overtimeHours')).toBeInTheDocument();
-        });
-
-        it('displays "No data available" message when chartData is empty', () => {
-            // Create a special test case where all days are treated as weekends
-            // This will result in chartData being empty
-            const testDate = new Date(2023, 5, 15); // June 15, 2023
+        it('displays "No data available" message when no hours are recorded', () => {
+            const testDate = new Date(2025, 1, 26);
             
-            // Mock getDayData to return empty array
             useTimeSheet.mockReturnValue({
                 getDayData: vi.fn().mockReturnValue([]),
             });
             
-            // Mock Date.prototype.getDay to always return 0 (Sunday)
-            const originalGetDay = Date.prototype.getDay;
-            Date.prototype.getDay = vi.fn().mockReturnValue(0);
-            
             renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
             
-            // Check for "No data available" message
-            expect(screen.getByText(/No data available for June 2023/i)).toBeInTheDocument();
-            
-            // Restore original getDay method
-            Date.prototype.getDay = originalGetDay;
+            expect(screen.getByText(/No data available for February 2025/i)).toBeInTheDocument();            
+            expect(screen.queryByText(/Monthly Worked Hours/i)).not.toBeInTheDocument();
         });
     });
 
     describe('Chart Data Display', () => {
         it('renders chart components when data is available', () => {
-            const testDate = new Date(2023, 5, 15); // June 15, 2023
+            const testDate = new Date(2025, 1, 26);
 
-            // Mock data for a specific day
             const mockEntries = [
                 { hours: 5, overtime: false },
                 { hours: 3, overtime: true }
@@ -128,8 +106,7 @@ describe('MonthlyChart Component', () => {
 
             useTimeSheet.mockReturnValue({
                 getDayData: vi.fn().mockImplementation((date) => {
-                    // Return mock data only for June 15, 2023
-                    if (date.getDate() === 15 && date.getMonth() === 5 && date.getFullYear() === 2023) {
+                    if (date.getDate() === 26 && date.getMonth() === 1 && date.getFullYear() === 2025) {
                         return mockEntries;
                     }
                     return [];
@@ -138,7 +115,6 @@ describe('MonthlyChart Component', () => {
 
             renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
 
-            // Check that chart components are rendered
             expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
             expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
             expect(screen.getByTestId('bar-regularHours')).toBeInTheDocument();
@@ -146,21 +122,18 @@ describe('MonthlyChart Component', () => {
         });
 
         it('correctly calculates regular and overtime hours', () => {
-            const testDate = new Date(2023, 5, 15); // June 15, 2023
+            const testDate = new Date(2025, 1, 26);
             
-            // Create mock data with both regular and overtime hours
             const mockEntries = [
-                { hours: 8, overtime: false },  // 8 regular hours
-                { hours: 2, overtime: true },   // 2 overtime hours
-                { hours: 1, overtime: false },  // 1 more regular hour
-                { hours: 3, overtime: true }    // 3 more overtime hours
+                { hours: 8, overtime: false },      
+                { hours: 2, overtime: true },   
+                { hours: 1, overtime: false },  
+                { hours: 3, overtime: true }    
             ];
-            
-            // Total: 9 regular hours, 5 overtime hours
             
             useTimeSheet.mockReturnValue({
                 getDayData: vi.fn().mockImplementation((date) => {
-                    if (date.getDate() === 15 && date.getMonth() === 5 && date.getFullYear() === 2023) {
+                    if (date.getDate() === 26 && date.getMonth() === 1 && date.getFullYear() === 2025) {
                         return mockEntries;
                     }
                     return [];
@@ -176,15 +149,14 @@ describe('MonthlyChart Component', () => {
             
             expect(regularHoursBar).toHaveAttribute('data-name', 'Regular Hours');
             expect(overtimeHoursBar).toHaveAttribute('data-name', 'Overtime Hours');
-        });
+        }); 
     });
 
     describe('Theme Integration', () => {
         it('applies light theme styles when isDarkMode is false', () => {
-            const testDate = new Date(2023, 5, 15);
+            const testDate = new Date(2025, 1, 26);
             useTheme.mockReturnValue({ isDarkMode: false });
 
-            // Mock data to ensure chart renders
             useTimeSheet.mockReturnValue({
                 getDayData: vi.fn().mockImplementation(() => [{ hours: 5, overtime: false }]),
             });
@@ -198,10 +170,9 @@ describe('MonthlyChart Component', () => {
         });
 
         it('applies dark theme styles when isDarkMode is true', () => {
-            const testDate = new Date(2023, 5, 15);
+            const testDate = new Date(2025, 1, 26);
             useTheme.mockReturnValue({ isDarkMode: true });
 
-            // Mock data to ensure chart renders
             useTimeSheet.mockReturnValue({
                 getDayData: vi.fn().mockImplementation(() => [{ hours: 5, overtime: false }]),
             });

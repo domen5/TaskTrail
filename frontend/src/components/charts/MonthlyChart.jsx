@@ -58,7 +58,10 @@ const MonthlyChart = ({ selectedMonth = new Date() }) => {
         return null;
     };
 
-    if (chartData.length === 0) {
+    // Check if there are any actual hours recorded
+    const hasRecordedHours = chartData.some(day => day.totalHours > 0);
+    
+    if (chartData.length === 0 || !hasRecordedHours) {
         return (
             <div className="text-center p-4">
                 <p>No data available for {selectedMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}.</p>
