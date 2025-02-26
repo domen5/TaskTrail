@@ -1,15 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend, ReferenceLine } from "recharts";
 import { useTheme } from "../../context/ThemeContext";
 import { useTimeSheet } from "../../context/TimeSheetContext";
 
 const MonthlyChart = ({ selectedMonth = new Date() }) => {
     const { isDarkMode } = useTheme();
-    const { getDayData } = useTimeSheet();
+    const { getDayData, getMonthData } = useTimeSheet();
+    const [isLoading, setIsLoading] = useState(false);
 
     const year = selectedMonth.getFullYear();
     const month = selectedMonth.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Fetch data for the selected month when component mounts or selectedMonth changes
+    useEffect(() => {
+        const fetchMonthData = async () => {
+            setIsLoading(true);
+            try {
+                await getMonthData(year, month);
+            } catch (error) {
+                console.error('Error fetching month data:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchMonthData();
+    }, [getMonthData, year, month]);
 
     const chartData = [];
 
@@ -17,6 +34,7 @@ const MonthlyChart = ({ selectedMonth = new Date() }) => {
         const currentDate = new Date(year, month, day);
         const entries = getDayData(currentDate);
 
+        // Only include days that are not weekends, unless they have hours recorded
         if (entries.length > 0 || currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
             const totalHours = entries.reduce((sum, entry) => sum + entry.hours, 0);
 
@@ -72,6 +90,17 @@ const MonthlyChart = ({ selectedMonth = new Date() }) => {
         ticks.push(i);
     }
 
+    if (isLoading) {
+        return (
+            <div className="text-center p-4">
+                <p>Loading data for {selectedMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}...</p>
+                <div className="spinner-border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
     if (chartData.length === 0 || !hasRecordedHours) {
         return (
             <div className="text-center p-4">
@@ -112,7 +141,7 @@ const MonthlyChart = ({ selectedMonth = new Date() }) => {
                             domain={yAxisDomain}
                             ticks={ticks}
                         />
-                        {/* Adding horizontal reference lines */}
+
                         <ReferenceLine y={8} label="Target" stroke="red" strokeDasharray="5 5" />
                         {/* TODO: thinner cursor instead of disabled */}
                         <Tooltip
