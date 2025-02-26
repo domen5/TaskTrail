@@ -1,5 +1,5 @@
 import React from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend, ReferenceLine } from "recharts";
 import { useTheme } from "../../context/ThemeContext";
 import { useTimeSheet } from "../../context/TimeSheetContext";
 
@@ -58,9 +58,20 @@ const MonthlyChart = ({ selectedMonth = new Date() }) => {
         return null;
     };
 
-    // Check if there are any actual hours recorded
     const hasRecordedHours = chartData.some(day => day.totalHours > 0);
-    
+
+    // Calculate the maximum total hours recorded
+    const maxHours = chartData.length > 0 ? Math.max(...chartData.map(day => day.totalHours)) : 0;
+
+    // Determine the domain for the Y-axis
+    const yAxisDomain = [10, maxHours > 10 ? maxHours : 10]; // Minimum 10, maximum based on data
+
+    // Generate ticks based on the domain
+    const ticks = [2, 4, 6, 8];
+    for (let i = 10; i <= yAxisDomain[1]; i += 2) {
+        ticks.push(i);
+    }
+
     if (chartData.length === 0 || !hasRecordedHours) {
         return (
             <div className="text-center p-4">
@@ -79,7 +90,9 @@ const MonthlyChart = ({ selectedMonth = new Date() }) => {
             <div className={`container-md text-center ${isDarkMode ? 'text-white' : 'text-dark'}`}>
                 <div className="text-center py-3">
                     <h1 className="display-3 fw-bold mb-4"><i className="fas fa-chart-column me-2"></i>Monthly Worked Hours</h1>
-                    <p className="lead mb-4">Look at your work hours for the month of {selectedMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}</p>
+                    <p className="lead mb-4">
+                        Look at your work hours for the month of <span className="text-capitalize">{selectedMonth.toLocaleString('default', { month: 'long' })}</span> {selectedMonth.getFullYear()}.
+                    </p>
                 </div>
                 <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -96,7 +109,11 @@ const MonthlyChart = ({ selectedMonth = new Date() }) => {
                                 position: 'insideLeft',
                                 style: { textAnchor: 'middle', fill: textColor }
                             }}
+                            domain={yAxisDomain}
+                            ticks={ticks}
                         />
+                        {/* Adding horizontal reference lines */}
+                        <ReferenceLine y={8} label="Target" stroke="red" strokeDasharray="5 5" />
                         {/* TODO: thinner cursor instead of disabled */}
                         <Tooltip
                             content={<CustomTooltip />}
