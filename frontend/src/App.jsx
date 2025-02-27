@@ -5,6 +5,7 @@ import Calendar from './components/calendar/Calendar';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Profile from './components/Profile';
+import MonthlyChart from './components/charts/MonthlyChart';
 import About from './components/About';
 import Footer from './components/Footer';
 import { TimeSheetProvider } from './context/TimeSheetContext';
@@ -33,6 +34,11 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/chart" element={
+                  <ProtectedRoute>
+                    <MonthlyChart />
+                  </ProtectedRoute>
+                } />
                 <Route
                   path="/profile"
                   element={

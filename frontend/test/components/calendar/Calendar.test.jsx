@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TimeSheetProvider } from '../../../src/context/TimeSheetContext';
@@ -38,23 +38,29 @@ describe('Calendar Component', () => {
     });
 
     describe('Initial Rendering', () => {
-        it('renders the calendar header with the current month and year', () => {
-            renderWithProviders(<Calendar />);
+        it('renders the calendar header with the current month and year', async () => {
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
             const currentDate = new Date();
             const currentMonthYear = currentDate.toLocaleString('default', { month: 'long' }) + ' ' + currentDate.getFullYear();
             expect(screen.getByText(currentMonthYear)).toBeInTheDocument();
         });
 
-        it('renders the days of the week', () => {
-            renderWithProviders(<Calendar />);
+        it('renders the days of the week', async () => {
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
             const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             daysOfWeek.forEach(day => {
                 expect(screen.getByText(day)).toBeInTheDocument();
             });
         });
 
-        it('renders the calendar grid with correct number of weeks', () => {
-            renderWithProviders(<Calendar />);
+        it('renders the calendar grid with correct number of weeks', async () => {
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
             const rows = screen.getAllByRole('row');
             // Header row + 4-6 weeks
             expect(rows.length).toBeGreaterThanOrEqual(5);
@@ -64,7 +70,9 @@ describe('Calendar Component', () => {
 
     describe('Data Fetching', () => {
         it('fetches data for current, previous, and next month on initial load', async () => {
-            renderWithProviders(<Calendar />);
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
             
             await waitFor(() => {
                 expect(api.getMonthWorkedHoursApiCall).toHaveBeenCalledTimes(3);
@@ -83,7 +91,9 @@ describe('Calendar Component', () => {
             };
             api.getMonthWorkedHoursApiCall.mockResolvedValueOnce(mockData);
 
-            renderWithProviders(<Calendar />);
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
             
             await waitFor(() => {
                 expect(api.getMonthWorkedHoursApiCall).toHaveBeenCalled();
@@ -93,7 +103,10 @@ describe('Calendar Component', () => {
 
     describe('Month Navigation', () => {
         it('updates display when navigating to previous month', async () => {
-            renderWithProviders(<Calendar />);
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
+            
             const prevButton = screen.getByRole('button', { name: /previous month/i });
             
             await act(async () => {
@@ -106,7 +119,10 @@ describe('Calendar Component', () => {
         });
 
         it('updates display when navigating to next month', async () => {
-            renderWithProviders(<Calendar />);
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
+            
             const nextButton = screen.getByRole('button', { name: /next month/i });
             
             await act(async () => {

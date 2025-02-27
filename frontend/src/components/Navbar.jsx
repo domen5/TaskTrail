@@ -20,16 +20,16 @@ function Navbar() {
     return (
         <nav className={`navbar navbar-expand-lg fixed-top shadow-sm ${navbarClass}`}>
             <div className="container">
-                <Link className="navbar-brand fw-bold" to="/" onClick={handleLinkClick} style={{color: brandColor}}>
+                <Link className="navbar-brand fw-bold" to="/" onClick={handleLinkClick} style={{ color: brandColor }}>
                     <i className="fas fa-chart-line me-2"></i>
                     Task Trail
                 </Link>
-                <button 
-                    className="navbar-toggler border-0" 
-                    type="button" 
+                <button
+                    className="navbar-toggler border-0"
+                    type="button"
                     onClick={toggleMenu}
-                    aria-controls="navbarNav" 
-                    aria-expanded={isOpen} 
+                    aria-controls="navbarNav"
+                    aria-expanded={isOpen}
                     aria-label="Toggle navigation"
                 >
                     <span className="navbar-toggler-icon"></span>
@@ -44,6 +44,11 @@ function Navbar() {
                         <li className="nav-item">
                             <Link className="nav-link px-3" to="/calendar" onClick={handleLinkClick}>
                                 <i className="fas fa-calendar-alt me-2"></i>Calendar
+                            </Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link className="nav-link px-3" to="/chart" onClick={handleLinkClick}>
+                                <i className="fas fa-chart-column me-2"></i>Chart
                             </Link>
                         </li>
                         <li className="nav-item">
