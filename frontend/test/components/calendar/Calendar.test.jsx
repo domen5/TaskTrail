@@ -38,23 +38,29 @@ describe('Calendar Component', () => {
     });
 
     describe('Initial Rendering', () => {
-        it('renders the calendar header with the current month and year', () => {
-            renderWithProviders(<Calendar />);
+        it('renders the calendar header with the current month and year', async () => {
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
             const currentDate = new Date();
             const currentMonthYear = currentDate.toLocaleString('default', { month: 'long' }) + ' ' + currentDate.getFullYear();
             expect(screen.getByText(currentMonthYear)).toBeInTheDocument();
         });
 
-        it('renders the days of the week', () => {
-            renderWithProviders(<Calendar />);
+        it('renders the days of the week', async () => {
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
             const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             daysOfWeek.forEach(day => {
                 expect(screen.getByText(day)).toBeInTheDocument();
             });
         });
 
-        it('renders the calendar grid with correct number of weeks', () => {
-            renderWithProviders(<Calendar />);
+        it('renders the calendar grid with correct number of weeks', async () => {
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
             const rows = screen.getAllByRole('row');
             // Header row + 4-6 weeks
             expect(rows.length).toBeGreaterThanOrEqual(5);

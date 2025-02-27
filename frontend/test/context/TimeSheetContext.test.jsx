@@ -24,6 +24,14 @@ const TestComponent = ({ action }) => {
 describe('TimeSheetContext', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        
+        // Mock the API calls to return resolved promises by default
+        api.getMonthWorkedHoursApiCall.mockResolvedValue({});
+        api.createWorkedHoursApiCall.mockResolvedValue({});
+        api.deleteWorkedHoursApiCall.mockResolvedValue({});
+        api.updateWorkedHoursApiCall.mockResolvedValue({});
+        api.lockMonthApiCall.mockResolvedValue({});
+        api.verifyLockedMonthApiCall.mockResolvedValue(false);
     });
 
     const renderWithProvider = (ui) => {
@@ -69,7 +77,10 @@ describe('TimeSheetContext', () => {
                 );
             });
 
-            const result = await timeSheetActions.getMonthData(2024, 2); // March (0-based)
+            let result;
+            await act(async () => {
+                result = await timeSheetActions.getMonthData(2024, 2); // March (0-based)
+            });
             
             expect(api.getMonthWorkedHoursApiCall).toHaveBeenCalledWith(2024, 2);
             expect(Object.keys(result)).toHaveLength(1);
@@ -93,7 +104,10 @@ describe('TimeSheetContext', () => {
                 );
             });
 
-            const result = await timeSheetActions.getMonthData(2024, 2);
+            let result;
+            await act(async () => {
+                result = await timeSheetActions.getMonthData(2024, 2);
+            });
             expect(Object.keys(result)).toHaveLength(0);
         });
     });
@@ -188,11 +202,22 @@ describe('TimeSheetContext', () => {
             });
 
             // Manually set some initial state
-            await timeSheetActions.updateDayData(entry);
+            api.createWorkedHoursApiCall.mockResolvedValueOnce({
+                _id: '1',
+                date: entry.date.toISOString(),
+                hours: entry.hours,
+                project: entry.project
+            });
+            
+            await act(async () => {
+                await timeSheetActions.updateDayData(entry);
+            });
             
             api.deleteWorkedHoursApiCall.mockResolvedValueOnce({});
             
-            await timeSheetActions.deleteWorkedHours('1');
+            await act(async () => {
+                await timeSheetActions.deleteWorkedHours('1');
+            });
             
             expect(api.deleteWorkedHoursApiCall).toHaveBeenCalledWith('1');
             const dayData = timeSheetActions.getDayData(new Date('2024-03-15'));
@@ -282,6 +307,67 @@ describe('TimeSheetContext', () => {
             });
             
             expect(timeSheetActions.isMonthLocked(2024, 2)).toBe(false);
+        });
+    });
+
+    describe('updateWorkedHours', () => {
+        it('updates worked hours entry successfully', async () => {
+            const entry = {
+                _id: '1',
+                date: new Date('2024-03-15'),
+                hours: 8,
+                project: 'Test Project',
+                description: 'Original Task'
+            };
+            
+            const updatedEntry = {
+                _id: '1',
+                date: new Date('2024-03-15'),
+                hours: 6,
+                project: 'Test Project',
+                description: 'Updated Task'
+            };
+
+            let timeSheetActions;
+            await act(async () => {
+                renderWithProvider(
+                    <TestComponent action={(actions) => {
+                        timeSheetActions = actions;
+                        return () => {};
+                    }} />
+                );
+            });
+
+            // First add the entry
+            api.createWorkedHoursApiCall.mockResolvedValueOnce({
+                ...entry,
+                date: entry.date.toISOString()
+            });
+            
+            await act(async () => {
+                await timeSheetActions.updateDayData(entry);
+            });
+            
+            // Then update it
+            api.updateWorkedHoursApiCall.mockResolvedValueOnce({
+                ...updatedEntry,
+                date: updatedEntry.date.toISOString()
+            });
+            
+            await act(async () => {
+                await timeSheetActions.updateWorkedHours(updatedEntry);
+            });
+            
+            expect(api.updateWorkedHoursApiCall).toHaveBeenCalledWith(expect.objectContaining({
+                _id: '1',
+                hours: 6,
+                description: 'Updated Task'
+            }));
+            
+            const dayData = timeSheetActions.getDayData(new Date('2024-03-15'));
+            expect(dayData).toHaveLength(1);
+            expect(dayData[0].hours).toBe(6);
+            expect(dayData[0].description).toBe('Updated Task');
         });
     });
 }); 
