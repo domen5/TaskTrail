@@ -64,7 +64,9 @@ describe('Calendar Component', () => {
 
     describe('Data Fetching', () => {
         it('fetches data for current, previous, and next month on initial load', async () => {
-            renderWithProviders(<Calendar />);
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
             
             await waitFor(() => {
                 expect(api.getMonthWorkedHoursApiCall).toHaveBeenCalledTimes(3);
@@ -83,7 +85,9 @@ describe('Calendar Component', () => {
             };
             api.getMonthWorkedHoursApiCall.mockResolvedValueOnce(mockData);
 
-            renderWithProviders(<Calendar />);
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
             
             await waitFor(() => {
                 expect(api.getMonthWorkedHoursApiCall).toHaveBeenCalled();
@@ -93,7 +97,10 @@ describe('Calendar Component', () => {
 
     describe('Month Navigation', () => {
         it('updates display when navigating to previous month', async () => {
-            renderWithProviders(<Calendar />);
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
+            
             const prevButton = screen.getByRole('button', { name: /previous month/i });
             
             await act(async () => {
@@ -106,7 +113,10 @@ describe('Calendar Component', () => {
         });
 
         it('updates display when navigating to next month', async () => {
-            renderWithProviders(<Calendar />);
+            await act(async () => {
+                renderWithProviders(<Calendar />);
+            });
+            
             const nextButton = screen.getByRole('button', { name: /next month/i });
             
             await act(async () => {
