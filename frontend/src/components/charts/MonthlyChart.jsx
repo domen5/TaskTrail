@@ -102,10 +102,8 @@ const MonthlyChart = ({ selectedMonth = new Date() }) => {
     // Calculate the maximum total hours recorded
     const maxHours = chartData.length > 0 ? Math.max(...chartData.map(day => day.totalHours)) : 0;
 
-    // Determine the domain for the Y-axis
+    // Setup the Y-axis domain and ticks
     const yAxisDomain = [10, maxHours > 10 ? maxHours : 10]; // Minimum 10, maximum based on data
-
-    // Generate ticks based on the domain
     const ticks = [2, 4, 6, 8];
     for (let i = 10; i <= yAxisDomain[1]; i += 2) {
         ticks.push(i);
@@ -144,6 +142,7 @@ const MonthlyChart = ({ selectedMonth = new Date() }) => {
                         Look at your work hours for the month of <span className="text-capitalize">{selectedMonth.toLocaleString('default', { month: 'long' })}</span> {selectedMonth.getFullYear()}.
                     </p>
                 </div>
+
                 <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
@@ -163,7 +162,7 @@ const MonthlyChart = ({ selectedMonth = new Date() }) => {
                             ticks={ticks}
                         />
 
-                        <ReferenceLine y={8} label="Target" stroke="red" strokeDasharray="5 5" />
+                        <ReferenceLine y={8} stroke="red" strokeDasharray="5 5" />
                         {/* TODO: thinner cursor instead of disabled */}
                         <Tooltip
                             content={<CustomTooltip />}
