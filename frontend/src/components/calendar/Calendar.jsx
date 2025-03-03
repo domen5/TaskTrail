@@ -7,13 +7,7 @@ import "./Calendar.css"
 import DayDetail from "./DayDetail";
 import AddWorkedHoursForm from "./AddWorkedHoursForm";
 import EditWorkedHoursForm from "./EditWorkedHoursForm";
-
-
-const normalizeDate = (date) => {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    return d;
-};
+import { normalizeDate } from "../../utils/utils";
 
 const createDate = (year, month, day) => {
     const date = new Date(year, month, day);
@@ -21,17 +15,24 @@ const createDate = (year, month, day) => {
 };
 
 function Calendar() {
-    const [selectedDay, setSelectedDay] = useState(() => normalizeDate(new Date()));
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
     const [editWorkedHours, setEditWorkedHours] = useState(null);
     const { isDarkMode } = useTheme();
-    const { getMonthData, isMonthLocked, checkAndSetLockedMonth } = useTimeSheet();
+    const { 
+        getMonthData, 
+        isMonthLocked, 
+        checkAndSetLockedMonth,
+        getSelectedDay,
+        setSelectedDate
+    } = useTimeSheet();
+    
+    const selectedDay = getSelectedDay();
     const [selectedMonth, setSelectedMonth] = useState(selectedDay.getMonth());
     const [selectedYear, setSelectedYear] = useState(selectedDay.getFullYear());
 
     const handleSetSelectedDay = (date) => {
-        setSelectedDay(normalizeDate(date));
+        setSelectedDate(normalizeDate(date));
     };
 
     useEffect(() => {

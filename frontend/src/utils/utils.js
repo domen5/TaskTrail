@@ -22,4 +22,10 @@ const validateEmail = (email) => {
         );
 };
 
-export { createKey, isValidDate, validateEmail };
+const normalizeDate = (date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+};
+
+export { createKey, isValidDate, validateEmail, normalizeDate };

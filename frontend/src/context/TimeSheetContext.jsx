@@ -7,7 +7,7 @@ import {
     lockMonthApiCall,
     verifyLockedMonthApiCall
 } from '../api/api';
-
+import { normalizeDate } from '../utils/utils';
 const TimeSheetContext = createContext(undefined);
 
 const getDateKey = (date) => {
@@ -16,15 +16,10 @@ const getDateKey = (date) => {
     return d.getTime();
 };
 
-const getMonthKey = (year, month) => {
-    const d = new Date(year, month, 1);
-    d.setHours(0, 0, 0, 0);
-    return d.getTime();
-};
-
 export function TimeSheetProvider({ children }) {
     const [timeSheetData, setTimeSheetData] = useState({});
     const [lockedMonths, setLockedMonths] = useState({});
+    const [selectedDay, setSelectedDay] = useState(normalizeDate(new Date()));
 
     const getDayData = (date) => {
         const key = getDateKey(date);
@@ -34,7 +29,6 @@ export function TimeSheetProvider({ children }) {
     // Assumes 0-based months; Triggers update of timeSheetData;
     const getMonthData = async (year, month) => {
         const newMonthData = await getMonthWorkedHoursApiCall(year, month);
-        const monthStart = getMonthKey(year, month);
 
         // Convert the API response to use timestamp keys
         const processedData = Object.values(newMonthData).flat().reduce((acc, entry) => {
@@ -214,6 +208,17 @@ export function TimeSheetProvider({ children }) {
         }
     };
 
+    const getSelectedDay = () => {
+        return selectedDay;
+    };
+
+    const setSelectedDate = (date) => {
+        if (!date || !(date instanceof Date)) {
+            throw new Error('Invalid date in formData');
+        }
+        setSelectedDay(normalizeDate(date));
+    };
+
     const value = {
         getDayData,
         getMonthData,
@@ -223,7 +228,9 @@ export function TimeSheetProvider({ children }) {
         lockMonth,
         unlockMonth,
         checkAndSetLockedMonth,
-        isMonthLocked
+        isMonthLocked,
+        getSelectedDay,
+        setSelectedDate
     };
 
     return (
