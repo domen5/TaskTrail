@@ -167,7 +167,7 @@ function Calendar() {
                                                         date={date}
                                                         isPadded={isPadded}
                                                         setSelectedDay={handleSetSelectedDay}
-                                                        isMonthLocked={isMonthLockedStatus}
+                                                        isMonthLocked={isMonthLocked(date.getFullYear(), date.getMonth())}
                                                     />
                                                 </td>
                                             );
