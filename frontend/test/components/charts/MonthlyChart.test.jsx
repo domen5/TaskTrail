@@ -63,6 +63,7 @@ describe('MonthlyChart Component', () => {
         useTimeSheet.mockReturnValue({
             getDayData: vi.fn().mockReturnValue([]),
             getMonthData: vi.fn().mockResolvedValue({}),
+            getSelectedDay: vi.fn().mockReturnValue(new Date()),
         });
     });
 
@@ -76,10 +77,11 @@ describe('MonthlyChart Component', () => {
                     return [{ hours: 8, overtime: false }];
                 }),
                 getMonthData: vi.fn().mockResolvedValue({}),
+                getSelectedDay: vi.fn().mockReturnValue(testDate),
             });
             
             await act(async () => {
-                renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
+                renderWithProviders(<MonthlyChart />);
             });
 
             expect(screen.getByText(/Monthly Worked Hours/i)).toBeInTheDocument();
@@ -94,10 +96,11 @@ describe('MonthlyChart Component', () => {
             useTimeSheet.mockReturnValue({
                 getDayData: vi.fn().mockReturnValue([]),
                 getMonthData: vi.fn().mockResolvedValue({}),
+                getSelectedDay: vi.fn().mockReturnValue(testDate),
             });
             
             await act(async () => {
-                renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
+                renderWithProviders(<MonthlyChart />);
             });
             
             expect(screen.getByText(/No data available for February 2025/i)).toBeInTheDocument();            
@@ -122,10 +125,11 @@ describe('MonthlyChart Component', () => {
                     return [];
                 }),
                 getMonthData: vi.fn().mockResolvedValue({}),
+                getSelectedDay: vi.fn().mockReturnValue(testDate),
             });
 
             await act(async () => {
-                renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
+                renderWithProviders(<MonthlyChart />);
             });
 
             expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
@@ -152,10 +156,11 @@ describe('MonthlyChart Component', () => {
                     return [];
                 }),
                 getMonthData: vi.fn().mockResolvedValue({}),
+                getSelectedDay: vi.fn().mockReturnValue(testDate),
             });
             
             await act(async () => {
-                renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
+                renderWithProviders(<MonthlyChart />);
             });
             
             // Since we can't easily test the actual values in the chart with our mocked recharts,
@@ -176,10 +181,11 @@ describe('MonthlyChart Component', () => {
             useTimeSheet.mockReturnValue({
                 getDayData: vi.fn().mockImplementation(() => [{ hours: 5, overtime: false }]),
                 getMonthData: vi.fn().mockResolvedValue({}),
+                getSelectedDay: vi.fn().mockReturnValue(testDate),
             });
 
             await act(async () => {
-                renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
+                renderWithProviders(<MonthlyChart />);
             });
 
             // Check for light theme class
@@ -195,10 +201,11 @@ describe('MonthlyChart Component', () => {
             useTimeSheet.mockReturnValue({
                 getDayData: vi.fn().mockImplementation(() => [{ hours: 5, overtime: false }]),
                 getMonthData: vi.fn().mockResolvedValue({}),
+                getSelectedDay: vi.fn().mockReturnValue(testDate),
             });
 
             await act(async () => {
-                renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
+                renderWithProviders(<MonthlyChart />);
             });
 
             // Check for dark theme class
@@ -217,10 +224,11 @@ describe('MonthlyChart Component', () => {
             useTimeSheet.mockReturnValue({
                 getDayData: vi.fn().mockReturnValue([]),
                 getMonthData: getMonthDataMock,
+                getSelectedDay: vi.fn().mockReturnValue(testDate),
             });
             
             await act(async () => {
-                renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
+                renderWithProviders(<MonthlyChart />);
             });
             
             expect(getMonthDataMock).toHaveBeenCalledWith(2025, 1);
@@ -240,10 +248,11 @@ describe('MonthlyChart Component', () => {
                     return [];
                 }),
                 getMonthData: getMonthDataMock,
+                getSelectedDay: vi.fn().mockReturnValue(testDate),
             });
             
             await act(async () => {
-                renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
+                renderWithProviders(<MonthlyChart />);
             });
             
             // getMonthData should not be called since data already exists
@@ -262,10 +271,11 @@ describe('MonthlyChart Component', () => {
             useTimeSheet.mockReturnValue({
                 getDayData: vi.fn().mockReturnValue([]),
                 getMonthData: vi.fn().mockReturnValue(promise),
+                getSelectedDay: vi.fn().mockReturnValue(testDate),
             });
             
             await act(async () => {
-                renderWithProviders(<MonthlyChart selectedMonth={testDate} />);
+                renderWithProviders(<MonthlyChart />);
             });
             
             expect(screen.getByText(/Loading data for February 2025/i)).toBeInTheDocument();

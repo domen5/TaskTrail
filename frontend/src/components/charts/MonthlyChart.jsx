@@ -3,12 +3,13 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContaine
 import { useTheme } from "../../context/ThemeContext";
 import { useTimeSheet } from "../../context/TimeSheetContext";
 
-const MonthlyChart = ({ selectedMonth = new Date() }) => {
+const MonthlyChart = () => {
     const { isDarkMode } = useTheme();
-    const { getDayData, getMonthData } = useTimeSheet();
+    const { getDayData, getMonthData, getSelectedDay } = useTimeSheet();
     const [isLoading, setIsLoading] = useState(false);
     const isMounted = useRef(true);
 
+    const selectedMonth = getSelectedDay();
     const year = selectedMonth.getFullYear();
     const month = selectedMonth.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
