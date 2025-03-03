@@ -7,6 +7,7 @@ const MonthlyChart = () => {
     const { isDarkMode } = useTheme();
     const { getDayData, getMonthData, getSelectedDay } = useTimeSheet();
     const [isLoading, setIsLoading] = useState(false);
+    const [hasFetched, setHasFetched] = useState({});
     const isMounted = useRef(true);
 
     const selectedMonth = getSelectedDay();
@@ -56,11 +57,18 @@ const MonthlyChart = () => {
         isMounted.current = true;
         
         const fetchMonthData = async () => {
-            // Only fetch if we don't already have data for this month
-            if (!hasExistingData) {
+            const monthKey = `${year}-${month}`;
+            // Only fetch if we don't already have data and haven't tried fetching for this month
+            if (!hasExistingData && !hasFetched[monthKey]) {
                 setIsLoading(true);
                 try {
                     await getMonthData(year, month);
+                    if (isMounted.current) {
+                        setHasFetched(prev => ({
+                            ...prev,
+                            [monthKey]: true
+                        }));
+                    }
                 } catch (error) {
                     if (isMounted.current) {
                         console.error('Error fetching month data:', error);
