@@ -5,15 +5,14 @@ import { useTimeSheet } from "../../context/TimeSheetContext";
 function EditWorkedHoursForm({ workedHours, onClose }) {
     const { updateWorkedHours } = useTimeSheet();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async (formData) => {
         const newEntry = {
             ...workedHours,
             date: workedHours.date instanceof Date ? workedHours.date : new Date(workedHours.date),
-            project: e.target.project.value,
-            hours: parseInt(e.target.workedHours.value),
-            description: e.target.description.value,
-            overtime: e.target.overtime.value === 'yes',
+            project: formData.project,
+            hours: parseInt(formData.workedHours),
+            description: formData.description,
+            overtime: formData.overtime,
         }
         await updateWorkedHours(newEntry);
         onClose();

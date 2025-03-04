@@ -5,16 +5,15 @@ import WorkedHoursForm from "./WorkedHoursForm";
 function AddWorkedHoursForm({ date, onClose }) {
     const { updateDayData } = useTimeSheet();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const formData = {
+    const handleSubmit = async (formData) => {
+        const data = {
             date: date instanceof Date ? date : new Date(date),
-            project: e.target.project.value,
-            hours: parseInt(e.target.workedHours.value),
-            description: e.target.description.value,
-            overtime: e.target.overtime.value === 'yes',
+            project: formData.project,
+            hours: parseInt(formData.workedHours),
+            description: formData.description,
+            overtime: formData.overtime,
         };
-        await updateDayData(formData);
+        await updateDayData(data);
         onClose();
     };
 

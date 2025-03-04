@@ -3,7 +3,7 @@ import './Modal.css';
 
 function Modal({ title, onClose, children }) {
     const handleOverlayClick = (e) => {
-        if (e.target === e.currentTarget) {
+        if (e.target === e.currentTarget && typeof onClose === 'function') {
             onClose();
         }
     };
