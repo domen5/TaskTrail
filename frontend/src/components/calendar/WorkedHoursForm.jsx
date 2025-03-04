@@ -1,4 +1,5 @@
 import './WorkedHoursForm.css';
+import React, { useState } from 'react';
 
 function WorkedHoursForm({
     projects = [
@@ -25,8 +26,19 @@ function WorkedHoursForm({
     defaultOvertime = false,
     handleSubmit,
     onClose }) {
+
+    const [project, setProject] = useState(defaultProject);
+    const [workedHours, setWorkedHours] = useState(defaultHours);
+    const [description, setDescription] = useState(defaultDescription);
+    const [overtime, setOvertime] = useState(defaultOvertime);
+
+    const onFormSubmit = (e) => {
+        e.preventDefault();
+        handleSubmit({ project, workedHours, description, overtime });
+    };
+
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={onFormSubmit}>
             <div className="mb-3">
                 <label htmlFor="project" className="form-label">Project:</label>
                 <select
@@ -34,7 +46,8 @@ function WorkedHoursForm({
                     name="project"
                     className="form-select"
                     aria-label="Select project"
-                    defaultValue={defaultProject}
+                    value={project}
+                    onChange={(e) => setProject(e.target.value)}
                 >
                     {projects.map((project, index) => (
                         <option key={index} value={project.name}>
@@ -55,7 +68,8 @@ function WorkedHoursForm({
                     className="form-control"
                     aria-label="Enter worked hours"
                     placeholder="Enter hours worked"
-                    defaultValue={defaultHours}
+                    value={workedHours}
+                    onChange={(e) => setWorkedHours(Number(e.target.value))}
                 />
             </div>
 
@@ -68,7 +82,8 @@ function WorkedHoursForm({
                     className="form-control"
                     aria-label="Enter description"
                     placeholder="Enter a brief description"
-                    defaultValue={defaultDescription}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                 ></textarea>
             </div>
 
@@ -83,7 +98,8 @@ function WorkedHoursForm({
                                 name="overtime"
                                 id="overtimeYes"
                                 value="yes"
-                                defaultChecked={defaultOvertime}
+                                checked={overtime}
+                                onChange={() => setOvertime(true)}
                             />
                             <label className="form-check-label" htmlFor="overtimeYes">Yes</label>
                         </div>
@@ -94,14 +110,14 @@ function WorkedHoursForm({
                                 name="overtime"
                                 id="overtimeNo"
                                 value="no"
-                                defaultChecked={!defaultOvertime}
+                                checked={!overtime}
+                                onChange={() => setOvertime(false)}
                             />
                             <label className="form-check-label" htmlFor="overtimeNo">No</label>
                         </div>
                     </div>
                 </fieldset>
             </div>
-
 
             <div className="button-group">
                 <button type="button" className="btn btn-danger" onClick={onClose}>Cancel</button>

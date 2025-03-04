@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import WorkedHoursForm from '../../../src/components/calendar/WorkedHoursForm';
 
 describe('WorkedHoursForm Component', () => {
-    const mockHandleSubmit = vi.fn(e => e.preventDefault());
+    const mockHandleSubmit = vi.fn();
     const mockOnClose = vi.fn();
     const defaultProps = {
         handleSubmit: mockHandleSubmit,
