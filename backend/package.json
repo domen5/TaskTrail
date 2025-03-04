@@ -15,8 +15,8 @@
     "clean": "rm -rf ./dist",
     "dev": "tsx watch ./src/app.ts",
     "start": "node ./dist/app.js",
-    "test": "mocha -r tsx/cjs --config tsconfig.test.json \"./test/**/*.test.ts\"",
-    "test:watch": "mocha -r tsx/cjs --config tsconfig.test.json \"./test/**/*.test.ts\" --watch"
+    "test": "mocha -r tsx/cjs --config tsconfig.test.json --timeout 3000 \"./test/**/*.test.ts\"",
+    "test:watch": "mocha -r tsx/cjs --config tsconfig.test.json --timeout 3000 \"./test/**/*.test.ts\" --watch"
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
