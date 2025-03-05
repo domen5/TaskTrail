@@ -140,11 +140,7 @@ export const addUserToProject = async (projectId: string, userId: string): Promi
                 throw new InputError('User not found');
             }
 
-            const project = await ProjectModel.findByIdAndUpdate(
-                projectId,
-                { $addToSet: { users: new Types.ObjectId(userId) } },
-                { new: true, session }
-            );
+            const project = await ProjectModel.findById(projectId).session(session);
 
             if (!project) {
                 throw new InputError('Project not found');

@@ -5,8 +5,8 @@ export interface Project {
     description?: string;
     organization: Types.ObjectId;
     active: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 const ProjectSchema = new mongoose.Schema<Project>({
@@ -14,8 +14,6 @@ const ProjectSchema = new mongoose.Schema<Project>({
     description: { type: String, required: false },
     organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
     active: { type: Boolean, required: true, default: true },
-    createdAt: { type: Date, required: true, default: Date.now },
-    updatedAt: { type: Date, required: true, default: Date.now },
 }, { timestamps: true });
 
 ProjectSchema.index({ name: 1, organization: 1 }, { unique: true });
