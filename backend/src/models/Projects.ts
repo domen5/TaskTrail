@@ -10,13 +10,16 @@ export interface Project {
 }
 
 const ProjectSchema = new mongoose.Schema<Project>({
-    name: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
     description: { type: String, required: false },
     organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
     active: { type: Boolean, required: true, default: true },
     createdAt: { type: Date, required: true, default: Date.now },
     updatedAt: { type: Date, required: true, default: Date.now },
 }, { timestamps: true });
+
+ProjectSchema.index({ name: 1, organization: 1 }, { unique: true });
+ProjectSchema.index({ organization: 1, active: 1 });
 
 const ProjectModel = mongoose.model<Project>('Project', ProjectSchema);
 

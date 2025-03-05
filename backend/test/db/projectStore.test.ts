@@ -1,6 +1,7 @@
-import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
+import 'mocha';
 import { expect } from 'chai';
-import { createProject, getProject, updateProject, deleteProject } from '../../src/db/projectStore';
+import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
+import { createProject, getProject, getUserProjects, updateProject, deleteProject } from '../../src/db/projectStore';
 import { InputError } from '../../src/utils/errors';
 import { Types } from 'mongoose';
 
@@ -42,6 +43,5 @@ describe('Project Store Tests', () => {
                 expect(err).to.be.instanceOf(InputError);
             }
         });
-
     });
 })
