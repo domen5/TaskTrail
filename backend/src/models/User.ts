@@ -9,7 +9,6 @@ interface User {
     password: string;
     organization: Types.ObjectId;
     role: Role;
-    projects: Types.ObjectId[];
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -20,7 +19,6 @@ const userSchema = new mongoose.Schema<User>(
         password: { type: String, required: true },
         organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
         role: { type: String, required: true, enum: ['regular', 'accountant'] },
-        projects: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }]
     },
     { timestamps: true }
 );
