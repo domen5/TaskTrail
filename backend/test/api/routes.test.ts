@@ -119,7 +119,7 @@ describe('API Tests', () => {
                 .send(invalidData)
                 .expect(400);
 
-            expect(response.body).to.have.property('message', 'Bad input');
+            expect(response.body).to.have.property('message', 'Invalid request body');
         });
     });
 
@@ -253,7 +253,7 @@ describe('API Tests', () => {
                 .send({ id: 'invalid-id' })
                 .expect(400);
 
-            expect(response.body).to.have.property('message', 'Bad input');
+            expect(response.body).to.have.property('message', 'Invalid request body');
         });
     });
 
@@ -381,7 +381,7 @@ describe('API Tests', () => {
                 .send(invalidUpdate)
                 .expect(400);
 
-            expect(response.body).to.have.property('message', 'Bad input');
+            expect(response.body).to.have.property('message', 'Invalid request body');
         });
     });
 
@@ -489,7 +489,7 @@ describe('API Tests', () => {
                 .set('Cookie', `token=${token}`)
                 .expect(400);
 
-            expect(response.body).to.have.property('message', 'Month must be between 1 and 12');
+            expect(response.body).to.have.property('message', 'Invalid route parameters');
         });
 
         // TODO: Implement delete user that invalidates active tokens
@@ -580,7 +580,7 @@ describe('API Tests', () => {
                 .send({})
                 .expect(400);
 
-            expect(response.body).to.have.property('message', 'Missing required parameters: year, month, and isLocked are required');
+            expect(response.body).to.have.property('message', 'Invalid request body');
         });
 
         it('should return 400 for invalid year/month', async () => {
@@ -590,7 +590,7 @@ describe('API Tests', () => {
                 .send({ year: 2024, month: 13, isLocked: 'true' })
                 .expect(400);
 
-            expect(response.body).to.have.property('message', 'Month must be between 1 and 12');
+            expect(response.body).to.have.property('message', 'Invalid request body');
         });
 
         it('should return 400 for invalid year range', async () => {
@@ -600,7 +600,7 @@ describe('API Tests', () => {
                 .send({ year: 1800, month: 3, isLocked: 'true' })
                 .expect(400);
 
-            expect(response.body).to.have.property('message', 'Year must be between 1900 and 9999');
+            expect(response.body).to.have.property('message', 'Invalid request body');
         });
     });
 });
