@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { workedHoursSchema } from './workedHoursSchema';
+import customerSchema from './customerSchema';
 import Roles from '../enums/roles.enum';
 
 export const yearMonthDayParamsSchema = z.object({
@@ -52,3 +53,22 @@ export const registerRequestSchema = z.object({
   organizationId: objectIdSchema,
   role: z.nativeEnum(Roles)
 }); 
+
+// Customer request schemas
+export const createCustomerRequestSchema = z.object({
+  customer: customerSchema
+});
+
+export const updateCustomerRequestSchema = z.object({
+  customer: customerSchema.extend({
+    _id: objectIdSchema
+  })
+});
+
+export const deleteCustomerRequestSchema = z.object({
+  id: objectIdSchema
+});
+
+export const customerIdParamsSchema = z.object({
+  id: objectIdSchema
+});
