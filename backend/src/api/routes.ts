@@ -6,22 +6,53 @@ import { verifyToken } from '../utils/auth';
 import { Types } from 'mongoose';
 import { AuthRequest } from '../types/auth';
 import { isMonthLocked, setLockedMonth } from '../db/lockedMonthStore';
+import {
+    yearMonthDayParamsSchema,
+    yearMonthParamsSchema,
+    createWorkedHoursRequestSchema,
+    updateWorkedHoursRequestSchema,
+    deleteWorkedHoursRequestSchema,
+    lockMonthRequestSchema
+} from '../schemas/requestSchemas';
 
 const routes = express.Router();
 
 // CREATE WorkedHours
 routes.post('/worked-hours/:year/:month/:day', verifyToken, async (req: AuthRequest, res) => {
-    const { year, month, day } = req.params;
-    const formData: WorkedHours = {
-        user: new Types.ObjectId(req.user._id),
-        date: new Date(req.body.workedHours.date),
-        project: req.body.workedHours.project,
-        hours: req.body.workedHours.hours,
-        description: req.body.workedHours.description,
-        overtime: req.body.workedHours.overtime,
-    };
     try {
-        const response = await createWorkedHours(parseInt(year), parseInt(month), parseInt(day), formData);
+        // Validate route parameters
+        const paramsResult = yearMonthDayParamsSchema.safeParse(req.params);
+        if (!paramsResult.success) {
+            res.status(400).json({
+                message: 'Invalid route parameters',
+                errors: paramsResult.error.flatten().fieldErrors
+            });
+            return;
+        }
+
+        // Validate request body
+        const bodyResult = createWorkedHoursRequestSchema.safeParse(req.body);
+        if (!bodyResult.success) {
+            res.status(400).json({
+                message: 'Invalid request body',
+                errors: bodyResult.error.flatten().fieldErrors
+            });
+            return;
+        }
+
+        const { year, month, day } = paramsResult.data;
+        const { workedHours } = bodyResult.data;
+        
+        const formData: WorkedHours = {
+            user: new Types.ObjectId(req.user._id),
+            date: workedHours.date,
+            project: workedHours.project,
+            hours: workedHours.hours,
+            description: workedHours.description,
+            overtime: workedHours.overtime,
+        };
+
+        const response = await createWorkedHours(year, month, day, formData);
         res.status(201).send(response);
     } catch (err) {
         if (err instanceof InputError || err.name === 'ValidationError' || err.name === 'CastError') {
@@ -34,12 +65,22 @@ routes.post('/worked-hours/:year/:month/:day', verifyToken, async (req: AuthRequ
 
 // READ WorkedHours
 routes.get('/worked-hours/:year/:month/:day', verifyToken, async (req: AuthRequest, res) => {
-    const { year, month, day } = req.params;
     try {
+        // Validate route parameters
+        const paramsResult = yearMonthDayParamsSchema.safeParse(req.params);
+        if (!paramsResult.success) {
+            res.status(400).json({
+                message: 'Invalid route parameters',
+                errors: paramsResult.error.flatten().fieldErrors
+            });
+            return;
+        }
+
+        const { year, month, day } = paramsResult.data;
         const data = await getWorkedHours(
-            parseInt(year),
-            parseInt(month),
-            parseInt(day),
+            year,
+            month,
+            day,
             new Types.ObjectId(req.user._id)
         );
         res.status(200).json(data);
@@ -54,15 +95,27 @@ routes.get('/worked-hours/:year/:month/:day', verifyToken, async (req: AuthReque
 
 // UPDATE WorkedHours
 routes.put('/worked-hours', verifyToken, async (req: AuthRequest, res) => {
-    const id = req.body.workedHours._id;
     try {
+        // Validate request body
+        const bodyResult = updateWorkedHoursRequestSchema.safeParse(req.body);
+        if (!bodyResult.success) {
+            res.status(400).json({
+                message: 'Invalid request body',
+                errors: bodyResult.error.flatten().fieldErrors
+            });
+            return;
+        }
+
+        const { workedHours } = bodyResult.data;
+        const id = workedHours._id;
+        
         const formData: WorkedHours = {
             user: new Types.ObjectId(req.user._id),
-            date: new Date(req.body.workedHours.date),
-            project: req.body.workedHours.project,
-            hours: req.body.workedHours.hours,
-            description: req.body.workedHours.description,
-            overtime: req.body.workedHours.overtime,
+            date: workedHours.date,
+            project: workedHours.project,
+            hours: workedHours.hours,
+            description: workedHours.description,
+            overtime: workedHours.overtime,
         };
         const result = await updateWorkedHours(id, formData);
         res.status(200).json(result);
@@ -78,7 +131,17 @@ routes.put('/worked-hours', verifyToken, async (req: AuthRequest, res) => {
 // DELETE WorkedHours
 routes.delete('/worked-hours', verifyToken, async (req: AuthRequest, res) => {
     try {
-        const id = req.body.id;
+        // Validate request body
+        const bodyResult = deleteWorkedHoursRequestSchema.safeParse(req.body);
+        if (!bodyResult.success) {
+            res.status(400).json({
+                message: 'Invalid request body',
+                errors: bodyResult.error.flatten().fieldErrors
+            });
+            return;
+        }
+
+        const { id } = bodyResult.data;
         await deleteWorkedHours(id, new Types.ObjectId(req.user._id));
         res.status(200).send({ message: 'Delete was successful' }); // 204
     } catch (err) {
@@ -92,11 +155,21 @@ routes.delete('/worked-hours', verifyToken, async (req: AuthRequest, res) => {
 
 // READ Month WorkedHours
 routes.get('/worked-hours/:year/:month/', verifyToken, async (req: AuthRequest, res) => {
-    const { year, month } = req.params;
     try {
+        // Validate route parameters
+        const paramsResult = yearMonthParamsSchema.safeParse(req.params);
+        if (!paramsResult.success) {
+            res.status(400).json({
+                message: 'Invalid route parameters',
+                errors: paramsResult.error.flatten().fieldErrors
+            });
+            return;
+        }
+
+        const { year, month } = paramsResult.data;
         const data = await getMonthWorkedHours(
-            parseInt(year),
-            parseInt(month),
+            year,
+            month,
             new Types.ObjectId(req.user._id)
         );
         res.status(200).json(data);
@@ -112,31 +185,22 @@ routes.get('/worked-hours/:year/:month/', verifyToken, async (req: AuthRequest, 
 // LOCK Month 
 routes.post('/lock/:year/:month', verifyToken, async (req: AuthRequest, res) => {
     try {
-        const { year, month } = req.params;
-
-        if (!year || !month) {
-            res.status(400).json({ message: 'Missing required parameters' });
+        // Validate route parameters
+        const paramsResult = yearMonthParamsSchema.safeParse(req.params);
+        if (!paramsResult.success) {
+            res.status(400).json({
+                message: 'Invalid route parameters',
+                errors: paramsResult.error.flatten().fieldErrors
+            });
             return;
         }
 
-        const yearNum = parseInt(year);
-        const monthNum = parseInt(month);
-
-        if (isNaN(yearNum) || isNaN(monthNum)) {
-            res.status(400).json({ message: 'Year and month must be valid numbers' });
-            return;
-        }
-
-        // const user = await UserModel.findById(req.user._id);
-        // if (!user) {
-        //     res.status(404).json({ message: 'User not found' });
-        //     return;
-        // }
+        const { year, month } = paramsResult.data;
 
         await setLockedMonth(
             new Types.ObjectId(req.user._id),
-            yearNum,
-            monthNum,
+            year,
+            month,
             new Types.ObjectId(req.user._id),
             true
         );
@@ -154,40 +218,22 @@ routes.post('/lock/:year/:month', verifyToken, async (req: AuthRequest, res) => 
 // WRITE LockedMonth
 routes.post('/month', verifyToken, async (req: AuthRequest, res) => {
     try {
-        const { year, month, isLocked } = req.body;
-
-        if (!year || !month || isLocked === undefined) {
-            res.status(400).json({ message: 'Missing required parameters: year, month, and isLocked are required' });
+        // Validate request body
+        const bodyResult = lockMonthRequestSchema.safeParse(req.body);
+        if (!bodyResult.success) {
+            res.status(400).json({
+                message: 'Invalid request body',
+                errors: bodyResult.error.flatten().fieldErrors
+            });
             return;
         }
 
-        const yearNum = parseInt(year);
-        const monthNum = parseInt(month);
-
-        if (isNaN(yearNum) || isNaN(monthNum)) {
-            res.status(400).json({ message: 'Year and month must be valid numbers' });
-            return;
-        }
-
-        if (monthNum < 1 || monthNum > 12) {
-            res.status(400).json({ message: 'Month must be between 1 and 12' });
-            return;
-        }
-
-        if (yearNum < 1900 || yearNum > 9999) {
-            res.status(400).json({ message: 'Year must be between 1900 and 9999' });
-            return;
-        }
-
-        if (typeof isLocked !== 'boolean') {
-            res.status(400).json({ message: 'isLocked must be a boolean' });
-            return;
-        }
+        const { year, month, isLocked } = bodyResult.data;
 
         await setLockedMonth(
             new Types.ObjectId(req.user._id),
-            yearNum,
-            monthNum,
+            year,
+            month,
             new Types.ObjectId(req.user._id),
             isLocked
         );
@@ -210,28 +256,19 @@ routes.post('/month', verifyToken, async (req: AuthRequest, res) => {
 // VERIFY Month
 routes.get('/lock/:year/:month', verifyToken, async (req: AuthRequest, res) => {
     try {
-        const { year, month } = req.params;
-
-        if (!year || !month) {
-            res.status(400).json({ message: 'Missing required parameters' });
+        // Validate route parameters
+        const paramsResult = yearMonthParamsSchema.safeParse(req.params);
+        if (!paramsResult.success) {
+            res.status(400).json({
+                message: 'Invalid route parameters',
+                errors: paramsResult.error.flatten().fieldErrors
+            });
             return;
         }
 
-        const yearNum = parseInt(year);
-        const monthNum = parseInt(month);
+        const { year, month } = paramsResult.data;
 
-        if (isNaN(yearNum) || isNaN(monthNum)) {
-            res.status(400).json({ message: 'Year and month must be valid numbers' });
-            return;
-        }
-
-        // const user = await UserModel.findById(req.user._id);
-        // if (!user) {
-        //     res.status(404).json({ message: 'User not found' });
-        //     return;
-        // }
-
-        const isLocked = await isMonthLocked(new Types.ObjectId(req.user._id), yearNum, monthNum);
+        const isLocked = await isMonthLocked(new Types.ObjectId(req.user._id), year, month);
 
         res.status(200).json({ 'isLocked': isLocked });
     } catch (err) {
