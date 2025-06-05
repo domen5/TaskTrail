@@ -6,26 +6,24 @@ import { makeToken, verifyToken } from "../utils/auth";
 import { incrementTokenVersion, addToBlacklist, getTokenVersion } from '../db/tokenStore';
 import { TokenVersion } from '../db/tokenStore';
 import { Types } from "mongoose";
+import { loginRequestSchema, registerRequestSchema } from '../schemas/requestSchemas';
 
 const routes = express.Router();
 const TOKEN_EXPIRY = 30 * 60 * 1000; // 30 minutes
 
 routes.post('/register', async (req: Request, res: Response) => {
     try {
-        const { username, password, organizationId, role } = req.body;
-        
-        if (!username || !password || !organizationId || !role) {
-            res.status(400).json({ 
-                message: 'Missing required fields',
-                details: {
-                    username: !username ? 'Username is required' : null,
-                    password: !password ? 'Password is required' : null,
-                    organizationId: !organizationId ? 'Organization ID is required' : null,
-                    role: !role ? 'Role is required' : null
-                }
+        // Validate request body
+        const bodyResult = registerRequestSchema.safeParse(req.body);
+        if (!bodyResult.success) {
+            res.status(400).json({
+                message: 'Invalid request body',
+                errors: bodyResult.error.flatten().fieldErrors
             });
             return;
         }
+
+        const { username, password, organizationId, role } = bodyResult.data;
 
         let orgId;
         try {
@@ -59,11 +57,17 @@ routes.post('/register', async (req: Request, res: Response) => {
 
 routes.post('/login', async (req: Request, res: Response) => {
     try {
-        if (!req.body.username || !req.body.password) {
-            res.status(422).send({ message: 'Username and password are required' });
+        // Validate request body
+        const bodyResult = loginRequestSchema.safeParse(req.body);
+        if (!bodyResult.success) {
+            res.status(400).json({
+                message: 'Invalid request body',
+                errors: bodyResult.error.flatten().fieldErrors
+            });
             return;
         }
-        const { username, password } = req.body;
+        
+        const { username, password } = bodyResult.data;
 
         const foundUser = await retrieveUser(username);
         if (!foundUser) {

@@ -70,7 +70,7 @@ describe('User API Routes', () => {
                     .send(testCase);
 
                 expect(response.status).to.equal(400);
-                expect(response.body.message).to.equal('Missing required fields');
+                expect(response.body.message).to.equal('Invalid request body');
             }
         });
 
@@ -96,7 +96,7 @@ describe('User API Routes', () => {
                 });
 
             expect(response.status).to.equal(400);
-            expect(response.body.message).to.equal('Invalid organization ID format');
+            expect(response.body.message).to.equal('Invalid request body');
         });
 
         it('should return 400 for duplicate username', async () => {
@@ -126,7 +126,7 @@ describe('User API Routes', () => {
                 });
 
             expect(response.status).to.equal(400);
-            expect(response.body.message).to.equal('Invalid registration data');
+            expect(response.body.message).to.equal('Invalid request body');
         });
 
         it('should accept accountant role', async () => {
