@@ -1,6 +1,16 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, Types, Document } from "mongoose";
+import { BaseEntity } from "../db/base.store";
 
-interface Customer {
+interface Customer extends BaseEntity {
+    name?: string;
+    address?: string;
+    email?: string;
+    phone?: string;
+    user: Types.ObjectId;
+}
+
+// Mongoose document type
+interface CustomerDocument extends Document {
     name: string;
     address: string;
     email?: string;
@@ -10,7 +20,7 @@ interface Customer {
     updatedAt?: Date;
 }
 
-const customerSchema = new Schema<Customer>({
+const customerSchema = new Schema<CustomerDocument>({
     name: { type: String, required: true },
     address: { type: String, required: true },
     email: { type: String, required: false },
@@ -18,7 +28,7 @@ const customerSchema = new Schema<Customer>({
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 }, { timestamps: true });
 
-const CustomerModel = model<Customer>('Customer', customerSchema);
+const CustomerModel = model<CustomerDocument>('Customer', customerSchema);
 
 export default Customer;
-export { CustomerModel };
+export { CustomerModel, CustomerDocument };

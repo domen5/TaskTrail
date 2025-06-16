@@ -1,7 +1,7 @@
-import { Document, Model } from 'mongoose';
+import { Document, Model, Types } from 'mongoose';
 
 export interface BaseEntity {
-  _id?: string;
+  _id?: string | Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -14,7 +14,14 @@ export interface CrudOperations<T> {
   delete(id: string): Promise<boolean>;
 }
 
-abstract class BaseRepository<T extends BaseEntity & Document> implements CrudOperations<T> {
+export interface UserSpecificStore<TDoc extends Document> extends BaseStore<TDoc> {
+    findByUser(userId: Types.ObjectId): Promise<TDoc[]>;
+    findByIdAndUser(id: string, userId: Types.ObjectId): Promise<TDoc | null>;
+    updateByIdAndUser(id: string, data: Partial<TDoc>, userId: Types.ObjectId): Promise<TDoc | null>;
+    deleteByIdAndUser(id: string, userId: Types.ObjectId): Promise<boolean>;
+}
+
+abstract class BaseStore<T extends Document> implements CrudOperations<T> {
   protected model: Model<T>;
 
   constructor(model: Model<T>) {
@@ -56,4 +63,4 @@ abstract class BaseRepository<T extends BaseEntity & Document> implements CrudOp
   }
 }
 
-export default BaseRepository;
+export default BaseStore;
