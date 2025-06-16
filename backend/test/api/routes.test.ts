@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import supertest from 'supertest';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import routes from '../../src/api/routes';
+import routes from '../../src/routes/routes';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 import { makeToken } from '../../src/utils/auth';
 import { JWT_SECRET } from '../../src/config';

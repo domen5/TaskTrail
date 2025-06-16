@@ -9,7 +9,7 @@ import { makeToken } from '../../src/utils/auth';
 import { JWT_SECRET } from '../../src/config';
 import { TokenVersion } from '../../src/db/tokenStore';
 import { UserModel } from '../../src/models/User';
-import accountantRoutes from '../../src/api/accountantRoutes';
+import accountantRoutes from '../../src/routes/accountantRoutes';
 import { LockedMonthModel } from '../../src/models/LockedMonth';
 
 describe('Accountant Routes Tests', () => {

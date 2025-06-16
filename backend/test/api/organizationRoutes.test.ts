@@ -5,7 +5,7 @@ import express from 'express';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 import { OrganizationModel } from '../../src/models/Organization';
 import { Types } from 'mongoose';
-import organizationRoutes from '../../src/api/organizationRoutes';
+import organizationRoutes from '../../src/routes/organizationRoutes';
 
 describe('Organization API Routes', () => {
     let app: express.Express;

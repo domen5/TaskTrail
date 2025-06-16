@@ -1,12 +1,12 @@
 import { initializeDatabase } from './db/dataStore';
-import routes from './api/routes';
-import userRoutes from './api/userRoutes';
+import routes from './routes/routes';
+import userRoutes from './routes/userRoutes';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { PORT, FRONTEND_URLS } from "./config"
-import organizationRoutes from './api/organizationRoutes';
-import projectRoutes from './api/projectRoutes';
+import organizationRoutes from './routes/organizationRoutes';
+import projectRoutes from './routes/projectRoutes';
 
 async function startServer() {
     await initializeDatabase();

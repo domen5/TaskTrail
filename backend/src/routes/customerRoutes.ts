@@ -1,4 +1,4 @@
-import CustomerController from './customer.controller';
+import CustomerController from '../controllers/customer.controller';
 import { errorHandler } from '../utils/errorHandler';
 
 const customerController = new CustomerController();

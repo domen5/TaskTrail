@@ -6,7 +6,7 @@ import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 import { OrganizationModel } from '../../src/models/Organization';
 import { UserModel, Role } from '../../src/models/User';
 import { Types } from 'mongoose';
-import userRoutes from '../../src/api/userRoutes';
+import userRoutes from '../../src/routes/userRoutes';
 
 describe('User API Routes', () => {
     let testOrgId: Types.ObjectId;
