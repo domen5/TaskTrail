@@ -1,5 +1,5 @@
 import Customer, { CustomerDocument } from '../models/Customer';
-import { CrudController } from '../routes/crud.controller';
+import { CrudController } from './crud.controller';
 import CustomerService from '../services/customer.service';
 import { z } from 'zod';
 import customerSchema from '../schemas/customerSchema';

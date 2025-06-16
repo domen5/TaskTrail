@@ -7,6 +7,9 @@ import cookieParser from 'cookie-parser';
 import { PORT, FRONTEND_URLS } from "./config"
 import organizationRoutes from './routes/organizationRoutes';
 import projectRoutes from './routes/projectRoutes';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swagger';
+import customerRoutes from './routes/customer.routes';
 
 async function startServer() {
     await initializeDatabase();
@@ -32,6 +35,9 @@ async function startServer() {
     app.use('/api/user', userRoutes);
     app.use('/api/organization', organizationRoutes);
     app.use('/api/project', projectRoutes);
+    app.use('/api/customers', customerRoutes);
+
+    app.use('/documentation', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     
     app.get('/', (req: Request, res: Response) => {
         res.send('Hello, World!');
