@@ -10,7 +10,6 @@ import { UserModel } from '../../src/models/User';
 describe('LockedMonthStore Tests', () => {
     const userId = new Types.ObjectId();
     const accountantId = new Types.ObjectId();
-    const organizationId = new Types.ObjectId();
 
     before(async () => {
         await setupTestDB();
@@ -26,14 +25,12 @@ describe('LockedMonthStore Tests', () => {
             _id: userId,
             username: 'Test User',
             password: 'password',
-            organization: organizationId,
             role: 'regular'
         });
         await UserModel.create({
             _id: accountantId,
             username: 'Test Accountant',
             password: 'password',
-            organization: organizationId,
             role: 'accountant'
         });
     });

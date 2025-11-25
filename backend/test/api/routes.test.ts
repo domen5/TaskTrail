@@ -11,7 +11,6 @@ import { TokenVersion } from '../../src/db/tokenStore';
 import { Types } from 'mongoose';
 import { UserModel } from '../../src/models/User';
 import { LockedMonthModel } from '../../src/models/LockedMonth';
-import { OrganizationModel } from '../../src/models/Organization';
 
 describe('API Tests', () => {
     let app: express.Express;
@@ -19,7 +18,6 @@ describe('API Tests', () => {
     let token2: string;
     const testUserId = new Types.ObjectId().toString();
     const testUserId2 = new Types.ObjectId().toString();
-    const testOrgId = new Types.ObjectId();
     
     before(async function() {
         this.timeout(10000); // Set timeout to 10 seconds
@@ -55,16 +53,10 @@ describe('API Tests', () => {
         await clearDatabase();
         await TokenVersion.create({ userId: testUserId, version: 1 });
         await TokenVersion.create({ userId: testUserId2, version: 1 });
-
-        await OrganizationModel.create({
-            _id: testOrgId,
-            name: 'Test Organization'
-        });
         
         await UserModel.create({
             _id: testUserId,
             username: 'testUser',
-            organization: testOrgId,
             role: 'regular',
             password: 'hashedPassword'
         });

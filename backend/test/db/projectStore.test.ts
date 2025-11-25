@@ -21,7 +21,6 @@ describe('Project Store Tests', () => {
     describe('createProject', () => {
         const validTestProject = {
             name: 'Test Project',
-            organization: new Types.ObjectId(),
             active: true,
             createdAt: new Date(),
             updatedAt: new Date()
@@ -31,7 +30,6 @@ describe('Project Store Tests', () => {
             const result = await createProject(validTestProject);
             expect(result).to.exist;
             expect(result.name).to.equal(validTestProject.name);
-            expect(result.organization).to.equal(validTestProject.organization);
             expect(result.active).to.equal(validTestProject.active);
         });
         

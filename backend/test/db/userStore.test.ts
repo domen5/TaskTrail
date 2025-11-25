@@ -3,19 +3,16 @@ import { expect } from 'chai';
 import { registerUser, retrieveUser } from '../../src/db/userStore';
 import { setupTestDB, teardownTestDB, clearDatabase } from '../setup';
 import { UserModel, Role } from '../../src/models/User';
-import { OrganizationModel } from '../../src/models/Organization';
 import bcrypt from 'bcrypt';
 import { Types } from 'mongoose';
 
 describe('UserStore Tests', () => {
-    let testOrgId: Types.ObjectId;
     const testRole: Role = 'regular';
 
     async function createTestUser(overrides = {}) {
         const baseUser = {
             username: 'testuser',
             password: 'testpassword',
-            organization: testOrgId,
             role: testRole
         };
         return await registerUser({ ...baseUser, ...overrides });
@@ -31,8 +28,6 @@ describe('UserStore Tests', () => {
 
     beforeEach(async () => {
         await clearDatabase();
-        const org = await OrganizationModel.create({ name: 'testorganization' });
-        testOrgId = org._id;
     });
 
     describe('register', () => {
@@ -41,7 +36,6 @@ describe('UserStore Tests', () => {
 
             expect(result).to.have.property('username', 'testuser');
             expect(result).to.have.property('password').that.is.not.equal('testpassword');
-            expect(result.organization.toString()).to.equal(testOrgId.toString());
             expect(result.role).to.equal(testRole);
 
             const savedUser = await UserModel.findOne({ username: 'testuser' });
@@ -104,7 +98,6 @@ describe('UserStore Tests', () => {
 
             const foundUser = await retrieveUser('testuser');
             expect(foundUser).to.have.property('username', 'testuser');
-            expect(foundUser?.organization.toString()).to.equal(testOrgId.toString());
             expect(foundUser?.role).to.equal(testRole);
             const isMatch = await bcrypt.compare('testpassword', foundUser?.password || '');
             expect(isMatch).to.be.true;

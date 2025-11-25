@@ -18,7 +18,6 @@ describe('Accountant Routes Tests', () => {
     let regularUserToken: string;
     const accountantId = new Types.ObjectId().toString();
     const regularUserId = new Types.ObjectId().toString();
-    const orgId = new Types.ObjectId().toString();
 
     before(async () => {
         await setupTestDB();
@@ -60,7 +59,6 @@ describe('Accountant Routes Tests', () => {
             userId: accountantId,
             username: 'accountant',
             role: 'accountant',
-            organization: orgId,
             password: 'hashedPassword'
         });
         await UserModel.create({
@@ -68,7 +66,6 @@ describe('Accountant Routes Tests', () => {
             userId: regularUserId,
             username: 'regular',
             role: 'regular',
-            organization: orgId,
             password: 'hashedPassword'
         });
     });
@@ -143,25 +140,6 @@ describe('Accountant Routes Tests', () => {
             expect(response.body).to.have.property('message', 'Access Denied: You are not authorized to perform this action');
         });
 
-        it('should return 403 when accountant tries to lock month for user from different organization', async () => {
-            // Create user from different organization
-            const differentOrgId = new Types.ObjectId().toString();
-            const differentOrgUserId = new Types.ObjectId().toString();
-            await UserModel.create({
-                _id: differentOrgUserId,
-                username: 'different-org-user',
-                role: 'regular',
-                organization: differentOrgId,
-                password: 'hashedPassword'
-            });
-
-            const response = await supertest(app)
-                .post(`/api/accountant/2024/3/${differentOrgUserId}/lock`)
-                .set('Cookie', [`token=${accountantToken}`])
-                .expect(403);
-
-            expect(response.body).to.have.property('message', 'Access Denied: You are not authorized to perform this action');
-        });
 
         it('should return 400 when trying to lock a future month', async () => {
             const currentDate = new Date();
