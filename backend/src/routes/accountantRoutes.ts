@@ -43,7 +43,7 @@ routes.post('/:year/:month/:userId/lock', verifyToken, async (req: AuthRequest, 
             return;
         }
 
-        if (accountant.role !== 'accountant' || !user.organization.equals(accountant.organization)) {
+        if (accountant.role !== 'accountant') {
             res.status(403).json({ message: 'Access Denied: You are not authorized to perform this action' });
             return;
         }

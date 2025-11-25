@@ -1,11 +1,10 @@
 import express, { Request, Response } from "express";
-import { registerUser, retrieveOrganization, retrieveUser } from "../db/userStore";
+import { registerUser, retrieveUser } from "../db/userStore";
 import bcrypt from 'bcrypt';
 import { JWT_SECRET } from "../config";
 import { makeToken, verifyToken } from "../utils/auth";
 import { incrementTokenVersion, addToBlacklist, getTokenVersion } from '../db/tokenStore';
 import { TokenVersion } from '../db/tokenStore';
-import { Types } from "mongoose";
 import { loginRequestSchema, registerRequestSchema } from '../schemas/requestSchemas';
 
 const routes = express.Router();
@@ -23,24 +22,10 @@ routes.post('/register', async (req: Request, res: Response) => {
             return;
         }
 
-        const { username, password, organizationId, role } = bodyResult.data;
-
-        let orgId;
-        try {
-            orgId = Types.ObjectId.createFromHexString(organizationId);
-        } catch (err) {
-            res.status(400).json({ message: 'Invalid organization ID format' });
-            return;
-        }
-
-        const organization = await retrieveOrganization(orgId);
-        if (!organization) {
-            res.status(404).json({ message: 'Organization not found' });
-            return;
-        }
+        const { username, password, role } = bodyResult.data;
 
         try {
-            await registerUser({ username, password, organization: organization._id, role });
+            await registerUser({ username, password, role });
             res.status(201).json({ message: 'User registered successfully' });
         } catch (err: any) {
             if (err.code === 11000 || err.name === 'ValidationError') {

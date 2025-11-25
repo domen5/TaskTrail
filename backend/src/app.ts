@@ -5,7 +5,6 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { PORT, FRONTEND_URLS } from "./config"
-import organizationRoutes from './routes/organizationRoutes';
 import projectRoutes from './routes/projectRoutes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger';
@@ -33,7 +32,6 @@ async function startServer() {
     app.use(cookieParser());
     app.use('/api', routes);
     app.use('/api/user', userRoutes);
-    app.use('/api/organization', organizationRoutes);
     app.use('/api/project', projectRoutes);
     app.use('/api/customers', customerRoutes);
 

@@ -7,11 +7,9 @@ import {
     deleteProject, 
     addUserToProject, 
     removeUserFromProject,
-    getOrganizationProjects,
 } from '../db/projectStore';
 import { Project } from '../models/Projects';
 import { InputError } from '../utils/errors';
-import { Types } from 'mongoose';
 import { verifyToken } from '../utils/auth';
 import { AuthRequest } from '../types/auth';
 
@@ -24,14 +22,13 @@ routes.post('/', verifyToken, async (req: AuthRequest, res) => {
             throw new InputError('Project is required');
         }
 
-        if (!req.body.project.name || !req.body.project.organization) {
-            throw new InputError('Name and organization are required');
+        if (!req.body.project.name) {
+            throw new InputError('Name is required');
         }
 
         const newProject: Project = {
             name: req.body.project.name,
             description: req.body.project.description,
-            organization: Types.ObjectId.createFromHexString(req.body.project.organization),
             active: req.body.project.active !== undefined ? req.body.project.active : true,
         };
         const project = await createProject(newProject);
@@ -180,26 +177,5 @@ routes.delete('/:projectId/users/:userId', verifyToken, async (req: AuthRequest,
     }
 });
 
-// GET organization projects
-routes.get('/organization/:organizationId', verifyToken, async (req: AuthRequest, res) => {
-    try {
-        const { organizationId } = req.params;
-        
-        if (!organizationId) {
-            throw new InputError('Organization ID is required');
-        }
-        
-        const projects = await getOrganizationProjects(organizationId);
-        res.status(200).json(projects);
-    } catch (error) {
-        if (error instanceof InputError) {
-            console.error(error);
-            res.status(400).json({ error: error.message });
-        } else {
-            console.error(error);
-            res.status(500).json({ error: 'Internal server error' });
-        }
-    }
-});
 
 export default routes;

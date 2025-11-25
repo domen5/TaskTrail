@@ -9,10 +9,6 @@ export const createProject = async (project: Project): Promise<Project> => {
         throw new InputError('Project name is required');
     }
 
-    if (!project.organization) {
-        throw new InputError('Organization ID is required');
-    }
-
     const newProject = new ProjectModel(project);
     await newProject.save();
     return newProject;
@@ -87,7 +83,7 @@ export const updateProject = async (projectId: string, updates: Partial<Project>
             throw err;
         }
         if (err.code === 11000) {
-            throw new InputError('A project with this name already exists in your organization');
+            throw new InputError('A project with this name already exists');
         }
         if (err.name === 'CastError') {
             throw new InputError('Invalid project ID format');
@@ -148,9 +144,6 @@ export const addUserToProject = async (projectId: string, userId: string): Promi
                 throw new InputError('Project not found');
             }
 
-            if (!project.organization.equals(user.organization)) {
-                throw new InputError('User and project must belong to the same organization');
-            }
 
             await UserProjectModel.findOneAndUpdate(
                 { user: new Types.ObjectId(userId), project: new Types.ObjectId(projectId) },
@@ -204,10 +197,3 @@ export const removeUserFromProject = async (projectId: string, userId: string): 
     }
 };
 
-export const getOrganizationProjects = async (organizationId: string): Promise<Project[]> => {
-    const projects = await ProjectModel.find({
-        organization: new Types.ObjectId(organizationId),
-        active: true
-    }).sort({ name: 1 });
-    return projects;
-};

@@ -7,7 +7,6 @@ export type Role = z.infer<typeof roleSchema>;
 export const userSchema = z.object({
   username: z.string().min(1),
   password: z.string().min(8),
-  organization: z.string(),
   role: roleSchema,
 });
 

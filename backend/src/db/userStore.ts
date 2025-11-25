@@ -1,5 +1,3 @@
-import { Types } from "mongoose";
-import { OrganizationModel } from "../models/Organization";
 import User, { UserModel } from "../models/User";
 
 const registerUser = async (user: User) => {
@@ -20,13 +18,4 @@ const retrieveUser = async (username: string) => {
     }
 };
 
-const retrieveOrganization = async (organizationId: Types.ObjectId) => {
-    try {
-        const foundOrganization = await OrganizationModel.findOne({ _id: organizationId });
-        return foundOrganization;
-    } catch (err) {
-        throw err;
-    }
-}
-
-export { registerUser, retrieveUser, retrieveOrganization };
+export { registerUser, retrieveUser };
