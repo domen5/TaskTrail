@@ -63,6 +63,8 @@ services:
       - mongodb-data:/data/db
     networks:
       - express-mongodb
+    ports:
+      - 27017:27017
     restart: always
 
 networks:
