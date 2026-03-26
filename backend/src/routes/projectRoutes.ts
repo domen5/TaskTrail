@@ -15,7 +15,32 @@ import { AuthRequest } from '../types/auth';
 
 const routes = express.Router();
 
-// CREATE project
+/**
+ * @swagger
+ * /api/project:
+ *   post:
+ *     summary: Create a new project
+ *     tags: [Projects]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               project:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Project created
+ */
 routes.post('/', verifyToken, async (req: AuthRequest, res) => {
     try {
         if (!req.body.project) {
@@ -49,6 +74,24 @@ routes.post('/', verifyToken, async (req: AuthRequest, res) => {
 });
 
 // READ project
+/**
+ * @swagger
+ * /api/project/{id}:
+ *   get:
+ *     summary: Get a project by ID
+ *     tags: [Projects]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Project retrieved
+ */
 routes.get('/:id', verifyToken, async (req: AuthRequest, res) => {
     try {
         if (!req.params.id) {
@@ -68,6 +111,18 @@ routes.get('/:id', verifyToken, async (req: AuthRequest, res) => {
 });
 
 // GET user projects - fixed route path to avoid conflicts
+/**
+ * @swagger
+ * /api/project/user/projects:
+ *   get:
+ *     summary: Get user's projects
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User's projects retrieved
+ */
 routes.get('/user/projects', verifyToken, async (req: AuthRequest, res) => {
     try {
         const projects = await getUserProjects(req.user._id);
@@ -84,6 +139,33 @@ routes.get('/user/projects', verifyToken, async (req: AuthRequest, res) => {
 });
 
 // UPDATE project
+/**
+ * @swagger
+ * /api/project/{id}:
+ *   put:
+ *     summary: Update a project
+ *     tags: [Projects]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               project:
+ *                 type: object
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Project updated
+ */
 routes.put('/:id', verifyToken, async (req: AuthRequest, res) => {
     try {
         if (!req.params.id) {
@@ -114,6 +196,24 @@ routes.put('/:id', verifyToken, async (req: AuthRequest, res) => {
 });
 
 // DELETE project (soft delete)
+/**
+ * @swagger
+ * /api/project/{id}:
+ *   delete:
+ *     summary: Delete a project
+ *     tags: [Projects]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Project deleted
+ */
 routes.delete('/:id', verifyToken, async (req: AuthRequest, res) => {
     try {
         if (!req.params.id) {

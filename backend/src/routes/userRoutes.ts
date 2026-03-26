@@ -10,6 +10,29 @@ import { loginRequestSchema, registerRequestSchema } from '../schemas/requestSch
 const routes = express.Router();
 const TOKEN_EXPIRY = 30 * 60 * 1000; // 30 minutes
 
+/**
+ * @swagger
+ * /api/user/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered
+ */
 routes.post('/register', async (req: Request, res: Response) => {
     try {
         // Validate request body
@@ -40,6 +63,27 @@ routes.post('/register', async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/user/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ */
 routes.post('/login', async (req: Request, res: Response) => {
     try {
         // Validate request body
@@ -96,11 +140,33 @@ routes.post('/login', async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/user/verify:
+ *   get:
+ *     summary: Verify token
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Token is valid
+ */
 routes.get('/verify', verifyToken, async (req: Request, res: Response) => {
     const user = (req as any).user;
     res.status(200).send({ message: 'Token is valid', user, expiresIn: TOKEN_EXPIRY });
 });
 
+/**
+ * @swagger
+ * /api/user/logout:
+ *   post:
+ *     summary: Logout user
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ */
 routes.post('/logout', async (req, res) => {
     try {
         const token = req.cookies.token;
@@ -118,6 +184,18 @@ routes.post('/logout', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/user/refresh-token:
+ *   post:
+ *     summary: Refresh token
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Token refreshed
+ */
 routes.post('/refresh-token', verifyToken, async (req: Request, res: Response) => {
     try {
         const user = (req as any).user;

@@ -17,7 +17,52 @@ import {
 
 const routes = express.Router();
 
-// CREATE WorkedHours
+/**
+ * @swagger
+ * /api/worked-hours/{year}/{month}/{day}:
+ *   post:
+ *     summary: Create worked hours
+ *     tags: [Worked Hours]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: day
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               workedHours:
+ *                 type: object
+ *                 properties:
+ *                   date:
+ *                     type: string
+ *                   project:
+ *                     type: string
+ *                   hours:
+ *                     type: number
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Worked hours created
+ *       400:
+ *         description: Validation error
+ */
 routes.post('/worked-hours/:year/:month/:day', verifyToken, async (req: AuthRequest, res) => {
     try {
         // Validate route parameters
@@ -63,7 +108,34 @@ routes.post('/worked-hours/:year/:month/:day', verifyToken, async (req: AuthRequ
     }
 });
 
-// READ WorkedHours
+/**
+ * @swagger
+ * /api/worked-hours/{year}/{month}/{day}:
+ *   get:
+ *     summary: Get worked hours for a specific day
+ *     tags: [Worked Hours]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: day
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Worked hours retrieved
+ */
 routes.get('/worked-hours/:year/:month/:day', verifyToken, async (req: AuthRequest, res) => {
     try {
         // Validate route parameters
@@ -93,7 +165,40 @@ routes.get('/worked-hours/:year/:month/:day', verifyToken, async (req: AuthReque
     }
 });
 
-// UPDATE WorkedHours
+/**
+ * @swagger
+ * /api/worked-hours:
+ *   put:
+ *     summary: Update worked hours
+ *     tags: [Worked Hours]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               workedHours:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   date:
+ *                     type: string
+ *                   project:
+ *                     type: string
+ *                   hours:
+ *                     type: number
+ *                   description:
+ *                     type: string
+ *                   overtime:
+ *                     type: boolean
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Worked hours updated
+ */
 routes.put('/worked-hours', verifyToken, async (req: AuthRequest, res) => {
     try {
         // Validate request body
@@ -128,7 +233,27 @@ routes.put('/worked-hours', verifyToken, async (req: AuthRequest, res) => {
     }
 });
 
-// DELETE WorkedHours
+/**
+ * @swagger
+ * /api/worked-hours:
+ *   delete:
+ *     summary: Delete worked hours
+ *     tags: [Worked Hours]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Worked hours deleted
+ */
 routes.delete('/worked-hours', verifyToken, async (req: AuthRequest, res) => {
     try {
         // Validate request body
@@ -153,7 +278,29 @@ routes.delete('/worked-hours', verifyToken, async (req: AuthRequest, res) => {
     }
 });
 
-// READ Month WorkedHours
+/**
+ * @swagger
+ * /api/worked-hours/{year}/{month}/:
+ *   get:
+ *     summary: Get worked hours for a specific month
+ *     tags: [Worked Hours]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Monthly worked hours retrieved
+ */
 routes.get('/worked-hours/:year/:month/', verifyToken, async (req: AuthRequest, res) => {
     try {
         // Validate route parameters
@@ -182,7 +329,29 @@ routes.get('/worked-hours/:year/:month/', verifyToken, async (req: AuthRequest, 
     }
 });
 
-// LOCK Month 
+/**
+ * @swagger
+ * /api/lock/{year}/{month}:
+ *   post:
+ *     summary: Lock a month's worked hours
+ *     tags: [Lock]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Month locked
+ */
 routes.post('/lock/:year/:month', verifyToken, async (req: AuthRequest, res) => {
     try {
         // Validate route parameters
@@ -215,7 +384,31 @@ routes.post('/lock/:year/:month', verifyToken, async (req: AuthRequest, res) => 
     }
 });
 
-// WRITE LockedMonth
+/**
+ * @swagger
+ * /api/month:
+ *   post:
+ *     summary: Lock or unlock a month
+ *     tags: [Lock]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               year:
+ *                 type: integer
+ *               month:
+ *                 type: integer
+ *               isLocked:
+ *                 type: boolean
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Month lock status updated
+ */
 routes.post('/month', verifyToken, async (req: AuthRequest, res) => {
     try {
         // Validate request body
@@ -253,7 +446,29 @@ routes.post('/month', verifyToken, async (req: AuthRequest, res) => {
     }
 });
 
-// VERIFY Month
+/**
+ * @swagger
+ * /api/lock/{year}/{month}:
+ *   get:
+ *     summary: Check if a month is locked
+ *     tags: [Lock]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lock status retrieved
+ */
 routes.get('/lock/:year/:month', verifyToken, async (req: AuthRequest, res) => {
     try {
         // Validate route parameters

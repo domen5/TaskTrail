@@ -7,7 +7,8 @@ import cookieParser from 'cookie-parser';
 import { PORT, FRONTEND_URLS } from "./config"
 import projectRoutes from './routes/projectRoutes';
 import swaggerUi from 'swagger-ui-express';
-import swaggerSpec from './config/swagger';
+import * as fs from 'fs';
+import * as path from 'path';
 import customerRoutes from './routes/customer.routes';
 
 async function startServer() {
@@ -15,7 +16,6 @@ async function startServer() {
 
     const app = express();
     app.use(express.json());
-    // TODO: Retrieve frontend url from env
     const allowedOrigins = FRONTEND_URLS.split(' ');
 
     app.use(cors({
@@ -35,7 +35,11 @@ async function startServer() {
     app.use('/api/project', projectRoutes);
     app.use('/api/customers', customerRoutes);
 
-    app.use('/documentation', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    const swaggerDocument = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'swagger.json'), 'utf8'));
+    app.get('/api/swagger.json', (req, res) => {
+        res.json(swaggerDocument);
+    });
+    app.use('/documentation', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     
     app.get('/', (req: Request, res: Response) => {
         res.send('Hello, World!');

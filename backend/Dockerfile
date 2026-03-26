@@ -8,6 +8,8 @@ RUN npm install
 
 COPY ./src ./src
 COPY tsconfig.json .
+COPY swagger.config.json .
+RUN npx swagger-jsdoc -d swagger.config.json -o ./swagger.json ./src/routes/*.ts
 RUN npm run build
 
 # Stage 2: Create the production image
@@ -16,6 +18,7 @@ FROM node:22.13-alpine AS production
 WORKDIR /app
 
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/swagger.json ./swagger.json
 COPY --from=builder /app/package*.json ./
 
 RUN npm ci --only=production
