@@ -6,14 +6,12 @@ function CalendarToolbar({ setSelectedDay, selectedDay, isMonthLocked }) {
     const separator = ';';
 
     const handlePrevMonth = () => {
-        const prevMonth = new Date(selectedDay);
-        prevMonth.setMonth(selectedDay.getMonth() - 1);
+        const prevMonth = new Date(selectedDay.getFullYear(), selectedDay.getMonth() - 1, 1);
         setSelectedDay(prevMonth);
     };
 
     const handleNextMonth = () => {
-        const nextMonth = new Date(selectedDay);
-        nextMonth.setMonth(selectedDay.getMonth() + 1);
+        const nextMonth = new Date(selectedDay.getFullYear(), selectedDay.getMonth() + 1, 1);
         setSelectedDay(nextMonth);
     };
 

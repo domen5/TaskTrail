@@ -103,15 +103,14 @@ describe('Calendar Component', () => {
 
     describe('Month Navigation', () => {
         it('updates display when navigating to previous month', async () => {
-            await act(async () => {
-                renderWithProviders(<Calendar />);
+            renderWithProviders(<Calendar />);
+            
+            await waitFor(() => {
+                expect(api.getMonthWorkedHoursApiCall).toHaveBeenCalledTimes(3);
             });
             
             const prevButton = screen.getByRole('button', { name: /previous month/i });
-            
-            await act(async () => {
-                await userEvent.click(prevButton);
-            });
+            await userEvent.click(prevButton);
             
             await waitFor(() => {
                 expect(api.getMonthWorkedHoursApiCall).toHaveBeenCalledTimes(6); // 3 initial + 3 after navigation
@@ -119,15 +118,14 @@ describe('Calendar Component', () => {
         });
 
         it('updates display when navigating to next month', async () => {
-            await act(async () => {
-                renderWithProviders(<Calendar />);
+            renderWithProviders(<Calendar />);
+            
+            await waitFor(() => {
+                expect(api.getMonthWorkedHoursApiCall).toHaveBeenCalledTimes(3);
             });
             
             const nextButton = screen.getByRole('button', { name: /next month/i });
-            
-            await act(async () => {
-                await userEvent.click(nextButton);
-            });
+            await userEvent.click(nextButton);
             
             await waitFor(() => {
                 expect(api.getMonthWorkedHoursApiCall).toHaveBeenCalledTimes(6); // 3 initial + 3 after navigation
