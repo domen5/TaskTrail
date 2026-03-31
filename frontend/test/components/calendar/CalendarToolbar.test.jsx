@@ -100,9 +100,8 @@ describe('CalendarToolbar Component', () => {
             const prevButton = screen.getByRole('button', { name: /previous month/i });
             await userEvent.click(prevButton);
             
-            // Check if setSelectedDay was called with the correct date (previous month)
             expect(mockSetSelectedDay).toHaveBeenCalled();
-            const expectedDate = new Date(2025, 0, 26); // January 26, 2025
+            const expectedDate = new Date(2025, 0, 26);
             const actualDate = mockSetSelectedDay.mock.calls[0][0];
             
             expect(actualDate.getFullYear()).toBe(expectedDate.getFullYear());
@@ -123,13 +122,118 @@ describe('CalendarToolbar Component', () => {
             const nextButton = screen.getByRole('button', { name: /next month/i });
             await userEvent.click(nextButton);
             
-            // Check if setSelectedDay was called with the correct date (next month)
             expect(mockSetSelectedDay).toHaveBeenCalled();
-            const expectedDate = new Date(2025, 2, 26); // March 26, 2025
+            const expectedDate = new Date(2025, 2, 26);
             const actualDate = mockSetSelectedDay.mock.calls[0][0];
             
             expect(actualDate.getFullYear()).toBe(expectedDate.getFullYear());
             expect(actualDate.getMonth()).toBe(expectedDate.getMonth());
+        });
+
+        it('navigates correctly from a day that does not exist in the target month', async () => {
+            const march30 = new Date(2025, 2, 30); // March 30, 2025
+            
+            await act(async () => {
+                renderWithProviders(
+                    <CalendarToolbar 
+                        setSelectedDay={mockSetSelectedDay} 
+                        selectedDay={march30} 
+                        isMonthLocked={false}
+                    />
+                );
+            });
+            
+            const prevButton = screen.getByRole('button', { name: /previous month/i });
+            await userEvent.click(prevButton);
+            
+            expect(mockSetSelectedDay).toHaveBeenCalled();
+            const actualDate = mockSetSelectedDay.mock.calls[0][0];
+            
+            expect(actualDate.getFullYear()).toBe(2025);
+            expect(actualDate.getMonth()).toBe(1);
+            expect(actualDate.getDate()).toBe(1);
+        });
+
+        it('navigates correctly across year boundary (January to December)', async () => {
+            const january15 = new Date(2025, 0, 15);
+            
+            await act(async () => {
+                renderWithProviders(
+                    <CalendarToolbar 
+                        setSelectedDay={mockSetSelectedDay} 
+                        selectedDay={january15} 
+                        isMonthLocked={false}
+                    />
+                );
+            });
+            
+            const prevButton = screen.getByRole('button', { name: /previous month/i });
+            await userEvent.click(prevButton);
+            
+            expect(mockSetSelectedDay).toHaveBeenCalled();
+            const actualDate = mockSetSelectedDay.mock.calls[0][0];
+            
+            expect(actualDate.getFullYear()).toBe(2024);
+            expect(actualDate.getMonth()).toBe(11);
+            expect(actualDate.getDate()).toBe(1);
+        });
+
+        it('navigates correctly across year boundary (December to January)', async () => {
+            const december15 = new Date(2025, 11, 15);
+            
+            await act(async () => {
+                renderWithProviders(
+                    <CalendarToolbar 
+                        setSelectedDay={mockSetSelectedDay} 
+                        selectedDay={december15} 
+                        isMonthLocked={false}
+                    />
+                );
+            });
+            
+            const nextButton = screen.getByRole('button', { name: /next month/i });
+            await userEvent.click(nextButton);
+            
+            expect(mockSetSelectedDay).toHaveBeenCalled();
+            const actualDate = mockSetSelectedDay.mock.calls[0][0];
+            
+            expect(actualDate.getFullYear()).toBe(2026);
+            expect(actualDate.getMonth()).toBe(0);
+            expect(actualDate.getDate()).toBe(1);
+        });
+
+        it('always sets day to 1 in target month to avoid invalid dates', async () => {
+            const testCases = [
+                { start: new Date(2025, 0, 31, 12, 0, 0), expectedMonth: 1, expectedYear: 2025 },
+                { start: new Date(2025, 2, 31, 12, 0, 0), expectedMonth: 3, expectedYear: 2025 },
+                { start: new Date(2025, 4, 31, 12, 0, 0), expectedMonth: 5, expectedYear: 2025 },
+                { start: new Date(2025, 7, 31, 12, 0, 0), expectedMonth: 8, expectedYear: 2025 },
+                { start: new Date(2025, 9, 31, 12, 0, 0), expectedMonth: 10, expectedYear: 2025 },
+                { start: new Date(2025, 10, 30, 12, 0, 0), expectedMonth: 11, expectedYear: 2025 },
+            ];
+            
+            for (const { start, expectedMonth, expectedYear } of testCases) {
+                const { unmount } = renderWithProviders(
+                    <CalendarToolbar 
+                        setSelectedDay={mockSetSelectedDay} 
+                        selectedDay={start} 
+                        isMonthLocked={false}
+                    />
+                );
+                
+                const nextButton = screen.getByRole('button', { name: /next month/i });
+                await userEvent.click(nextButton);
+                
+                expect(mockSetSelectedDay).toHaveBeenCalled();
+                const actualDate = mockSetSelectedDay.mock.calls[0][0];
+                
+                expect(actualDate.getDate()).toBe(1);
+                expect(actualDate.getMonth()).toBe(expectedMonth);
+                expect(actualDate.getFullYear()).toBe(expectedYear);
+                
+                unmount();
+                mockSetSelectedDay.mockClear();
+            }
         });
     });
 
