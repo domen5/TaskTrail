@@ -16,7 +16,6 @@ services:
       - 8080:80
     networks:
       - react-express
-    restart: always
     depends_on:
       - backend
 
@@ -31,13 +30,11 @@ services:
     networks:
       - react-express
       - express-mongodb
-    restart: always
     depends_on:
       - mongodb
 
   mongo-express:
     image: mongo-express
-    restart: always
     networks:
       - express-mongodb
     ports:
@@ -65,7 +62,6 @@ services:
       - express-mongodb
     ports:
       - 27017:27017
-    restart: always
 
 networks:
   react-express:
