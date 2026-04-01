@@ -1,0 +1,31 @@
+{
+  "name": "TaskTrail Backend",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next",
+        "mongodb.mongodb-vscode"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "typescript.tsdk": "node_modules/typescript/lib"
+      }
+    }
+  },
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "portsAttributes": {
+    "3000": {
+      "label": "Backend Server",
+      "visibility": "public"
+    }
+  },
+  "postCreateCommand": "npm install",
+  "postStartCommand": "npm run build",
+  "remoteUser": "node"
+}

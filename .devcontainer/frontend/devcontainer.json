@@ -1,0 +1,32 @@
+{
+  "name": "TaskTrail Frontend",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss"
+      ],
+      "settings": {
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "portsAttributes": {
+    "5173": {
+      "label": "Vite Dev Server",
+      "visibility": "public"
+    },
+    "8080": {
+      "label": "Frontend Production",
+      "visibility": "public"
+    }
+  },
+  "postCreateCommand": "npm install",
+  "remoteUser": "node"
+}
